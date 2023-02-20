@@ -48,10 +48,10 @@ void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 %%
 
 program: stmts
-         {
-           parseresult = $1;
-         }
-         ;
+        {
+          parseresult = ASTmodule($1);
+        }
+        ;
 
 stmts: stmt stmts
         {

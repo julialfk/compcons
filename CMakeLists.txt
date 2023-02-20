@@ -30,7 +30,8 @@ include(./coconut/coconut.cmake)
 # Whenever you add a file, add it here too.
 add_executable(civicc ${FLEX_CivicLexer_OUTPUTS} ${BISON_CivicParser_OUTPUTS}
     src/main.c src/print/print.c src/scanparse/scanParse.c
-    src/global/globals.c src/global/globals.h
+    src/global/globals.c src/global/globals.h src/exercises/strength_reduction.c
+    src/exercises/collect_info.c src/exercises/lookup_tables.c
 
     # Youre free to remove the demo directory and these entries.
     src/demo/opt_sub.c src/demo/sum_ints.c src/demo/rename_identifiers.c

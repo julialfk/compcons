@@ -3,7 +3,9 @@ start phase EntryPoint {
     
     actions {
         pass SPdoScanParse;
-        Demo;
+        CollectInfo;
+        LookupTables;
+        StrengthReduction;
         Print;
     }
 };
@@ -11,6 +13,33 @@ start phase EntryPoint {
 traversal Print {
     uid = PRT
 };
+
+traversal StrengthReduction {
+    uid = SR,
+    nodes = { Binop }
+};
+
+traversal CollectInfo {
+    uid = CI,
+    nodes = { Module, Binop },
+    travdata {
+        int plus,
+        int minus,
+        int mul,
+        int div,
+        int mod
+    }
+};
+
+traversal LookupTables {
+    uid = LT,
+    nodes = { Stmts, Var, VarLet },
+    travdata {
+        user htable_ptr id_table,
+        bool first_stmts
+    }
+};
+
 
 phase Demo {
     actions { 
@@ -52,16 +81,66 @@ enum binop_type {
     }
 };
 
-nodeset Expr = {Num, Float, Bool, Binop, Var};
-nodeset Stmt = {Assign};
+enum basic_type {
+    prefix = BS,
+    values {
+        int_type, float_type, bool_type
+    }
+};
+
+nodeset Expr = {Num, Float, Bool, Binop, Monop, Func, Var};
+nodeset Stmt = {Var_dec, Assign, Func, If_stmt, Whl_stmt, For_stmt, Ret_stmt};
+nodeset Assignment = {Assign};
 
 // Nodes you want to be able to link to from your symbol table.
-nodeset Link = Expr | Stmt;
+nodeset Link = Expr | Assignment;
 
-root node Stmts {
+root node Module {
+    children {
+        Stmts next { constructor, mandatory }
+    },
+
+    attributes {
+        int plus,
+        int minus,
+        int mul,
+        int div,
+        int mod
+    }
+};
+
+node Stmts {
     children {
         Stmt stmt { constructor, mandatory },
         Stmts next { constructor }
+    }
+};
+
+node Var_dec {
+    children {
+        VarLet let { constructor, mandatory },
+        Expr expr { constructor }
+    },
+
+    attributes {
+        basic_type type { constructor }
+    }
+};
+
+node Func {
+    children {
+        Arg arguments { constructor }
+    },
+
+    attributes {
+        string name { constructor }
+    }
+};
+
+node Arg {
+    children {
+        Expr expr { constructor, mandatory },
+        Arg next { constructor }
     }
 };
 
@@ -69,6 +148,52 @@ node Assign {
     children {
         VarLet let { constructor },
         Expr expr { constructor, mandatory }
+    }
+};
+
+node If_stmt {
+    children {
+        Expr condition { constructor },
+        Block content { constructor, mandatory },
+        If_stmt elif { constructor }
+    }
+};
+
+//node Cond {
+//    children {
+//        Expr expr { constructor }
+//    }
+//};
+
+node Whl_stmt {
+    children {
+        Expr condition { constructor, mandatory },
+        Block content { constructor, mandatory }
+    },
+
+    attributes {
+        bool do_key { constructor }
+    }
+};
+
+node For_stmt {
+    children {
+        Assign init { constructor, mandatory },
+        Expr condition { constructor, mandatory },
+        Expr step { constructor },
+        Block content { constructor, mandatory }
+    }
+};
+
+node Ret_stmt {
+    children {
+        Expr expr { constructor }
+    }
+};
+
+node Block {
+    children {
+        Stmts content { constructor }
     }
 };
 
@@ -80,6 +205,26 @@ node Binop {
     
     attributes {
         binop_type type { constructor }
+    }
+};
+
+node Monop {
+    children {
+        Expr right { constructor, mandatory }
+    },
+
+    attributes {
+        monop_type type { constructor }
+    }
+};
+
+node Cast {
+    children {
+        Expr expr { constructor, mandatory }
+    },
+
+    attributes {
+        basic_type type { constructor }
     }
 };
 
