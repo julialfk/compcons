@@ -1,4 +1,7 @@
-void ditiseenid = true;
+do {
+    x = false;
+}
+while (x > 10);
 a = (43-2);
 b = (true*7);
 c = ((a + b) - c);

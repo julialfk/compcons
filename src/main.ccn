@@ -158,14 +158,14 @@ node IfElse {
 node While {
     children {
         Expr cond { constructor, mandatory },
-        Stmts block { constructor }
+        Stmts block { constructor, mandatory }
     }
 };
 
 node DoWhile {
     children {
         Expr cond { constructor, mandatory },
-        Stmts block { constructor }
+        Stmts block { constructor,mandatory }
     }
 };
 
