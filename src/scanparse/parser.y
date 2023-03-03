@@ -89,11 +89,6 @@ stmt: assign
        {
          $$ = $1;
        }
-    | for
-      {
-         $$ = $1;
-       }
-
     | while
       {
         $$ = $1;
@@ -102,6 +97,10 @@ stmt: assign
       {
         $$ = $1;
       }
+    | for
+      {
+         $$ = $1;
+       }
     ;
 
 exprstmt: expr

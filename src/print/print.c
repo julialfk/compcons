@@ -112,7 +112,7 @@ node_st *PRTcast(node_st *node)
       tmp = "float";
       break;
     case BO_NULL:
-      DBUG_ASSERT(false, "unknown binop detected!");
+      DBUG_ASSERT(false, "unknown cast type detected!");
     }
 
     printf( "(%s)", tmp);
@@ -266,9 +266,9 @@ node_st *PRTvardecl(node_st *node)
     TRAVinit(node);
 
     printf(" (%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
-    
+
     TRAVnext(node);
-    
+
     return node;
 }
 
