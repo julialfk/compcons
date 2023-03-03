@@ -49,6 +49,7 @@ void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 %type <node> ifelse while dowhile for return
 %type <node> stmts stmt exprstmt assign varlet program vardecl
 %type <node> funbody
+%type <node> decls, fundec, fundef, globaldec, globaldef
 %type <cbinop> binop
 %type <cmonop> monop
 %type <ctype> cast returntype
@@ -57,11 +58,46 @@ void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 
 %%
 
-program: stmts
+program: decls
          {
            parseresult = $1;
          }
          ;
+
+decls:  decl decls
+        {
+          $$ = ASTstmts($1, $2);
+        }
+      | decl
+        {
+          $$ = ASTstmts($1, NULL);
+        }
+        ;
+
+decl: fundec
+      {
+        ;
+      }
+    | fundef
+      {
+        ;
+      }
+    | globaldec
+      {
+        ;
+      }
+    | globaldef
+      {
+        ;
+      }
+
+fundef: EXPORT funheader
+
+funbody: vardecl stmts
+       {
+         $$ = ASTfunbody($1, NULL, $2);
+       }
+    ;
 
 stmts: stmt stmts
         {
@@ -108,12 +144,6 @@ exprstmt: expr
             $$ = ASTexprstmt($1);
           }
           ;
-
-funbody: vardecl stmts
-       {
-         $$ = ASTfunbody($1, NULL, $2);
-       }
-    ;
 
 /* NOG DOEN; DOESN'T WORK; SAD */
 vardecl: returntype[vartype] ID[name] LET expr[init] SEMICOLON vardecl[next]
@@ -187,7 +217,15 @@ varlet: ID
         }
         ;
 
-expr: constant
+/* Hoe werkt het met de haakjes? Meegeven of niet?
+ * Nu worden ze namelijk niet geprint, maar ze zijn wel belangrijk
+ * In de AST komen ze natuurlijk terug in de vorm van precedence
+ * maar verdwijnen ze eigenlijk wel.? */
+expr: BRACKET_L expr BRACKET_R
+      {
+        $$ = $2;
+      }
+    | constant
       {
         $$ = $1;
       }
@@ -199,12 +237,12 @@ expr: constant
       {
         $$ = $1;
       }
-    | BRACKET_L expr[left] binop[type] expr[right] BRACKET_R
+    | expr[left] binop[type] expr[right]
       {
         $$ = ASTbinop( $left, $right, $type);
         AddLocToNode($$, &@left, &@right);
       }
-    | BRACKET_L monop[type] expr[operand] BRACKET_R
+    | monop[type] expr[operand]
       {
         $$ = ASTmonop( $operand, $type);
         AddLocToNode($$, &@type, &@operand);
@@ -352,7 +390,7 @@ node_st *SPdoScanParse(node_st *root)
         CTI(CTI_ERROR, true, "Cannot open file '%s'.", global.input_file);
         CTIabortOnError();
     }
-    yydebug = 1;  // Turn on yacc debugging
+    /* yydebug = 1;  // Turn on yacc debugging */
     yyparse();
     return parseresult;
 }
