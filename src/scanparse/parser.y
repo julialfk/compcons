@@ -89,6 +89,10 @@ stmt: assign
        {
          $$ = $1;
        }
+    | for
+      {
+         $$ = $1;
+       }
 
     | while
       {
@@ -104,7 +108,7 @@ exprstmt: expr
           {
             $$ = ASTexprstmt($1);
           }
-        ;
+          ;
 
 funbody: vardecl stmts
        {
@@ -162,6 +166,20 @@ ifelse: IF BRACKET_L expr[cond] BRACKET_R block[then] ELSE block[elseblock]
           $$ = ASTifelse($cond, $then, NULL);
           AddLocToNode($$, &@1, &@then);
         }
+        ;
+
+for: FOR BRACKET_L INTTYPE ID[var] LET expr[start] COMMA expr[stop] COMMA expr[step] BRACKET_R block[forblock]
+     {
+       $$ = ASTfor($start, $stop, $step, $forblock, $var);
+       AddLocToNode($$, &@1, &@forblock);
+     }
+   | FOR BRACKET_L INTTYPE ID[var] LET expr[start] COMMA expr[stop] BRACKET_R block[forblock]
+     {
+       $$ = ASTfor($start, $stop, NULL, $forblock, $var);
+       AddLocToNode($$, &@1, &@forblock);
+     }
+     ;
+
 
 varlet: ID
         {
@@ -197,19 +215,19 @@ expr: constant
         $$ = ASTcast( $4, $type);
         AddLocToNode($$, &@type, &@4);
       }
-    ;
+      ;
 
 exprs: expr COMMA exprs[next]
        {
         $$ = ASTexprs($1, $next);
         AddLocToNode($$, &@1, &@next);
        }
-      | expr
+     | expr
        {
         $$ = ASTexprs($1, NULL);
         AddLocToNode($$, &@1, &@1);
        }
-      ;
+       ;
 
 return: RETURN expr
         {
@@ -221,6 +239,7 @@ return: RETURN expr
           $$ = ASTreturn(NULL);
           AddLocToNode($$, &@1, &@1);
         }
+        ;
 
 funcall: ID[name] BRACKET_L BRACKET_R
          {
@@ -238,7 +257,7 @@ block: BRACE_L stmts BRACE_R
        {
          $$ = $2;
        }
-     ;
+       ;
 
 constant: floatval
           {
@@ -252,19 +271,19 @@ constant: floatval
           {
             $$ = $1;
           }
-        ;
+          ;
 
 floatval: FLOAT
-           {
-             $$ = ASTfloat($1);
-           }
-         ;
+          {
+            $$ = ASTfloat($1);
+          }
+          ;
 
 intval: NUM
         {
           $$ = ASTnum($1);
         }
-      ;
+        ;
 
 boolval: TRUEVAL
          {
@@ -274,7 +293,7 @@ boolval: TRUEVAL
          {
            $$ = ASTbool(false);
          }
-       ;
+         ;
 
 binop: PLUS      { $$ = BO_add; }
      | MINUS     { $$ = BO_sub; }

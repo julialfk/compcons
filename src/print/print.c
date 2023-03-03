@@ -74,6 +74,7 @@ node_st *PRTreturn(node_st *node)
 {
     printf("return ");
     TRAVexpr(node);
+    printf(";");
     printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     printf("\n");
     return node;
@@ -153,9 +154,14 @@ node_st *PRTifelse(node_st *node)
 {
     printf("if (");
     TRAVcond(node);
-    printf(") {\n\t");
-    TRAVelse_block(node);
+    printf(") {\n");
+    TRAVthen(node);
+    if (IFELSE_ELSE_BLOCK(node)) {
+        printf("}\n else {\n");
+        TRAVelse_block(node);
+    }
     printf("}\n");
+    printf( "(%d:%d-%d)\n", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     return node;
 }
 
@@ -191,6 +197,18 @@ node_st *PRTdowhile(node_st *node)
  */
 node_st *PRTfor(node_st *node)
 {
+    printf("for (int %s = ", FOR_VAR(node));
+    TRAVstart_expr(node);
+    printf(", ");
+    TRAVstop(node);
+    if (FOR_STEP(node)) {
+        printf(", ");
+        TRAVstep(node);
+    }
+    printf(") {\n");
+    TRAVblock(node);
+    printf("}\n");
+    printf( "(%d:%d-%d)\n", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     return node;
 }
 
