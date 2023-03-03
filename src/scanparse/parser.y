@@ -69,6 +69,18 @@ stmt: assign
        }
        ;
 
+vardecl: type[type] ID[name] LET expr[init] SEMICOLON
+/* dims =  dimensies = arrays = bonus*/
+/* Exprs[dims] Expr[init] LET vardecl */
+/* -- type nog defineren aub -- */
+        {
+          $$ = ASTvardecl($init);
+        }
+      | type ID SEMICOLON
+        {
+          $$ = ASTvardecl(NULL);
+        }
+
 assign: varlet LET expr SEMICOLON
         {
           $$ = ASTassign($1, $3);
@@ -81,7 +93,6 @@ varlet: ID
           AddLocToNode($$, &@1, &@1);
         }
         ;
-
 
 expr: constant
       {
@@ -147,6 +158,7 @@ binop: PLUS      { $$ = BO_add; }
      | OR        { $$ = BO_or; }
      | AND       { $$ = BO_and; }
      ;
+
 
 %%
 

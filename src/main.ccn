@@ -12,28 +12,6 @@ traversal Print {
     uid = PRT
 };
 
-phase Demo {
-    actions { 
-        traversal RenameIdentifiers {
-            uid = RI,
-            nodes = { Var, VarLet }
-        };
-
-        traversal SumInts {
-            uid = SI,
-            nodes = { Stmts, Num },
-            travdata {
-                int sum
-            }
-        };
-
-        traversal OptSubstraction {
-            uid = OS,
-            nodes = { Binop }
-        };
-    }
-};
-
 
 enum Type {
     // T_ collides with bison/flex generated stuff.
@@ -243,14 +221,14 @@ node Param {
 
 node VarDecl {
     children {
-        Exprs dims,
-        Expr init,
-        VarDecl next
+        // Exprs dims {constructor},
+        Expr init {constructor},
+        VarDecl next {constructor}
     },
 
     attributes {
-        string name,
-        Type type
+        string name {constructor},
+        Type type {constructor}
     }
 };
 
