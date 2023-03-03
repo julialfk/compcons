@@ -1,0 +1,6 @@
+a = (-1);
+b = (!true);
+c = (-a);
+d = (int) 3.0;
+e = prob(a, b, c);
+return a;

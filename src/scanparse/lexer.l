@@ -37,13 +37,13 @@ int yycolumn = 1;
 
 %%
 
---"export"                   { FILTER( EXPORT);  }
---"extern"                   { FILTER( EXTERN);  }
+"export"                   { FILTER( EXPORT);  }
+"extern"                   { FILTER( EXTERN);  }
 
 "("                        { FILTER( BRACKET_L); }
 ")"                        { FILTER( BRACKET_R); }
---"{"                        { FILTER( BRACE_L); }
---"}"                        { FILTER( BRACE_R); }
+"{"                        { FILTER( BRACE_L); }
+"}"                        { FILTER( BRACE_R); }
 ","                        { FILTER( COMMA); }
 ";"                        { FILTER( SEMICOLON); }
 
@@ -62,21 +62,21 @@ int yycolumn = 1;
 "&&"                       { FILTER( AND);    }
 "||"                       { FILTER( OR);    }
 
---"!"                        { FILTER( EXCLAMATION);    }
+"!"                        { FILTER( EXCLAMATION);    }
 
 "="                        { FILTER( LET);    }
 
---"bool"                     { FILTER( BOOLTYPE);  }
---"int"                      { FILTER( INTTYPE);  }
---"float"                    { FILTER( FLOATTYPE);  }
---"void"                     { FILTER( VOIDTYPE);  }
+"bool"                     { FILTER( BOOLTYPE);  }
+"int"                      { FILTER( INTTYPE);  }
+"float"                    { FILTER( FLOATTYPE);  }
+"void"                     { FILTER( VOIDTYPE);  }
 
---"if"                       { FILTER( IF);   }
---"else"                     { FILTER( ELSE);   }
---"do"                       { FILTER( DO);   }
---"while"                    { FILTER( WHILE);   }
---"for"                      { FILTER( FOR);   }
---"return"                   { FILTER( RETURN);   }
+"if"                       { FILTER( IF);   }
+"else"                     { FILTER( ELSE);   }
+"do"                       { FILTER( DO);   }
+"while"                    { FILTER( WHILE);   }
+"for"                      { FILTER( FOR);   }
+"return"                   { FILTER( RETURN);   }
 
 "true"                     { FILTER( TRUEVAL); }
 "false"                    { FILTER( FALSEVAL); }

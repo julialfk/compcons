@@ -26,22 +26,29 @@ void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
  int                 cint;
  float               cflt;
  enum binop_type     cbinop;
+ enum monop_type     cmonop;
+ enum Type           ctype;
  node_st             *node;
 }
 
 %locations
 
-%token BRACKET_L BRACKET_R COMMA SEMICOLON
-%token MINUS PLUS STAR SLASH PERCENT LE LT GE GT EQ NE OR AND
+%token BRACKET_L BRACKET_R BRACE_L BRACE_R COMMA SEMICOLON
+%token MINUS PLUS STAR SLASH PERCENT LE LT GE GT EQ NE OR AND EXCLAMATION
 %token TRUEVAL FALSEVAL LET
+%token INTTYPE FLOATTYPE BOOLTYPE VOIDTYPE
+%token IF ELSE DO WHILE FOR RETURN EXPORT EXTERN
 
 %token <cint> NUM
 %token <cflt> FLOAT
 %token <id> ID
 
-%type <node> intval floatval boolval constant expr
+%type <node> intval floatval boolval constant funcall expr exprs
+%type <node> ifelse while dowhile for return
 %type <node> stmts stmt assign varlet program
 %type <cbinop> binop
+%type <cmonop> monop
+%type <ctype> cast
 
 %start program
 
@@ -67,7 +74,11 @@ stmt: assign
        {
          $$ = $1;
        }
-       ;
+    | return SEMICOLON
+       {
+         $$ = $1;
+       }
+    ;
 
 assign: varlet LET expr SEMICOLON
         {
@@ -77,11 +88,10 @@ assign: varlet LET expr SEMICOLON
 
 varlet: ID
         {
-          $$ = ASTvarlet($1);
+          $$ = ASTvarlet(NULL, $1, NULL);
           AddLocToNode($$, &@1, &@1);
         }
         ;
-
 
 expr: constant
       {
@@ -89,14 +99,63 @@ expr: constant
       }
     | ID
       {
-        $$ = ASTvar($1);
+        $$ = ASTvar(NULL, $1, NULL);
+      }
+    | funcall
+      {
+        $$ = $1;
       }
     | BRACKET_L expr[left] binop[type] expr[right] BRACKET_R
       {
         $$ = ASTbinop( $left, $right, $type);
         AddLocToNode($$, &@left, &@right);
       }
+    | BRACKET_L monop[type] expr[operand] BRACKET_R
+      {
+        $$ = ASTmonop( $operand, $type);
+        AddLocToNode($$, &@type, &@operand);
+      }
+    | BRACKET_L cast[type] BRACKET_R expr
+      {
+        $$ = ASTcast( $4, $type);
+        AddLocToNode($$, &@type, &@4);
+      }
     ;
+
+exprs: expr COMMA exprs[next]
+       {
+        $$ = ASTexprs($1, $next);
+        AddLocToNode($$, &@1, &@next);
+       }
+      | expr
+       {
+        $$ = ASTexprs($1, NULL);
+        AddLocToNode($$, &@1, &@1);
+       }
+      ;
+
+return: RETURN expr
+        {
+          $$ = ASTreturn($2);
+          AddLocToNode($$, &@1, &@2);
+        }
+      | RETURN
+        {
+          $$ = ASTreturn(NULL);
+          AddLocToNode($$, &@1, &@1);
+        }
+
+funcall: ID[name] BRACKET_L BRACKET_R
+         {
+           $$ = ASTfuncall(NULL, $name, NULL);
+           AddLocToNode($$, &@name, &@name);
+         }
+       | ID[name] BRACKET_L exprs[args] BRACKET_R
+         {
+           $$ = ASTfuncall($args, $name, NULL);
+           AddLocToNode($$, &@name, &@args);
+         }
+         ;
 
 constant: floatval
           {
@@ -144,10 +203,19 @@ binop: PLUS      { $$ = BO_add; }
      | GE        { $$ = BO_ge; }
      | GT        { $$ = BO_gt; }
      | EQ        { $$ = BO_eq; }
+     | NE        { $$ = BO_ne; }
      | OR        { $$ = BO_or; }
      | AND       { $$ = BO_and; }
      ;
 
+monop: MINUS        { $$ = MO_neg; }
+     | EXCLAMATION  { $$ = MO_not; }
+     ;
+
+cast: BOOLTYPE      { $$ = CT_bool; }
+    | INTTYPE       { $$ = CT_int; }
+    | FLOATTYPE     { $$ = CT_float; }
+    ;
 %%
 
 void AddLocToNode(node_st *node, void *begin_loc, void *end_loc)
