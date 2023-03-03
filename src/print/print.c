@@ -25,6 +25,7 @@ node_st *PRTprogram(node_st *node)
  */
 node_st *PRTdecls(node_st *node)
 {
+    TRAVchildren(node);
     return node;
 }
 
@@ -111,7 +112,7 @@ node_st *PRTcast(node_st *node)
     case CT_float:
       tmp = "float";
       break;
-    case BO_NULL:
+    case CT_NULL:
       DBUG_ASSERT(false, "unknown cast type detected!");
     }
 
@@ -217,6 +218,22 @@ node_st *PRTfor(node_st *node)
  */
 node_st *PRTglobdecl(node_st *node)
 {
+    char *tmp = NULL;
+    printf("extern ");
+    switch (GLOBDECL_TYPE(node)) {
+    case CT_bool:
+      tmp = "bool";
+      break;
+    case CT_int:
+      tmp = "int";
+      break;
+    case CT_float:
+      tmp = "float";
+      break;
+    case CT_NULL:
+      DBUG_ASSERT(false, "unknown var type detected!");
+    }
+    printf("%s %s;\n", tmp, GLOBDECL_NAME(node));
     return node;
 }
 
@@ -225,6 +242,31 @@ node_st *PRTglobdecl(node_st *node)
  */
 node_st *PRTglobdef(node_st *node)
 {
+    if (GLOBDEF_EXPORT(node)) {
+        printf("export ");
+    }
+
+    char *tmp = NULL;
+    switch (GLOBDEF_TYPE(node)) {
+    case CT_bool:
+      tmp = "bool";
+      break;
+    case CT_int:
+      tmp = "int";
+      break;
+    case CT_float:
+      tmp = "float";
+      break;
+    case CT_NULL:
+      DBUG_ASSERT(false, "unknown var type detected!");
+    }
+    printf("%s %s", tmp, GLOBDEF_NAME(node));
+
+    if (GLOBDEF_INIT(node)) {
+        printf(" = ");
+        TRAVinit(node);
+    }
+    printf(";\n");
     return node;
 }
 

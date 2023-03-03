@@ -1,0 +1,3 @@
+extern int foo;
+export bool bar = true;
+float x;
