@@ -43,9 +43,9 @@ void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 %token <cflt> FLOAT
 %token <id> ID
 
-%type <node> intval floatval boolval constant funcall expr exprs
+%type <node> intval floatval boolval constant funcall expr exprs block
 %type <node> ifelse while dowhile for return
-%type <node> stmts stmt assign varlet program
+%type <node> stmts stmt exprstmt assign varlet program
 %type <cbinop> binop
 %type <cmonop> monop
 %type <ctype> cast
@@ -78,13 +78,38 @@ stmt: assign
        {
          $$ = $1;
        }
+    | exprstmt SEMICOLON
+       {
+         $$ = $1;
+       }
+    | ifelse
+       {
+         $$ = $1;
+       }
     ;
+
+exprstmt: expr
+          {
+            $$ = ASTexprstmt($1);
+          }
+        ;
 
 assign: varlet LET expr SEMICOLON
         {
           $$ = ASTassign($1, $3);
         }
         ;
+
+ifelse: IF BRACKET_L expr[cond] BRACKET_R block[then] ELSE block[elseblock]
+        {
+          $$ = ASTifelse($cond, $then, $elseblock);
+          AddLocToNode($$, &@1, &@elseblock);
+        }
+      | IF BRACKET_L expr[cond] BRACKET_R block[then]
+        {
+          $$ = ASTifelse($cond, $then, NULL);
+          AddLocToNode($$, &@1, &@then);
+        }
 
 varlet: ID
         {
@@ -156,6 +181,12 @@ funcall: ID[name] BRACKET_L BRACKET_R
            AddLocToNode($$, &@name, &@args);
          }
          ;
+
+block: BRACE_L stmts BRACE_R
+       {
+         $$ = $2;
+       }
+     ;
 
 constant: floatval
           {

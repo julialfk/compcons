@@ -4,3 +4,12 @@ c = (-a);
 d = (int) 3.0;
 e = prob(a, b, c);
 return a;
+abc(10);
+
+if (a) {
+    f = 9;
+    return f;
+}
+else {
+    abc(90);
+}

@@ -62,6 +62,8 @@ node_st *PRTids(node_st *node)
  */
 node_st *PRTexprstmt(node_st *node)
 {
+    TRAVexpr(node);
+    printf("\n");
     return node;
 }
 
@@ -149,6 +151,11 @@ node_st *PRTfunbody(node_st *node)
  */
 node_st *PRTifelse(node_st *node)
 {
+    printf("if (");
+    TRAVcond(node);
+    printf(") {\n\t");
+    TRAVelse_block(node);
+    printf("}\n");
     return node;
 }
 
@@ -223,7 +230,6 @@ node_st *PRTstmts(node_st *node)
  */
 node_st *PRTassign(node_st *node)
 {
-
     if (ASSIGN_LET(node) != NULL) {
         TRAVlet(node);
         printf( " = ");
