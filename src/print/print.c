@@ -33,6 +33,11 @@ node_st *PRTdecls(node_st *node)
  */
 node_st *PRTexprs(node_st *node)
 {
+    TRAVexpr(node);
+    if (EXPRS_NEXT(node)){
+        printf(",");
+        TRAVnext(node);
+    }
     return node;
 }
 
@@ -65,6 +70,10 @@ node_st *PRTexprstmt(node_st *node)
  */
 node_st *PRTreturn(node_st *node)
 {
+    printf("return ");
+    TRAVexpr(node);
+    printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
+    printf("\n");
     return node;
 }
 
@@ -73,6 +82,11 @@ node_st *PRTreturn(node_st *node)
  */
 node_st *PRTfuncall(node_st *node)
 {
+    printf("%s(", FUNCALL_NAME(node));
+    TRAVargs(node);
+    printf(")");
+    printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
+
     return node;
 }
 
@@ -81,6 +95,28 @@ node_st *PRTfuncall(node_st *node)
  */
 node_st *PRTcast(node_st *node)
 {
+    char *tmp = NULL;
+    // printf( "( ");
+
+    switch (CAST_TYPE(node)) {
+    case CT_bool:
+      tmp = "bool";
+      break;
+    case CT_int:
+      tmp = "int";
+      break;
+    case CT_float:
+      tmp = "float";
+      break;
+    case BO_NULL:
+      DBUG_ASSERT(false, "unknown binop detected!");
+    }
+
+    printf( "(%s)", tmp);
+
+    TRAVexpr(node);
+
+    printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     return node;
 }
 
@@ -169,6 +205,31 @@ node_st *PRTparam(node_st *node)
  */
 node_st *PRTvardecl(node_st *node)
 {
+
+    char *tmp = NULL;
+    switch (VARDECL_TYPE(node)) {
+    case CT_bool:
+      tmp = "bool";
+      break;
+    case CT_int:
+      tmp = "int";
+      break;
+    case CT_float:
+      tmp = "float";
+      break;
+    case CT_void:
+      tmp = "void";
+      break;
+    }
+
+    printf( "%s %s", tmp, VARDECL_NAME(node));
+
+    TRAVinit(node);
+
+    printf(" (%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
+    
+    TRAVnext(node);
+    
     return node;
 }
 
@@ -268,6 +329,25 @@ node_st *PRTbinop(node_st *node)
  */
 node_st *PRTmonop(node_st *node)
 {
+    char *tmp = NULL;
+    printf( "( ");
+
+    switch (MONOP_OP(node)) {
+    case MO_neg:
+      tmp = "-";
+      break;
+    case MO_not:
+      tmp = "!";
+      break;
+    case BO_NULL:
+      DBUG_ASSERT(false, "unknown binop detected!");
+    }
+
+    printf( "%s", tmp);
+
+    TRAVoperand(node);
+
+    printf( ")(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     return node;
 }
 
@@ -316,4 +396,3 @@ node_st *PRTbool(node_st *node)
     printf("%s", bool_str);
     return node;
 }
-

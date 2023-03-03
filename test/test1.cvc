@@ -1,3 +1,4 @@
+void ditiseenid = true;
 a = (43-2);
 b = (true*7);
 c = ((a + b) - c);
