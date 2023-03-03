@@ -1,7 +1,7 @@
 do {
     x = false;
 }
-while (x > 10);
+while (x == (true));
 a = (43-2);
 b = (true*7);
 c = ((a + b) - c);
