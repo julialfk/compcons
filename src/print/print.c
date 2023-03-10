@@ -25,6 +25,8 @@ node_st *PRTprogram(node_st *node)
  */
 node_st *PRTdecls(node_st *node)
 {
+    TRAVdecl(node);
+    TRAVnext(node);
     return node;
 }
 
@@ -75,7 +77,7 @@ node_st *PRTreturn(node_st *node)
     printf("return ");
     TRAVexpr(node);
     printf(";");
-    printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
+    // printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     printf("\n");
     return node;
 }
@@ -88,7 +90,7 @@ node_st *PRTfuncall(node_st *node)
     printf("%s(", FUNCALL_NAME(node));
     TRAVargs(node);
     printf(")");
-    printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
+    // printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
 
     return node;
 }
@@ -119,7 +121,7 @@ node_st *PRTcast(node_st *node)
 
     TRAVexpr(node);
 
-    printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
+    // printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     return node;
 }
 
@@ -128,6 +130,8 @@ node_st *PRTcast(node_st *node)
  */
 node_st *PRTfundefs(node_st *node)
 {
+    TRAVfundef(node);
+    TRAVnext(node);
     return node;
 }
 
@@ -136,6 +140,39 @@ node_st *PRTfundefs(node_st *node)
  */
 node_st *PRTfundef(node_st *node)
 {
+    if (FUNDEF_EXPORT(node) != NULL) {
+      printf("export ");
+    }
+    if (FUNDEF_BODY(node) == NULL) {
+      printf("extern ");
+    }
+    char *tmp = NULL;
+    switch (FUNDEF_TYPE(node)) {
+    case CT_bool:
+      tmp = "bool";
+      break;
+    case CT_int:
+      tmp = "int";
+      break;
+    case CT_float:
+      tmp = "float";
+      break;
+    case CT_void:
+      tmp = "void";
+      break;
+    }
+    printf("%s %s(", tmp, FUNDEF_NAME(node));
+    TRAVparams(node);
+    printf(")");
+    if (FUNDEF_BODY(node) == NULL) {
+      printf(";\n");
+    }
+    else {
+      printf(" {\n");
+      TRAVbody(node);
+      printf("}\n");
+    }
+    
     return node;
 }
 
@@ -144,6 +181,9 @@ node_st *PRTfundef(node_st *node)
  */
 node_st *PRTfunbody(node_st *node)
 {
+    TRAVdecls(node);
+    // TRAVlocal_fundefs(node);
+    TRAVstmts(node);
     return node;
 }
 
@@ -161,7 +201,7 @@ node_st *PRTifelse(node_st *node)
         TRAVelse_block(node);
     }
     printf("}\n");
-    printf( "(%d:%d-%d)\n", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
+    // printf( "(%d:%d-%d)\n", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     return node;
 }
 
@@ -208,7 +248,7 @@ node_st *PRTfor(node_st *node)
     printf(") {\n");
     TRAVblock(node);
     printf("}\n");
-    printf( "(%d:%d-%d)\n", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
+    // printf( "(%d:%d-%d)\n", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     return node;
 }
 
@@ -233,6 +273,23 @@ node_st *PRTglobdef(node_st *node)
  */
 node_st *PRTparam(node_st *node)
 {
+    char *tmp = NULL;
+    switch (PARAM_TYPE(node)) {
+    case CT_bool:
+      tmp = "bool";
+      break;
+    case CT_int:
+      tmp = "int";
+      break;
+    case CT_float:
+      tmp = "float";
+      break;
+    }
+    printf("%s %s", tmp, PARAM_NAME(node));
+    if (PARAM_NEXT(node) != NULL) {
+      printf(", ");
+    }
+    TRAVnext(node);
     return node;
 }
 
@@ -263,9 +320,15 @@ node_st *PRTvardecl(node_st *node)
 
     printf( "%s %s", tmp, VARDECL_NAME(node));
 
+    if (VARDECL_INIT(node) == NULL) {
+      printf(";");
+    }
+
     TRAVinit(node);
 
-    printf(" (%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
+    printf("\n");
+
+    // printf(" (%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     
     TRAVnext(node);
     
@@ -357,7 +420,8 @@ node_st *PRTbinop(node_st *node)
 
     TRAVright(node);
 
-    printf( ")(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
+    printf(")");
+    // printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
 
     return node;
 }
@@ -385,7 +449,8 @@ node_st *PRTmonop(node_st *node)
 
     TRAVoperand(node);
 
-    printf( ")(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
+    printf(")");
+    // printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     return node;
 }
 
@@ -394,7 +459,7 @@ node_st *PRTmonop(node_st *node)
  */
 node_st *PRTvarlet(node_st *node)
 {
-    printf("%s(%d:%d)", VARLET_NAME(node), NODE_BLINE(node), NODE_BCOL(node));
+    // printf("%s(%d:%d)", VARLET_NAME(node), NODE_BLINE(node), NODE_BCOL(node));
     return node;
 }
 

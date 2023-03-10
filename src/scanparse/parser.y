@@ -35,6 +35,8 @@ void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 
 %locations
 
+%define parse.error detailed
+
 %token BRACKET_L BRACKET_R BRACE_L BRACE_R COMMA SEMICOLON
 %token MINUS PLUS STAR SLASH PERCENT LE LT GE GT EQ NE OR AND EXCLAMATION
 %token TRUEVAL FALSEVAL LET
@@ -45,14 +47,14 @@ void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 %token <cflt> FLOAT
 %token <id> ID
 
-%type <node> intval floatval boolval constant funcall expr exprs block
+%type <node> intval floatval boolval constant funcall expr exprs block param
 %type <node> ifelse while dowhile for return
 %type <node> stmts stmt exprstmt assign varlet program vardecl
 %type <node> funbody
-%type <node> decls, fundec, fundef, globaldec, globaldef
+%type <node> decls decl fundefs fundef // globaldec globaldef
 %type <cbinop> binop
 %type <cmonop> monop
-%type <ctype> cast returntype
+%type <ctype> basictype returntype
 
 %start program
 
@@ -66,32 +68,62 @@ program: decls
 
 decls:  decl decls
         {
-          $$ = ASTstmts($1, $2);
+          $$ = ASTdecls($1, $2);
         }
       | decl
         {
-          $$ = ASTstmts($1, NULL);
+          $$ = ASTdecls($1, NULL);
         }
         ;
 
-decl: fundec
+decl: fundef
       {
-        ;
+        $$ = $1;
+      }
+
+fundefs: fundef fundefs
+      {
+        $$ = ASTfundefs($1, $2);
       }
     | fundef
       {
-        ;
-      }
-    | globaldec
-      {
-        ;
-      }
-    | globaldef
-      {
-        ;
+        $$ = ASTfundefs($1, NULL);
       }
 
-fundef: EXPORT funheader
+fundef: EXPORT returntype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R BRACE_L funbody[body] BRACE_R
+      {
+        $$ = ASTfundef($body, $parameters, $funtype, $name, true);
+      }
+      /* wel export geen parameters, wel body */
+    | EXPORT returntype[funtype] ID[name] BRACKET_L BRACKET_R BRACE_L funbody[body] BRACE_R
+      {
+        $$ = ASTfundef($body, false, $funtype, $name, true);
+      }
+      /* geen export, wel parameters, wel body */
+    | returntype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R BRACE_L funbody[body] BRACE_R
+      {
+        $$ = ASTfundef($body, $parameters, $funtype, $name, false);
+      }
+      /* geen export, geen parameters, wel body */
+    | returntype[funtype] ID[name] BRACKET_L BRACKET_R BRACE_L funbody[body] BRACE_R
+      {
+        $$ = ASTfundef($body, NULL, $funtype, $name, false);
+      }
+      /* extern clause */
+    | EXTERN returntype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R SEMICOLON
+      {
+        $$ = ASTfundef(NULL, $parameters, $funtype, $name, false);
+      }
+      
+
+param: basictype[paramtype] ID[name] COMMA param[next]
+      {
+        $$ = ASTparam(NULL, $next, $name, $paramtype);
+      }
+    | basictype[paramtype] ID[name]
+      {
+        $$ = ASTparam(NULL, NULL, $name, $paramtype);
+      }
 
 funbody: vardecl stmts
        {
@@ -146,22 +178,24 @@ exprstmt: expr
           }
           ;
 
-/* NOG DOEN; DOESN'T WORK; SAD */
-vardecl: returntype[vartype] ID[name] LET expr[init] SEMICOLON vardecl[next]
+vardecl: basictype[vartype] ID[name] LET expr[init] SEMICOLON vardecl[next]
         {
           $$ = ASTvardecl(NULL, $init, $next, $name, $vartype);
           
         }
-      | returntype[vartype] ID[name] LET expr[init] SEMICOLON
+        /* declaration + initialisation, no next */
+      | basictype[vartype] ID[name] LET expr[init] SEMICOLON
         {
           $$ = ASTvardecl(NULL, $init, NULL, $name, $vartype);
           
         }
-      | returntype[vartype] ID[name] SEMICOLON vardecl[next]
+        /* declaration, no initialisation, next */
+      | basictype[vartype] ID[name] SEMICOLON vardecl[next]
         {
           $$ = ASTvardecl(NULL, NULL, $next, $name, $vartype);
         }
-      | returntype[vartype] ID[name] SEMICOLON
+        /* declaration, no initialisation, no next */
+      | basictype[vartype] ID[name] SEMICOLON
         {
           $$ = ASTvardecl(NULL, NULL, NULL, $name, $vartype);
         }
@@ -248,7 +282,7 @@ expr: BRACKET_L expr BRACKET_R
         $$ = ASTmonop( $operand, $type);
         AddLocToNode($$, &@type, &@operand);
       }
-    | BRACKET_L cast[type] BRACKET_R expr
+    | BRACKET_L basictype[type] BRACKET_R expr
       {
         $$ = ASTcast( $4, $type);
         AddLocToNode($$, &@type, &@4);
@@ -352,7 +386,7 @@ monop: MINUS        { $$ = MO_neg; }
      | EXCLAMATION  { $$ = MO_not; }
      ;
 
-cast: BOOLTYPE      { $$ = CT_bool; }
+basictype: BOOLTYPE      { $$ = CT_bool; }
     | INTTYPE       { $$ = CT_int; }
     | FLOATTYPE     { $$ = CT_float; }
     ;
