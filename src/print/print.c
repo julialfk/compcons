@@ -119,12 +119,6 @@ node_st *PRTcast(node_st *node)
 
     printf( "(%s)", tmp);
 
-    TR    case BO_NULL:
-      DBUG_ASSERT(false, "unknown binop detected!");
-    }
-
-    printf( "(%s)", tmp);
-
     TRAVexpr(node);
 
     // printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
@@ -263,6 +257,22 @@ node_st *PRTfor(node_st *node)
  */
 node_st *PRTglobdecl(node_st *node)
 {
+    char *tmp = NULL;
+    printf("extern ");
+    switch (GLOBDECL_TYPE(node)) {
+    case CT_bool:
+      tmp = "bool";
+      break;
+    case CT_int:
+      tmp = "int";
+      break;
+    case CT_float:
+      tmp = "float";
+      break;
+    case CT_NULL:
+      DBUG_ASSERT(false, "unknown var type detected!");
+    }
+    printf("%s %s;\n", tmp, GLOBDECL_NAME(node));
     return node;
 }
 
@@ -271,6 +281,31 @@ node_st *PRTglobdecl(node_st *node)
  */
 node_st *PRTglobdef(node_st *node)
 {
+    if (GLOBDEF_EXPORT(node)) {
+        printf("export ");
+    }
+
+    char *tmp = NULL;
+    switch (GLOBDEF_TYPE(node)) {
+    case CT_bool:
+      tmp = "bool";
+      break;
+    case CT_int:
+      tmp = "int";
+      break;
+    case CT_float:
+      tmp = "float";
+      break;
+    case CT_NULL:
+      DBUG_ASSERT(false, "unknown var type detected!");
+    }
+    printf("%s %s", tmp, GLOBDEF_NAME(node));
+
+    if (GLOBDEF_INIT(node)) {
+        printf(" = ");
+        TRAVinit(node);
+    }
+    printf(";\n");
     return node;
 }
 
@@ -337,7 +372,36 @@ node_st *PRTvardecl(node_st *node)
     // printf(" (%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     
     TRAVnext(node);
-    
+
+    return node;
+}
+
+/**
+ * @fn PRTstmts
+ */
+node_st *PRTstmts(node_st *node)
+{
+    TRAVstmt(node);
+    TRAVnext(node);
+    return node;
+}
+
+/**
+ * @fn PRTassign
+ */
+node_st *PRTassign(node_st *node)
+{
+    if (ASSIGN_LET(node) != NULL) {
+        TRAVlet(node);
+        printf( " = ");
+    }
+
+    TRAVexpr(node);
+    printf( ";\n");
+
+
+    return node;
+}
 
 node_st *PRTbinop(node_st *node)
 {

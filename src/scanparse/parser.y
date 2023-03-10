@@ -51,7 +51,7 @@ void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 %type <node> ifelse while dowhile for return
 %type <node> stmts stmt exprstmt assign varlet program vardecl
 %type <node> funbody
-%type <node> decls decl fundefs fundef // globaldec globaldef
+%type <node> decls decl fundec fundef globdecl globdef
 %type <cbinop> binop
 %type <cmonop> monop
 %type <ctype> basictype returntype
@@ -69,23 +69,25 @@ program: decls
 decls:  decl decls
         {
           $$ = ASTdecls($1, $2);
+          $$ = ASTdecls($1, $2);
         }
       | decl
         {
           $$ = ASTdecls($1, NULL);
+          $$ = ASTdecls($1, NULL);
         }
         ;
 
-decl: fundef
+decl: globdef
       {
         $$ = $1;
       }
 
 fundefs: fundef fundefs
       {
-        $$ = ASTfundefs($1, $2);
+        $$ = ASTfundefs($1, $2)$$ = $1;
       }
-    | fundef
+    | globdef
       {
         $$ = ASTfundefs($1, NULL);
       }
@@ -102,34 +104,43 @@ fundef: EXPORT returntype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_
       /* geen export, wel parameters, wel body */
     | returntype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R BRACE_L funbody[body] BRACE_R
       {
-        $$ = ASTfundef($body, $parameters, $funtype, $name, false);
+        $$ = ASTfundef($body, $parameters, $funtype, $name, false)$$ = $1;
       }
-      /* geen export, geen parameters, wel body */
-    | returntype[funtype] ID[name] BRACKET_L BRACKET_R BRACE_L funbody[body] BRACE_R
-      {
-        $$ = ASTfundef($body, NULL, $funtype, $name, false);
-      }
-      /* extern clause */
-    | EXTERN returntype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R SEMICOLON
-      {
-        $$ = ASTfundef(NULL, $parameters, $funtype, $name, false);
-      }
-      
 
-param: basictype[paramtype] ID[name] COMMA param[next]
-      {
-        $$ = ASTparam(NULL, $next, $name, $paramtype);
-      }
-    | basictype[paramtype] ID[name]
-      {
-        $$ = ASTparam(NULL, NULL, $name, $paramtype);
-      }
+globdecl: EXTERN basictype[type] ID[name] SEMICOLON
+          {
+            $$ = ASTglobdecl(NULL, $type, $name);
+            AddLocToNode($$, &@1, &@name);
+          }
+          ;
+
+globdef: EXPORT basictype[type] ID[name] LET expr[init] SEMICOLON
+         {
+           $$ = ASTglobdef(NULL, $init, $type, $name, true);
+           AddLocToNode($$, &@1, &@init);
+         }
+       | EXPORT basictype[type] ID[name] SEMICOLON
+         {
+           $$ = ASTglobdef(NULL, NULL, $type, $name, true);
+           AddLocToNode($$, &@1, &@name);
+         }
+       | basictype[type] ID[name] LET expr[init] SEMICOLON
+         {
+           $$ = ASTglobdef(NULL, $init, $type, $name, false);
+           AddLocToNode($$, &@1, &@init);
+         }
+       | basictype[type] ID[name] SEMICOLON
+         {
+           $$ = ASTglobdef(NULL, NULL, $type, $name, false);
+           AddLocToNode($$, &@1, &@name);
+         }
+         ;
 
 funbody: vardecl stmts
        {
          $$ = ASTfunbody($1, NULL, $2);
        }
-    ;
+       ;
 
 stmts: stmt stmts
         {
@@ -157,11 +168,6 @@ stmt: assign
        {
          $$ = $1;
        }
-    | for
-      {
-         $$ = $1;
-       }
-
     | while
       {
         $$ = $1;
@@ -170,7 +176,11 @@ stmt: assign
       {
         $$ = $1;
       }
-    ;
+    | for
+      {
+         $$ = $1;
+      }
+      ;
 
 exprstmt: expr
           {
@@ -387,15 +397,15 @@ monop: MINUS        { $$ = MO_neg; }
      ;
 
 basictype: BOOLTYPE      { $$ = CT_bool; }
-    | INTTYPE       { $$ = CT_int; }
-    | FLOATTYPE     { $$ = CT_float; }
-    ;
+         | INTTYPE       { $$ = CT_int; }
+         | FLOATTYPE     { $$ = CT_float; }
+         ;
 
-returntype: BOOLTYPE  { $$ = CT_bool; }
-    | INTTYPE         { $$ = CT_int; }
-    | FLOATTYPE       { $$ = CT_float; }
-    | VOIDTYPE        { $$ = CT_void; }
-    ;
+returntype: BOOLTYPE        { $$ = CT_bool; }
+          | INTTYPE         { $$ = CT_int; }
+          | FLOATTYPE       { $$ = CT_float; }
+          | VOIDTYPE        { $$ = CT_void; }
+          ;
 %%
 
 void AddLocToNode(node_st *node, void *begin_loc, void *end_loc)
@@ -425,7 +435,7 @@ node_st *SPdoScanParse(node_st *root)
         CTI(CTI_ERROR, true, "Cannot open file '%s'.", global.input_file);
         CTIabortOnError();
     }
-    /* yydebug = 1;  // Turn on yacc debugging */
+    yydebug = 1;  // Turn on yacc debugging
     yyparse();
     return parseresult;
 }
