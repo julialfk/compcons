@@ -34,6 +34,7 @@ void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 }
 
 %locations
+%define parse.error detailed
 
 %token BRACKET_L BRACKET_R BRACE_L BRACE_R COMMA SEMICOLON
 %token MINUS PLUS STAR SLASH PERCENT LE LT GE GT EQ NE OR AND EXCLAMATION
