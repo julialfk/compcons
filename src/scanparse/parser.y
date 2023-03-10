@@ -34,6 +34,7 @@ void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 }
 
 %locations
+
 %define parse.error detailed
 
 %token BRACKET_L BRACKET_R BRACE_L BRACE_R COMMA SEMICOLON
@@ -46,7 +47,7 @@ void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 %token <cflt> FLOAT
 %token <id> ID
 
-%type <node> intval floatval boolval constant funcall expr exprs block
+%type <node> intval floatval boolval constant funcall expr exprs block param
 %type <node> ifelse while dowhile for return
 %type <node> stmts stmt exprstmt assign varlet program vardecl
 %type <node> funbody
@@ -68,20 +69,42 @@ program: decls
 decls:  decl decls
         {
           $$ = ASTdecls($1, $2);
+          $$ = ASTdecls($1, $2);
         }
       | decl
         {
           $$ = ASTdecls($1, NULL);
+          $$ = ASTdecls($1, NULL);
         }
         ;
 
-decl: globdecl
+decl: globdef
       {
         $$ = $1;
       }
+
+fundefs: fundef fundefs
+      {
+        $$ = ASTfundefs($1, $2)$$ = $1;
+      }
     | globdef
       {
-        $$ = $1;
+        $$ = ASTfundefs($1, NULL);
+      }
+
+fundef: EXPORT returntype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R BRACE_L funbody[body] BRACE_R
+      {
+        $$ = ASTfundef($body, $parameters, $funtype, $name, true);
+      }
+      /* wel export geen parameters, wel body */
+    | EXPORT returntype[funtype] ID[name] BRACKET_L BRACKET_R BRACE_L funbody[body] BRACE_R
+      {
+        $$ = ASTfundef($body, false, $funtype, $name, true);
+      }
+      /* geen export, wel parameters, wel body */
+    | returntype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R BRACE_L funbody[body] BRACE_R
+      {
+        $$ = ASTfundef($body, $parameters, $funtype, $name, false)$$ = $1;
       }
 
 globdecl: EXTERN basictype[type] ID[name] SEMICOLON
@@ -165,22 +188,24 @@ exprstmt: expr
           }
           ;
 
-/* NOG DOEN; DOESN'T WORK; SAD */
-vardecl: returntype[vartype] ID[name] LET expr[init] SEMICOLON vardecl[next]
+vardecl: basictype[vartype] ID[name] LET expr[init] SEMICOLON vardecl[next]
         {
           $$ = ASTvardecl(NULL, $init, $next, $name, $vartype);
           
         }
-      | returntype[vartype] ID[name] LET expr[init] SEMICOLON
+        /* declaration + initialisation, no next */
+      | basictype[vartype] ID[name] LET expr[init] SEMICOLON
         {
           $$ = ASTvardecl(NULL, $init, NULL, $name, $vartype);
           
         }
-      | returntype[vartype] ID[name] SEMICOLON vardecl[next]
+        /* declaration, no initialisation, next */
+      | basictype[vartype] ID[name] SEMICOLON vardecl[next]
         {
           $$ = ASTvardecl(NULL, NULL, $next, $name, $vartype);
         }
-      | returntype[vartype] ID[name] SEMICOLON
+        /* declaration, no initialisation, no next */
+      | basictype[vartype] ID[name] SEMICOLON
         {
           $$ = ASTvardecl(NULL, NULL, NULL, $name, $vartype);
         }
