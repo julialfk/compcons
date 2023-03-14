@@ -5,6 +5,19 @@ start phase RootPhase {
     }
 };
 
+traversal SemanticAnalysis {
+    uid = SA,
+    nodes = {
+        Program, GlobDef, GlobDecl, FunDef,
+        VarDecl, Varlet, Var, Param, Symtable, Ste
+    },
+    // Could make a stack with ptrs to tables when implementing nested functions.
+    travdata {
+        user node_ptr globtable_ptr,
+        user node_ptr symtable_ptr,
+        user node_ptr last_ste_ptr
+    }
+};
 
 traversal Print {
     uid = PRT
@@ -51,7 +64,7 @@ nodeset Stmt = {Assign, ExprStmt, IfElse, While, DoWhile, For, Return};
 // In the old framework it points to node* (so can be everything).
 // You need to adapt it when working with the symbol tables.
 // I put it as a decl now, because an empty nodeset is not allowed.
-nodeset Link = Decl;
+nodeset Link = {GlobDef, GlobDecl, FunDef, VarDecl};
 
 root node Program {
     children {
@@ -306,9 +319,24 @@ node Bool {
     }
 };
 
-/* Symbol table entry
- * TODO: fill in.
-node Ste {
+node Symtable {
+    children {
+        Ste next { constructor }
+    },
 
-}
-*/
+    attributes {
+        int nest_lvl { constructor }
+    }
+};
+
+node Ste {
+    children {
+        Ste next { constructor }
+    },
+
+    attributes {
+        string name { constructor },
+        Type type { constructor },
+        int nest_lvl { constructor }
+    }
+};
