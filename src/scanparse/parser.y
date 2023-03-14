@@ -51,7 +51,7 @@ void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 %type <node> ifelse while dowhile for return
 %type <node> stmts stmt exprstmt assign varlet program vardecl
 %type <node> funbody
-%type <node> decls decl fundec fundef globdecl globdef
+%type <node> decls decl fundefs fundef globdecl globdef
 %type <cbinop> binop
 %type <cmonop> monop
 %type <ctype> basictype returntype
@@ -264,8 +264,8 @@ varlet: ID
 
 /* Hoe werkt het met de haakjes? Meegeven of niet?
  * Nu worden ze namelijk niet geprint, maar ze zijn wel belangrijk
- * In de AST komen ze natuurlijk terug in de vorm van precedence
- * maar verdwijnen ze eigenlijk wel.? */
+ * In de AST komen ze natuurlijk terug in de vorm van precedence (toch..?)
+ * maar nu verdwijnen ze eigenlijk wel.? */
 expr: BRACKET_L expr BRACKET_R
       {
         $$ = $2;
