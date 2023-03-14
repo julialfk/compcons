@@ -35,11 +35,13 @@ node_st *PRTdecls(node_st *node)
  */
 node_st *PRTexprs(node_st *node)
 {
+    printf("(");
     TRAVexpr(node);
     if (EXPRS_NEXT(node)){
         printf(",");
         TRAVnext(node);
     }
+    printf(")");
     return node;
 }
 
@@ -361,13 +363,13 @@ node_st *PRTvardecl(node_st *node)
 
     printf( "%s %s", tmp, VARDECL_NAME(node));
 
-    if (VARDECL_INIT(node) == NULL) {
-      printf(";");
+    if (VARDECL_INIT(node) != NULL) {
+      printf(" = ");
     }
 
     TRAVinit(node);
 
-    printf("\n");
+    printf(";\n");
 
     // printf(" (%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     
@@ -497,6 +499,7 @@ node_st *PRTmonop(node_st *node)
  */
 node_st *PRTvarlet(node_st *node)
 {
+    printf("%s", VARLET_NAME(node));
     // printf("%s(%d:%d)", VARLET_NAME(node), NODE_BLINE(node), NODE_BCOL(node));
     return node;
 }

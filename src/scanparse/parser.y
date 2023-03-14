@@ -35,7 +35,7 @@ void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 
 %locations
 
-%define parse.error detailed
+%define parse.error verbose
 
 %token BRACKET_L BRACKET_R BRACE_L BRACE_R COMMA SEMICOLON
 %token MINUS PLUS STAR SLASH PERCENT LE LT GE GT EQ NE OR AND EXCLAMATION
@@ -104,17 +104,17 @@ fundefs: fundef fundefs
        ;
 
 
-fundef: EXPORT vartype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R BRACE_L funbody[body] BRACE_R
+fundef: EXPORT vartype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R funbody[body]
         {
           $$ = ASTfundef($body, $parameters, $funtype, $name, true);
         }
         /* wel export geen parameters, wel body */
-      | EXPORT vartype[funtype] ID[name] BRACKET_L BRACKET_R BRACE_L funbody[body] BRACE_R
+      | EXPORT vartype[funtype] ID[name] BRACKET_L BRACKET_R funbody[body]
         {
           $$ = ASTfundef($body, NULL, $funtype, $name, true);
         }
         /* geen export, wel parameters, wel body */
-      | vartype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R BRACE_L funbody[body] BRACE_R
+      | vartype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R funbody[body]
         {
           $$ = ASTfundef($body, $parameters, $funtype, $name, false);
         }
@@ -157,10 +157,25 @@ globdef: EXPORT vartype[type] ID[name] LET expr[init] SEMICOLON
          }
        ;
 
-funbody: vardecl stmts
+funbody: BRACE_L vardecl stmts BRACE_R
          {
-           $$ = ASTfunbody($1, NULL, $2);
+           $$ = ASTfunbody($2, NULL, $3);
          }
+
+      | BRACE_L vardecl BRACE_R
+        {
+          $$ = ASTfunbody($2, NULL, NULL);
+        }
+      | BRACE_L stmts BRACE_R
+        {
+          $$ = ASTfunbody(NULL, NULL, $2);
+        }
+
+      | BRACE_L BRACE_R
+      {
+        $$ = ASTfunbody(NULL, NULL, NULL);
+      }
+
        ;
 
 stmts: stmt stmts
@@ -463,7 +478,7 @@ node_st *SPdoScanParse(node_st *root)
         CTI(CTI_ERROR, true, "Cannot open file '%s'.", global.input_file);
         CTIabortOnError();
     }
-    yydebug = 1;  // Turn on yacc debugging
+    /* yydebug = 1;  // Turn on yacc debugging */
     yyparse();
     return parseresult;
 }
