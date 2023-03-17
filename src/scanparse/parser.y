@@ -63,7 +63,7 @@ void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 
 program: decls
          {
-           parseresult = $1;
+           parseresult = ASTprogram($1, NULL);
          }
        ;
 
@@ -106,25 +106,25 @@ fundefs: fundef fundefs
 
 fundef: EXPORT vartype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R funbody[body]
         {
-          $$ = ASTfundef($body, $parameters, $funtype, $name, true);
+          $$ = ASTfundef($body, $parameters, NULL, $funtype, $name, true);
         }
         /* wel export geen parameters, wel body */
       | EXPORT vartype[funtype] ID[name] BRACKET_L BRACKET_R funbody[body]
         {
-          $$ = ASTfundef($body, NULL, $funtype, $name, true);
+          $$ = ASTfundef($body, NULL, NULL, $funtype, $name, true);
         }
         /* geen export, wel parameters, wel body */
       | vartype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R funbody[body]
         {
-          $$ = ASTfundef($body, $parameters, $funtype, $name, false);
+          $$ = ASTfundef($body, $parameters, NULL, $funtype, $name, false);
         }
       | EXTERN vartype[funtype] ID[name] BRACKET_L BRACKET_R SEMICOLON
         {
-          $$ = ASTfundef(NULL, NULL, $funtype, $name, false);
+          $$ = ASTfundef(NULL, NULL, NULL, $funtype, $name, false);
         }
       | EXTERN vartype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R SEMICOLON
         {
-          $$ = ASTfundef(NULL, false, $funtype, $name, false);
+          $$ = ASTfundef(NULL, false, NULL, $funtype, $name, false);
         }
       ;
 

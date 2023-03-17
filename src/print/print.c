@@ -17,6 +17,12 @@
  */
 node_st *PRTprogram(node_st *node)
 {
+    printf("\n/* Global symbol table: \n\n");
+    TRAVglobal(node);
+    printf("\n*/\n");
+
+    TRAVdecls(node);
+
     return node;
 }
 
@@ -166,6 +172,11 @@ node_st *PRTfundef(node_st *node)
     printf("%s %s(", tmp, FUNDEF_NAME(node));
     TRAVparams(node);
     printf(")");
+
+    printf("\n/* Symbol table: \n\n");
+    TRAVsymtable(node);
+    printf("\n*/\n");
+
     if (FUNDEF_BODY(node) == NULL) {
       printf(";\n");
     }
@@ -174,7 +185,7 @@ node_st *PRTfundef(node_st *node)
       TRAVbody(node);
       printf("}\n");
     }
-    
+
     return node;
 }
 
@@ -372,7 +383,7 @@ node_st *PRTvardecl(node_st *node)
     printf(";\n");
 
     // printf(" (%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
-    
+
     TRAVnext(node);
 
     return node;
@@ -538,5 +549,40 @@ node_st *PRTbool(node_st *node)
 {
     char *bool_str = BOOL_VAL(node) ? "true" : "false";
     printf("%s", bool_str);
+    return node;
+}
+
+/**
+ * @fn PRTsymtable
+ */
+node_st *PRTsymtable(node_st *node)
+{
+    TRAVnext(node);
+    return node;
+}
+
+/**
+ * @fn PRTste
+ */
+node_st *PRTste(node_st *node)
+{
+    char *tmp = NULL;
+    switch (STE_TYPE(node)) {
+    case CT_bool:
+      tmp = "bool";
+      break;
+    case CT_int:
+      tmp = "int";
+      break;
+    case CT_float:
+      tmp = "float";
+      break;
+    case CT_void:
+      tmp = "void";
+      break;
+    }
+
+    printf("%s:%s\n", STE_NAME(node), tmp);
+    TRAVnext(node);
     return node;
 }

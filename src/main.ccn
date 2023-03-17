@@ -1,6 +1,7 @@
 start phase RootPhase {
     actions {
         pass SPdoScanParse;
+        SemanticAnalysis;
         print;
     }
 };
@@ -13,9 +14,11 @@ traversal SemanticAnalysis {
     },
     // Could make a stack with ptrs to tables when implementing nested functions.
     travdata {
-        user node_ptr globtable_ptr,
-        user node_ptr symtable_ptr,
-        user node_ptr last_ste_ptr
+        user node_ptr current_scope,
+        int nest_lvl,
+        string entry_name,
+        user node_ptr link_ste,
+        user node_ptr function_ste
     }
 };
 
@@ -64,11 +67,12 @@ nodeset Stmt = {Assign, ExprStmt, IfElse, While, DoWhile, For, Return};
 // In the old framework it points to node* (so can be everything).
 // You need to adapt it when working with the symbol tables.
 // I put it as a decl now, because an empty nodeset is not allowed.
-nodeset Link = {GlobDef, GlobDecl, FunDef, VarDecl};
+nodeset Link = {Ste};
 
 root node Program {
     children {
-        Decls decls { constructor, mandatory }
+        Decls decls { constructor, mandatory },
+        Symtable global { constructor }
     }
 };
 
@@ -119,7 +123,7 @@ node FunCall {
     },
     attributes {
         string name { constructor },
-        Link decl { constructor }
+        Link ste { constructor }
     }
 };
 
@@ -142,7 +146,8 @@ node FunDefs {
 node FunDef {
     children {
         FunBody body { constructor },
-        Param params { constructor }
+        Param params { constructor },
+        Symtable symtable { constructor }
     },
     attributes {
         Type type { constructor },
@@ -285,7 +290,7 @@ node VarLet {
 
     attributes {
         string name { constructor },
-        Link decl { constructor }
+        Link ste { constructor }
     }
 };
 
@@ -297,7 +302,7 @@ node Var {
 
     attributes {
         string name { constructor },
-        Link decl { constructor }
+        Link ste { constructor }
     }
 };
 
@@ -325,7 +330,9 @@ node Symtable {
     },
 
     attributes {
-        int nest_lvl { constructor }
+        int nest_lvl { constructor },
+        Link parent { constructor },
+        Link tail { constructor }
     }
 };
 
@@ -337,6 +344,7 @@ node Ste {
     attributes {
         string name { constructor },
         Type type { constructor },
+        int arity { constructor },
         int nest_lvl { constructor }
     }
 };
