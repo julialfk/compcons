@@ -281,12 +281,12 @@ ifelse: IF BRACKET_L expr[cond] BRACKET_R block[then] ELSE block[elseblock]
 
 for: FOR BRACKET_L INTTYPE ID[var] LET expr[start] COMMA expr[stop] COMMA expr[step] BRACKET_R block[forblock]
      {
-       $$ = ASTfor($start, $stop, $step, $forblock, $var);
+       $$ = ASTfor($start, $stop, $step, $forblock, NULL, $var);
        AddLocToNode($$, &@1, &@forblock);
      }
    | FOR BRACKET_L INTTYPE ID[var] LET expr[start] COMMA expr[stop] BRACKET_R block[forblock]
      {
-       $$ = ASTfor($start, $stop, NULL, $forblock, $var);
+       $$ = ASTfor($start, $stop, NULL, $forblock, NULL, $var);
        AddLocToNode($$, &@1, &@forblock);
      }
    ;

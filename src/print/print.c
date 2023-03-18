@@ -149,10 +149,10 @@ node_st *PRTfundefs(node_st *node)
 node_st *PRTfundef(node_st *node)
 {
     if (FUNDEF_EXPORT(node) != NULL) {
-      printf("export ");
+        printf("export ");
     }
     if (FUNDEF_BODY(node) == NULL) {
-      printf("extern ");
+        printf("extern ");
     }
     char *tmp = NULL;
     switch (FUNDEF_TYPE(node)) {
@@ -178,12 +178,12 @@ node_st *PRTfundef(node_st *node)
     printf("\n*/\n");
 
     if (FUNDEF_BODY(node) == NULL) {
-      printf(";\n");
+        printf(";\n");
     }
     else {
-      printf(" {\n");
-      TRAVbody(node);
-      printf("}\n");
+        printf(" {\n");
+        TRAVbody(node);
+        printf("}\n");
     }
 
     return node;
@@ -341,7 +341,7 @@ node_st *PRTparam(node_st *node)
     }
     printf("%s %s", tmp, PARAM_NAME(node));
     if (PARAM_NEXT(node) != NULL) {
-      printf(", ");
+        printf(", ");
     }
     TRAVnext(node);
     return node;
@@ -375,7 +375,7 @@ node_st *PRTvardecl(node_st *node)
     printf( "%s %s", tmp, VARDECL_NAME(node));
 
     if (VARDECL_INIT(node) != NULL) {
-      printf(" = ");
+        printf(" = ");
     }
 
     TRAVinit(node);
@@ -561,11 +561,7 @@ node_st *PRTsymtable(node_st *node)
     return node;
 }
 
-/**
- * @fn PRTste
- */
-node_st *PRTste(node_st *node)
-{
+char *get_type(node_st *node, char *str) {
     char *tmp = NULL;
     switch (STE_TYPE(node)) {
     case CT_bool:
@@ -582,7 +578,32 @@ node_st *PRTste(node_st *node)
       break;
     }
 
-    printf("%s:%s\n", STE_NAME(node), tmp);
+    strcpy(str, tmp);
+    return str;
+}
+
+/**
+ * @fn PRTste
+ */
+node_st *PRTste(node_st *node)
+{
+    char *tmp = (char *)malloc(6 * sizeof(char));
+    tmp = get_type(node, tmp);
+    printf("%s:%s", STE_NAME(node), tmp);
+
+    if (STE_FUNCTION(node)) {
+        printf("(");
+        node_st *cur_param = STE_FIRST_PARAM(node);
+        for (int i = 0; i < STE_ARITY(node) - 1; i++) {
+            tmp = get_type(cur_param, tmp);
+            printf("%s, ", tmp);
+            cur_param = STE_NEXT(cur_param);
+        }
+        tmp = get_type(cur_param, tmp);
+        printf("%s)", tmp);
+    }
+    printf("\n");
+    free(tmp);
     TRAVnext(node);
     return node;
 }

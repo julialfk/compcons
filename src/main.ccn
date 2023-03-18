@@ -10,7 +10,8 @@ traversal SemanticAnalysis {
     uid = SA,
     nodes = {
         Program, GlobDef, GlobDecl, FunDef,
-        VarDecl, Varlet, Var, Param, Symtable, Ste
+        VarDecl, Varlet, Var, Param, For,
+        Symtable, Ste
     },
     // Could make a stack with ptrs to tables when implementing nested functions.
     travdata {
@@ -191,7 +192,8 @@ node For {
         Expr start_expr { constructor, mandatory },
         Expr stop { constructor, mandatory },
         Expr step { constructor },
-        Stmts block { constructor }
+        Stmts block { constructor },
+        Symtable symtable { constructor }
     },
 
     attributes {
@@ -344,7 +346,9 @@ node Ste {
     attributes {
         string name { constructor },
         Type type { constructor },
+        bool function { constructor },
         int arity { constructor },
+        Link first_param { constructor },
         int nest_lvl { constructor }
     }
 };

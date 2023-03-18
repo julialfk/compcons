@@ -64,7 +64,6 @@ node_st *SAprogram(node_st *node)
     data->nest_lvl = 0;
 
     node_st *global_symtable = ASTsymtable(NULL, data->nest_lvl, NULL, NULL);
-    printf("%ld\n", global_symtable);
     PROGRAM_GLOBAL(node) = global_symtable;
     data->current_scope = global_symtable;
     // printf("%ld\n", data->current_scope);
@@ -96,12 +95,13 @@ node_st *SAglobdef(node_st *node)
 
     if (!data->link_ste) {
         node_st *new_entry = ASTste(NULL,  data->entry_name,
-                                    GLOBDEF_TYPE(node), 0, data->nest_lvl);
+                                    GLOBDEF_TYPE(node), false, 0, NULL,
+                                    data->nest_lvl);
         insert_ste(data, new_entry);
     }
     else {
         // Could add where it has been declared before.
-        printf("Warning: %s(%d:%d-%d) already declared.",
+        printf("Error: %s(%d:%d-%d) already declared.",
                     GLOBDEF_NAME(node), NODE_BLINE(node),
                     NODE_BCOL(node), NODE_ECOL(node));
     }
@@ -131,7 +131,8 @@ node_st *SAglobdecl(node_st *node)
 
     if (!data->link_ste) {
         node_st *new_entry = ASTste(NULL, data->entry_name,
-                                    GLOBDECL_TYPE(node), 0, data->nest_lvl);
+                                    GLOBDECL_TYPE(node), false, 0, NULL,
+                                    data->nest_lvl);
         insert_ste(data, new_entry);
     }
     else {
@@ -144,6 +145,24 @@ node_st *SAglobdecl(node_st *node)
 }
 
 /**
+ * @fn SAfor
+ */
+node_st *SAfor(node_st *node) {
+    struct data_sa *data = DATA_SA_GET();
+    // printf("%d\n", data->nest_lvl);
+    node_st *new_entry = ASTste(NULL, FOR_VAR(node), CT_int, false, 0, NULL,
+                                data->nest_lvl + 1);
+    node_st *symtable = ASTsymtable(new_entry, data->nest_lvl + 1,
+                                    data->current_scope, new_entry);
+    // if (NODE_TYPE(symtable) == NT_SYMTABLE) {
+    //     printf("correct code type\n");
+    // }
+    FOR_SYMTABLE(node) = symtable;
+
+    return node;
+}
+
+/**
  * @fn SAfundef
  */
 node_st *SAfundef(node_st *node)
@@ -152,26 +171,27 @@ node_st *SAfundef(node_st *node)
     data->link_ste = NULL;
     data->entry_name = FUNDEF_NAME(node);
     // printf("in globdecl: %s\n", data->entry_name);
-    // TRAVnext(data->current_scope);
+    TRAVnext(data->current_scope);
 
-    // if (data->link_ste) {
-    //     printf("Warning: %s(%d:%d-%d) already declared.",
-    //                 FUNDEF_NAME(node), NODE_BLINE(node),
-    //                 NODE_BCOL(node), NODE_ECOL(node));
-    //     return node;
-    // }
+    if (data->link_ste) {
+        printf("Error: %s(%d:%d-%d) already declared.",
+                    FUNDEF_NAME(node), NODE_BLINE(node),
+                    NODE_BCOL(node), NODE_ECOL(node));
+        return node;
+    }
 
-    // node_st *new_entry = ASTste(NULL, data->entry_name,
-    //                             FUNDEF_TYPE(node), 0, data->nest_lvl);
-    // insert_ste(data, new_entry);
+    node_st *new_entry = ASTste(NULL, data->entry_name,
+                                FUNDEF_TYPE(node), true, 0, NULL,
+                                data->nest_lvl);
+    insert_ste(data, new_entry);
 
-    // data->nest_lvl++;
+    data->nest_lvl++;
     node_st *symtable = ASTsymtable(NULL, data->nest_lvl,
                                     data->current_scope, NULL);
     FUNDEF_SYMTABLE(node) = symtable;
     data->current_scope = symtable;
 
-    // data->function_ste = new_entry;
+    data->function_ste = new_entry;
     TRAVparams(node);
     TRAVbody(node);
 
@@ -203,12 +223,16 @@ node_st *SAparam(node_st *node)
 
     if (!data->link_ste) {
         node_st *new_entry = ASTste(NULL, data->entry_name,
-                                    PARAM_TYPE(node), 0, data->nest_lvl);
+                                    PARAM_TYPE(node), false, 0, NULL,
+                                    data->nest_lvl);
         insert_ste(data, new_entry);
-        // STE_ARITY(data->function_ste)++;
+        if (STE_ARITY(data->function_ste) == 0) {
+            STE_FIRST_PARAM(data->function_ste) = new_entry;
+        }
+        STE_ARITY(data->function_ste)++;
     }
     else {
-        printf("Warning: %s(%d:%d-%d) already declared.",
+        printf("Error: %s(%d:%d-%d) already declared.",
                     PARAM_NAME(node), NODE_BLINE(node),
                     NODE_BCOL(node), NODE_ECOL(node));
     }
@@ -240,11 +264,12 @@ node_st *SAvardecl(node_st *node)
 
     if (!data->link_ste) {
         node_st *new_entry = ASTste(NULL, data->entry_name,
-                                    VARDECL_TYPE(node), 0, data->nest_lvl);
+                                    VARDECL_TYPE(node), false, 0, NULL,
+                                    data->nest_lvl);
         insert_ste(data, new_entry);
     }
     else {
-        printf("Warning: %s(%d:%d-%d) already declared.",
+        printf("Error: %s(%d:%d-%d) already declared.",
                     VARDECL_NAME(node), NODE_BLINE(node),
                     NODE_BCOL(node), NODE_ECOL(node));
     }
