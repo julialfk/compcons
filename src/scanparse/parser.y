@@ -70,11 +70,9 @@ program: decls
 decls: decl decls
        {
          $$ = ASTdecls($1, $2);
-         $$ = ASTdecls($1, $2);
        }
      | decl
        {
-         $$ = ASTdecls($1, NULL);
          $$ = ASTdecls($1, NULL);
        }
      ;

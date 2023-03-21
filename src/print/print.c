@@ -6,6 +6,7 @@
  *
  *
  */
+#include <string.h>
 
 #include "ccn/ccn.h"
 #include "ccngen/ast.h"
@@ -511,6 +512,8 @@ node_st *PRTmonop(node_st *node)
 node_st *PRTvarlet(node_st *node)
 {
     printf("%s", VARLET_NAME(node));
+    // printf("(ste check: %s)", STE_NAME(VARLET_STE(node)));
+
     // printf("%s(%d:%d)", VARLET_NAME(node), NODE_BLINE(node), NODE_BCOL(node));
     return node;
 }
@@ -521,6 +524,8 @@ node_st *PRTvarlet(node_st *node)
 node_st *PRTvar(node_st *node)
 {
     printf( "%s", VAR_NAME(node));
+    // printf("(ste check: %s)", STE_NAME(VAR_STE(node)));
+
     return node;
 }
 
