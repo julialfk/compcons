@@ -7,11 +7,11 @@ start phase RootPhase {
     }
 };
 
-traversal SemanticAnalysis {
-    uid = SA,
+traversal SymbolTables {
+    uid = ST,
     nodes = {
         Program, GlobDef, GlobDecl, FunDef,
-        VarDecl, Varlet, Var, Param, For,
+        VarDecl, Varlet, Var, FunCall, Param, For,
         Symtable, Ste
     },
     // Could make a stack with ptrs to tables when implementing nested functions.

@@ -30,8 +30,12 @@ include(./coconut/coconut.cmake)
 # Whenever you add a file, add it here too.
 add_executable(civicc ${FLEX_CivicLexer_OUTPUTS} ${BISON_CivicParser_OUTPUTS}
     src/main.c src/print/print.c src/scanparse/scanParse.c
+<<<<<<< HEAD
     src/global/globals.c src/global/globals.h src/traversals/semanticanalysis.c
     src/traversals/var_init_to_assmnts.c
+=======
+    src/global/globals.c src/global/globals.h src/traversals/symboltables.c
+>>>>>>> b5225cbc238f1386eb1de584a1ccb422245191d4
 
 )
 
