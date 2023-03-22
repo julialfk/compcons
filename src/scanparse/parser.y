@@ -299,10 +299,6 @@ varlet: ID
         }
       ;
 
-/* Hoe werkt het met de haakjes? Meegeven of niet?
- * Nu worden ze namelijk niet geprint, maar ze zijn wel belangrijk
- * In de AST komen ze natuurlijk terug in de vorm van precedence (toch..?)
- * maar nu verdwijnen ze eigenlijk wel.? */
 expr: BRACKET_L expr BRACKET_R
       {
         $$ = $2;
