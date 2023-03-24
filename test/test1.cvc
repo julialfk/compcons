@@ -1,16 +1,2 @@
-int a;
-int b = 10;
-
-int function() {
-    int x = 10;
-    int y;
-    int z = 20;
-    int a = 30;
-    int b;
-
-    if (x > 0) {
-        y = 10;
-    }
-
-    return y;
-}
+int f = x && y;
+int q = !(f || y);

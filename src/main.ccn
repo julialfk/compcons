@@ -3,6 +3,7 @@ start phase RootPhase {
         pass SPdoScanParse;
         SymbolTables;
         VarInitsToAssignments;
+        BoolopsToCondops;
         print;
     }
 };
@@ -42,27 +43,12 @@ traversal VarInitsToAssignments {
 
 };
 
-// // Non-matching types shall lead to meaningful error messages. The type checker
-// // should report multiple errors before termination.
-// phase TypeChecking {
-//     actions {
-//         // Type inference infers the type of an expression based on the declared
-//         // types of identifiers, the natural types of constants, the typing rules
-//         // of built-in operators and type declarations of defined functions.
-//         traversal TypeInference {
-//             nodes = {
-
-//             }
-//         };
-
-//         // Type matching checks whether inferred types match declared types,
-//         // e.g. in assignments to variables, in argument/return positions of
-//         // function calls or in predicate positions of control flow constructs.
-//         traversal TypeMatching {
-
-//         };
-//     }
-// };
+traversal BoolopsToCondops {
+    uid = BTC,
+    nodes = {
+        Binop, Monop
+    }
+};
 
 traversal Print {
     uid = PRT
@@ -92,10 +78,23 @@ enum binop_type {
     }
 };
 
+enum binboolop_type {
+    prefix = BOO,
+    values {
+        and, or
+    }
+};
+
+enum monboolop_type {
+    prefix = MOO,
+    values {
+        not
+    }
+};
 
 nodeset Constants = {Float, Bool, Num};
 
-nodeset Operations = {Binop, Monop};
+nodeset Operations = {Binop, Monop, Boolbinop, Boolmonop};
 
 nodeset Decl = {GlobDef, GlobDecl, FunDef};
 
@@ -305,6 +304,17 @@ node Assign {
     }
 };
 
+node Boolbinop {
+    children {
+        Expr left { constructor, mandatory },
+        Expr right { constructor, mandatory }
+    }, 
+
+    attributes {
+        binboolop_type op { constructor }
+    }
+};
+
 node Binop {
     children {
         Expr left { constructor, mandatory },
@@ -316,6 +326,7 @@ node Binop {
     }
 };
 
+
 node Monop {
     children {
         Expr operand { constructor, mandatory }
@@ -323,6 +334,16 @@ node Monop {
 
     attributes {
         monop_type op { constructor }
+    }
+};
+
+node Boolmonop {
+    children {
+        Expr operand { constructor, mandatory }
+    },
+
+    attributes {
+        monboolop_type op { constructor }
     }
 };
 
