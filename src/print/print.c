@@ -604,8 +604,11 @@ node_st *PRTste(node_st *node)
             printf("%s, ", tmp);
             cur_param = STE_NEXT(cur_param);
         }
-        tmp = get_type(cur_param, tmp);
-        printf("%s)", tmp);
+        if (cur_param) {
+          tmp = get_type(cur_param, tmp);
+          printf("%s", tmp);
+        }
+        printf(")");
     }
     printf("\n");
     free(tmp);

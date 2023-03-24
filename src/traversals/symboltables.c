@@ -41,7 +41,7 @@ void search_ste(struct data_st *data) {
     while (!data->link_ste && cur_table);
 }
 
-char *copy_entry_name(char *original) {
+static char *copy_entry_name(char *original) {
     char *entry_name_cpy = (char *)malloc(sizeof(char)
                                         * (strlen(original) + 1));
     strcpy(entry_name_cpy, original);

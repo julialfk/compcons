@@ -116,6 +116,13 @@ fundef: EXPORT vartype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R f
         {
           $$ = ASTfundef($body, $parameters, NULL, $funtype, $name, false);
         }
+
+        /* geen export, geen parameters, wel body */
+      | vartype[funtype] ID[name] BRACKET_L BRACKET_R funbody[body]
+        {
+          $$ = ASTfundef($body, NULL, NULL, $funtype, $name, false);
+        }
+
       | EXTERN vartype[funtype] ID[name] BRACKET_L BRACKET_R SEMICOLON
         {
           $$ = ASTfundef(NULL, NULL, NULL, $funtype, $name, false);

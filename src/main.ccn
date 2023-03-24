@@ -1,7 +1,7 @@
 start phase RootPhase {
     actions {
         pass SPdoScanParse;
-        SemanticAnalysis;
+        SymbolTables;
         VarInitsToAssignments;
         print;
     }
@@ -27,13 +27,16 @@ traversal SymbolTables {
 traversal VarInitsToAssignments {
     uid = VITA,
     nodes = {
-        Globdef, Program, FunDef, FunDefs
+        Globdef, Program, FunDef, VarDecl, FunBody
     },
     travdata {
         user node_ptr init_funbody,
-        user node_ptr last_stmts,
+        user node_ptr last_stmts_init,
         user node_ptr link_ste,
         user node_ptr current_scope,
+        user node_ptr init_fundef,
+        user node_ptr last_stmts_local,
+        user node_ptr first_stmts_local,
         string entry_name // dit is naam van de var die opgezocht wordt om te linken bij het splitsen
     }
 
