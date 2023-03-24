@@ -23,6 +23,18 @@ traversal SymbolTables {
     }
 };
 
+traversal TypeChecking {
+    uid = TC,
+    nodes = {
+        Program, FunDef, For, Cast, FunCall, Var, Float, Bool, Num,
+        Binop, Monop, Assign, IfElse, Return
+    },
+    travdata {
+        user node_ptr for_counter,
+        Type current_type
+    }
+};
+
 traversal Print {
     uid = PRT
 };

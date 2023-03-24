@@ -260,6 +260,9 @@ node_st *PRTfor(node_st *node)
         TRAVstep(node);
     }
     printf(") {\n");
+    printf("\n/* Symbol table: \n\n");
+    TRAVsymtable(node);
+    printf("\n*/\n");
     TRAVblock(node);
     printf("}\n");
     // printf( "(%d:%d-%d)\n", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
@@ -604,8 +607,11 @@ node_st *PRTste(node_st *node)
             printf("%s, ", tmp);
             cur_param = STE_NEXT(cur_param);
         }
-        tmp = get_type(cur_param, tmp);
-        printf("%s)", tmp);
+        if (cur_param) {
+          tmp = get_type(cur_param, tmp);
+          printf("%s", tmp);
+        }
+        printf(")");
     }
     printf("\n");
     free(tmp);
