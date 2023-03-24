@@ -420,6 +420,9 @@ node_st *PRTassign(node_st *node)
     return node;
 }
 
+/**
+ * @fn PRTbinop
+ */
 node_st *PRTbinop(node_st *node)
 {
     char *tmp = NULL;
@@ -480,6 +483,59 @@ node_st *PRTbinop(node_st *node)
 
     return node;
 }
+
+/**
+ * @fn PRTboolbinop
+ */
+node_st *PRTboolbinop(node_st *node)
+{
+    char *tmp = NULL;
+    printf( "( ");
+
+    TRAVleft(node);
+
+    switch (BOOLBINOP_OP(node)) {
+    case BOO_or:
+      tmp = "||";
+      break;
+    case BOO_and:
+      tmp = "&&";
+      break;
+    }
+
+    printf( " %s ", tmp);
+
+    TRAVright(node);
+
+    printf(")");
+    // printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
+
+    return node;
+}
+
+/**
+ * @fn PRTboolmonop
+ */
+node_st *PRTboolmonop(node_st *node)
+{
+    char *tmp = NULL;
+    printf( "( ");
+
+    switch (MONOP_OP(node)) {
+    case MOO_not:
+      tmp = "not ";
+      break;
+    }
+
+    printf( "%s", tmp);
+
+    TRAVoperand(node);
+
+    printf(")");
+    // printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
+    return node;
+}
+
 
 /**
  * @fn PRTmonop
