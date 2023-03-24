@@ -2,6 +2,7 @@ start phase RootPhase {
     actions {
         pass SPdoScanParse;
         SymbolTables;
+        VarInitsToAssignments;
         print;
     }
 };
@@ -22,6 +23,46 @@ traversal SymbolTables {
         user node_ptr function_ste
     }
 };
+
+traversal VarInitsToAssignments {
+    uid = VITA,
+    nodes = {
+        Globdef, Program, FunDef, VarDecl, FunBody
+    },
+    travdata {
+        user node_ptr init_funbody,
+        user node_ptr last_stmts_init,
+        user node_ptr link_ste,
+        user node_ptr current_scope,
+        user node_ptr init_fundef,
+        user node_ptr last_stmts_local,
+        user node_ptr first_stmts_local,
+        string entry_name // dit is naam van de var die opgezocht wordt om te linken bij het splitsen
+    }
+
+};
+
+// // Non-matching types shall lead to meaningful error messages. The type checker
+// // should report multiple errors before termination.
+// phase TypeChecking {
+//     actions {
+//         // Type inference infers the type of an expression based on the declared
+//         // types of identifiers, the natural types of constants, the typing rules
+//         // of built-in operators and type declarations of defined functions.
+//         traversal TypeInference {
+//             nodes = {
+
+//             }
+//         };
+
+//         // Type matching checks whether inferred types match declared types,
+//         // e.g. in assignments to variables, in argument/return positions of
+//         // function calls or in predicate positions of control flow constructs.
+//         traversal TypeMatching {
+
+//         };
+//     }
+// };
 
 traversal TypeChecking {
     uid = TC,
