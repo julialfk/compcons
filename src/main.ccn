@@ -3,7 +3,8 @@ start phase RootPhase {
         pass SPdoScanParse;
         SymbolTables;
         VarInitsToAssignments;
-        BoolopsToCondops;
+        TypeChecking;
+        //BoolopsToCondops;
         print;
     }
 };
@@ -13,7 +14,7 @@ traversal SymbolTables {
     nodes = {
         Program, GlobDef, GlobDecl, FunDef,
         VarDecl, Varlet, Var, FunCall, Param, For,
-        Symtable, Ste
+        Ste
     },
     // Could make a stack with ptrs to tables when implementing nested functions.
     travdata {
@@ -28,7 +29,7 @@ traversal SymbolTables {
 traversal VarInitsToAssignments {
     uid = VITA,
     nodes = {
-        Globdef, Program, FunDef, VarDecl, FunBody
+        Globdef, Program, FunDef, VarDecl, FunBody, Ste
     },
     travdata {
         user node_ptr init_funbody,
@@ -53,12 +54,14 @@ traversal BoolopsToCondops {
 traversal TypeChecking {
     uid = TC,
     nodes = {
-        Program, FunDef, For, Cast, FunCall, Var, Float, Bool, Num,
-        Binop, Monop, Assign, IfElse, Return
+        FunDef, For, Cast, FunCall, Var, Float, Bool, Num,
+        Binop, Monop, Assign, IfElse, Return, Param
     },
     travdata {
         user node_ptr for_counter,
-        Type current_type
+        user node_ptr return_node,
+        Type current_type,
+        bool bool_return
     }
 };
 
@@ -311,7 +314,7 @@ node Stmts {
 
 node Assign {
     children {
-        VarLet let { constructor },
+        VarLet let { constructor, mandatory },
         Expr expr { constructor, mandatory }
     }
 };

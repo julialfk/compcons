@@ -161,7 +161,9 @@ node_st *STfor(node_st *node) {
     //     printf("correct code type\n");
     // }
     FOR_SYMTABLE(node) = symtable;
-    TRAVblock(node);
+    if (FOR_BLOCK(node)) {
+        TRAVblock(node);
+    }
 
     return node;
 }
@@ -327,14 +329,14 @@ node_st *STvar(node_st *node)
     return node;
 }
 
-/**
- * @fn STsymtable
- */
-node_st *STsymtable(node_st *node)
-{
-    TRAVnext(node);
-    return node;
-}
+// /**
+//  * @fn STsymtable
+//  */
+// node_st *STsymtable(node_st *node)
+// {
+//     TRAVnext(node);
+//     return node;
+// }
 
 /**
  * @fn STste

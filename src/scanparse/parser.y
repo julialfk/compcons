@@ -70,10 +70,12 @@ program: decls
 decls: decl decls
        {
          $$ = ASTdecls($1, $2);
+         AddLocToNode($$, &@1, &@1);
        }
      | decl
        {
          $$ = ASTdecls($1, NULL);
+         AddLocToNode($$, &@1, &@1);
        }
      ;
 
@@ -94,10 +96,12 @@ decl: fundef
 fundefs: fundef fundefs
          {
            $$ = ASTfundefs($1, $2);
+           AddLocToNode($$, &@1, &@1);
          }
        | fundef
          {
            $$ = ASTfundefs($1, NULL);
+           AddLocToNode($$, &@1, &@1);
          }
        ;
 
@@ -105,31 +109,36 @@ fundefs: fundef fundefs
 fundef: EXPORT vartype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R funbody[body]
         {
           $$ = ASTfundef($body, $parameters, NULL, $funtype, $name, true);
+          AddLocToNode($$, &@funtype, &@body);
         }
         /* wel export geen parameters, wel body */
       | EXPORT vartype[funtype] ID[name] BRACKET_L BRACKET_R funbody[body]
         {
           $$ = ASTfundef($body, NULL, NULL, $funtype, $name, true);
+          AddLocToNode($$, &@funtype, &@body);
         }
         /* geen export, wel parameters, wel body */
       | vartype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R funbody[body]
         {
           $$ = ASTfundef($body, $parameters, NULL, $funtype, $name, false);
+          AddLocToNode($$, &@funtype, &@body);
         }
-
         /* geen export, geen parameters, wel body */
       | vartype[funtype] ID[name] BRACKET_L BRACKET_R funbody[body]
         {
           $$ = ASTfundef($body, NULL, NULL, $funtype, $name, false);
+          AddLocToNode($$, &@funtype, &@body);
         }
 
       | EXTERN vartype[funtype] ID[name] BRACKET_L BRACKET_R SEMICOLON
         {
           $$ = ASTfundef(NULL, NULL, NULL, $funtype, $name, false);
+          AddLocToNode($$, &@funtype, &@name);
         }
       | EXTERN vartype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R SEMICOLON
         {
           $$ = ASTfundef(NULL, false, NULL, $funtype, $name, false);
+          AddLocToNode($$, &@funtype, &@parameters);
         }
       ;
 
@@ -165,31 +174,34 @@ globdef: EXPORT vartype[type] ID[name] LET expr[init] SEMICOLON
 funbody: BRACE_L vardecl stmts BRACE_R
          {
            $$ = ASTfunbody($2, NULL, $3);
+           AddLocToNode($$, &@2, &@3);
          }
-
-      | BRACE_L vardecl BRACE_R
-        {
-          $$ = ASTfunbody($2, NULL, NULL);
-        }
-      | BRACE_L stmts BRACE_R
-        {
-          $$ = ASTfunbody(NULL, NULL, $2);
-        }
-
-      | BRACE_L BRACE_R
-      {
-        $$ = ASTfunbody(NULL, NULL, NULL);
-      }
-
-       ;
+       | BRACE_L vardecl BRACE_R
+         {
+           $$ = ASTfunbody($2, NULL, NULL);
+           AddLocToNode($$, &@2, &@2);
+         }
+       | BRACE_L stmts BRACE_R
+         {
+           $$ = ASTfunbody(NULL, NULL, $2);
+           AddLocToNode($$, &@2, &@2);
+         }
+ 
+       | BRACE_L BRACE_R
+         {
+           $$ = ASTfunbody(NULL, NULL, NULL);
+         }
+      ;
 
 stmts: stmt stmts
        {
          $$ = ASTstmts($1, $2);
+         AddLocToNode($$, &@1, &@1);
        }
      | stmt
        {
          $$ = ASTstmts($1, NULL);
+         AddLocToNode($$, &@1, &@1);
        }
      ;
 
@@ -226,35 +238,39 @@ stmt: assign
 exprstmt: expr
           {
             $$ = ASTexprstmt($1);
+            AddLocToNode($$, &@1, &@1);
           }
         ;
 
 vardecl: vartype[type] ID[name] LET expr[init] SEMICOLON vardecl[next]
          {
            $$ = ASTvardecl(NULL, $init, $next, $name, $type);
-           
+           AddLocToNode($$, &@type, &@init);
          }
          /* declaration + initialisation, no next */
        | vartype[type] ID[name] LET expr[init] SEMICOLON
          {
            $$ = ASTvardecl(NULL, $init, NULL, $name, $type);
-           
+           AddLocToNode($$, &@type, &@init);
          }
          /* declaration, no initialisation, next */
        | vartype[type] ID[name] SEMICOLON vardecl[next]
          {
            $$ = ASTvardecl(NULL, NULL, $next, $name, $type);
+           AddLocToNode($$, &@type, &@name);
          }
          /* declaration, no initialisation, no next */
        | vartype[type] ID[name] SEMICOLON
          {
            $$ = ASTvardecl(NULL, NULL, NULL, $name, $type);
+           AddLocToNode($$, &@type, &@name);
          }
        ;
 
 assign: varlet LET expr SEMICOLON
         {
           $$ = ASTassign($1, $3);
+          AddLocToNode($$, &@1, &@3);
         }
       ;
 
@@ -315,6 +331,7 @@ expr: BRACKET_L expr BRACKET_R
     | ID
       {
         $$ = ASTvar(NULL, $1, NULL);
+        AddLocToNode($$, &@1, &@1);
       }
     | funcall
       {
@@ -376,16 +393,27 @@ funcall: ID[name] BRACKET_L BRACKET_R
 param: vartype[type] ID[name] COMMA param[next]
        {
          $$ = ASTparam(NULL, $next, $name, $type);
+         AddLocToNode($$, &@type, &@next);
        }
      | vartype[type] ID[name]
        {
          $$ = ASTparam(NULL, NULL, $name, $type);
+         AddLocToNode($$, &@type, &@name);
        }
      ;
 
 block: BRACE_L stmts BRACE_R
        {
          $$ = $2;
+       }
+     | BRACE_L BRACE_R
+       {
+         $$ = NULL;
+       }
+     | stmt
+       {
+         $$ = ASTstmts($1, NULL);
+         AddLocToNode($$, &@1, &@1);
        }
      ;
 
@@ -406,22 +434,26 @@ constant: floatval
 floatval: FLOAT
           {
             $$ = ASTfloat($1);
+            AddLocToNode($$, &@1, &@1);
           }
         ;
 
 intval: NUM
         {
           $$ = ASTnum($1);
+          AddLocToNode($$, &@1, &@1);
         }
       ;
 
 boolval: TRUEVAL
          {
            $$ = ASTbool(true);
+           AddLocToNode($$, &@1, &@1);
          }
        | FALSEVAL
          {
            $$ = ASTbool(false);
+           AddLocToNode($$, &@1, &@1);
          }
        ;
 
