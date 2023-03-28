@@ -54,8 +54,8 @@ void type_error(node_st *node, enum Type given_type)
     char *given = (char *)malloc(6 * sizeof(char));
     given = type_string(given_type, given);
 
-    printf("Error: incorrect data type (%s) (%d:%d).\n",
-            given, NODE_BLINE(node), NODE_BCOL(node));
+    printf("Error (%d:%d): incorrect data type (%s).\n",
+            NODE_BLINE(node), NODE_BCOL(node), given);
     free(given);
 }
 
@@ -132,6 +132,11 @@ node_st *TCfor(node_st *node)
 node_st *TCcast(node_st *node)
 {
     struct data_tc *data = DATA_TC_GET();
+
+    if (CAST_TYPE(node) == CT_void) {
+        printf("Error (%d:%d): cast type cannot be void.\n",
+                NODE_BLINE(node), NODE_BCOL(node));
+    }
 
     data->current_type = CT_NULL;
     TRAVexpr(node);

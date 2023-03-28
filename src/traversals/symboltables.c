@@ -35,8 +35,8 @@ void search_ste(struct data_st *data) {
     node_st *cur_table = data->current_scope;
     do {
         TRAVnext(cur_table);
-        cur_table = SYMTABLE_PARENT(data->current_scope);
-        // printf("searching: ")
+        cur_table = SYMTABLE_PARENT(cur_table);
+        // printf("data->link_ste: %ld\n", data->link_ste);
     }
     while (!data->link_ste && cur_table);
 }
