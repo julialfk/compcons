@@ -26,6 +26,14 @@
 #include "ccngen/trav.h"
 
 
+static void AddLocToNode(node_st *old_node, node_st *new_node)
+{
+    NODE_BLINE(new_node) = NODE_BLINE(old_node);
+    NODE_BCOL(new_node) = NODE_BCOL(old_node);
+    NODE_ELINE(new_node) = NODE_ELINE(old_node);
+    NODE_ECOL(new_node) = NODE_ECOL(old_node);
+}
+
 char *copy_entry_name(char *original) {
     char *entry_name_cpy = (char *)malloc(sizeof(char)
                                         * (strlen(original) + 1));
@@ -64,8 +72,11 @@ node_st *VITAglobdef(node_st *node)
         }
 
         node_st *new_varlet = ASTvarlet(NULL, copy_entry_name(GLOBDEF_NAME(node)), data->link_ste);
+        AddLocToNode(new_varlet, node);
         node_st *new_assignment = ASTassign(new_varlet, GLOBDEF_INIT(node));
+        AddLocToNode(new_assignment, node);
         node_st *new_stmts = ASTstmts(new_assignment, NULL);
+        AddLocToNode(new_stmts, node);
         if (data->last_stmts_init == NULL) {
             FUNBODY_STMTS(data->init_funbody) = new_stmts;
         }
@@ -134,8 +145,11 @@ node_st *VITAvardecl(node_st *node)
         struct data_vita *data = DATA_VITA_GET();
         data->entry_name = VARDECL_NAME(node);
         node_st *new_varlet = ASTvarlet(NULL, copy_entry_name(VARDECL_NAME(node)), data->link_ste);
+        AddLocToNode(new_varlet, node);
         node_st *new_assignment = ASTassign(new_varlet, VARDECL_INIT(node));
+        AddLocToNode(new_assignment, node);
         node_st *new_stmts = ASTstmts(new_assignment, NULL);
+        AddLocToNode(new_stmts, node);
         if (data->first_stmts_local == NULL) {
             data->first_stmts_local = new_stmts;
             data->last_stmts_local = new_stmts;

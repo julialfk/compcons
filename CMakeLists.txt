@@ -32,7 +32,7 @@ add_executable(civicc ${FLEX_CivicLexer_OUTPUTS} ${BISON_CivicParser_OUTPUTS}
     src/main.c src/print/print.c src/scanparse/scanParse.c
     src/traversals/var_init_to_assmnts.c src/traversals/bools_to_conds.c
     src/global/globals.c src/global/globals.h src/traversals/symboltables.c
-    src/traversals/typechecking.c src/traversals/forcheck.c
+    src/traversals/typechecking.c src/traversals/forcheck.c src/traversals/boolean_casts.c
 
 )
 

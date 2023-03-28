@@ -5,10 +5,11 @@ start phase RootPhase {
     actions {
         pass SPdoScanParse;
         SymbolTables;
-        //VarInitsToAssignments;
-        //TypeChecking;
+        VarInitsToAssignments;
+        TypeChecking;
         //ForCheck;
-        //BoolopsToCondops;
+        BoolopsToCondops;
+        BooleanCasts;
         print;
     }
 };
@@ -18,7 +19,7 @@ traversal SymbolTables {
     nodes = {
         Program, GlobDef, GlobDecl, FunDef,
         VarDecl, Varlet, Var, FunCall, Param, For,
-        Ste
+        Symtable, Ste
     },
     // Could make a stack with ptrs to tables when implementing nested functions.
     travdata {
@@ -63,6 +64,13 @@ traversal BoolopsToCondops {
     uid = BTC,
     nodes = {
         Binop, Monop
+    }
+};
+
+traversal BooleanCasts {
+    uid = BC,
+    nodes = {
+        Cast, binop, monop, Float, Bool, Num, Var, FunCall
     }
 };
 

@@ -260,9 +260,6 @@ node_st *PRTfor(node_st *node)
         TRAVstep(node);
     }
     printf(") {\n");
-    printf("\n/* Symbol table: \n\n");
-    TRAVsymtable(node);
-    printf("\n*/\n");
     TRAVblock(node);
     printf("}\n");
     // printf( "(%d:%d-%d)\n", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
