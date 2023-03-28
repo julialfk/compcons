@@ -7,8 +7,13 @@
  *
  */
 
+#include <stdio.h>
+#include <string.h>
+
 #include "ccn/ccn.h"
 #include "ccngen/ast.h"
+#include "ccngen/enum.h"
+#include "ccngen/trav.h"
 
 
 void FCinit()
@@ -26,7 +31,14 @@ void FCfini() { return; }
 node_st *FCfor(node_st *node)
 {
     struct data_fc *data = DATA_FC_GET();
-
+    // printf("step: %ld", FOR_STEP(node));
+    // if (NODE_TYPE(FOR_STEP(node)) == NT_NUM) {
+    //     printf("is num\n");
+    // }
+    if (NODE_TYPE(FOR_STEP(node)) == NT_NUM && NUM_VAL(FOR_STEP(node)) == 0) {
+        printf("Error (%d:%d): step size cannot be 0.\n",
+                NODE_BLINE(FOR_STEP(node)), NODE_BCOL(FOR_STEP(node)));
+    }
 
     data->for_loops++;
     data->current_scope = FOR_SYMTABLE(node);
