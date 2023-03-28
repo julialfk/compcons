@@ -146,6 +146,7 @@ node_st *TCcast(node_st *node)
         printf("Unable to cast this data type.\n");
     }
     data->current_type = CAST_TYPE(node);
+    CAST_EXPR_TYPE(node) = data->current_type;
     return node;
 }
 
@@ -204,6 +205,7 @@ node_st *TCbinop(node_st *node)
         }
     }
 
+    BINOP_EXPR_TYPE(node) = data->current_type;
     return node;
 }
 
@@ -335,6 +337,7 @@ node_st *TCmonop(node_st *node)
         }
     }
 
+    MONOP_EXPR_TYPE(node) = data->current_type;
     return node;
 }
 

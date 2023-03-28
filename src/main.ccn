@@ -216,7 +216,8 @@ node Cast {
         Expr expr {constructor, mandatory }
     }, 
     attributes {
-        Type type { constructor }
+        Type type { constructor },
+        Type expr_type { constructor }
     }
 };
 
@@ -373,7 +374,8 @@ node Binop {
     }, 
 
     attributes {
-        binop_type op { constructor }
+        binop_type op { constructor },
+        Type expr_type { constructor }
     }
 };
 
@@ -384,7 +386,8 @@ node Monop {
     },
 
     attributes {
-        monop_type op { constructor }
+        monop_type op { constructor },
+        Type expr_type { constructor }
     }
 };
 
