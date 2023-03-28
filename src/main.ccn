@@ -8,8 +8,8 @@ start phase RootPhase {
         VarInitsToAssignments;
         TypeChecking;
         //ForCheck;
-        //BoolopsToCondops;
-        //BooleanCasts;
+        BoolopsToCondops;
+        BooleanCasts;
         print;
     }
 };
@@ -70,7 +70,12 @@ traversal BoolopsToCondops {
 traversal BooleanCasts {
     uid = BC,
     nodes = {
-        Cast, binop, monop, Float, Bool, Num, Var, FunCall
+        Cast, FunCall, Var,
+        Binop, Monop, Boolbinop, Boolmonop,
+        Float, Bool, Num
+    },
+    travdata {
+        Type expr_type
     }
 };
 
