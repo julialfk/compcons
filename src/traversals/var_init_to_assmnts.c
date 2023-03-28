@@ -18,9 +18,12 @@
  *
  */
 
+#include <string.h>
+#include <stdio.h>
+
 #include "ccn/ccn.h"
 #include "ccngen/ast.h"
-#include <string.h>
+#include "ccngen/trav.h"
 
 
 char *copy_entry_name(char *original) {
@@ -40,11 +43,7 @@ void VITAinit() {
     return;
 }
 
-void VITAfini()
-{
-    struct data_vita *data = DATA_VITA_GET();
-    return;
-}
+void VITAfini() { return; }
 
 /**
  * @fn VITAglobdef
@@ -103,7 +102,10 @@ node_st *VITAprogram(node_st *node)
  */
 node_st *VITAfundef(node_st *node)
 {
+    struct data_vita *data = DATA_VITA_GET();
+    data->current_scope = FUNDEF_SYMTABLE(node);
     TRAVbody(node);
+    data->current_scope = SYMTABLE_PARENT(node);
     return node;
 }
 
@@ -131,7 +133,6 @@ node_st *VITAvardecl(node_st *node)
     if (VARDECL_INIT(node) != NULL) {
         struct data_vita *data = DATA_VITA_GET();
         data->entry_name = VARDECL_NAME(node);
-        TRAVnext(data->current_scope);
         node_st *new_varlet = ASTvarlet(NULL, copy_entry_name(VARDECL_NAME(node)), data->link_ste);
         node_st *new_assignment = ASTassign(new_varlet, VARDECL_INIT(node));
         node_st *new_stmts = ASTstmts(new_assignment, NULL);

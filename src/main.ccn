@@ -3,6 +3,7 @@ start phase RootPhase {
         pass SPdoScanParse;
         SymbolTables;
         VarInitsToAssignments;
+        TypeChecking;
         BoolopsToCondops;
         print;
     }
@@ -28,7 +29,7 @@ traversal SymbolTables {
 traversal VarInitsToAssignments {
     uid = VITA,
     nodes = {
-        Globdef, Program, FunDef, VarDecl, FunBody
+        Globdef, Program, FunDef, VarDecl, FunBody, Ste
     },
     travdata {
         user node_ptr init_funbody,
@@ -47,6 +48,20 @@ traversal BoolopsToCondops {
     uid = BTC,
     nodes = {
         Binop, Monop
+    }
+};
+
+traversal TypeChecking {
+    uid = TC,
+    nodes = {
+        FunDef, For, Cast, FunCall, Var, Float, Bool, Num,
+        Binop, Monop, Assign, IfElse, Return, Param
+    },
+    travdata {
+        user node_ptr for_counter,
+        user node_ptr return_node,
+        Type current_type,
+        bool bool_return
     }
 };
 
@@ -299,7 +314,7 @@ node Stmts {
 
 node Assign {
     children {
-        VarLet let { constructor },
+        VarLet let { constructor, mandatory },
         Expr expr { constructor, mandatory }
     }
 };
