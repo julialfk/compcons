@@ -1,9 +1,13 @@
+// Todo: Check if empty block handling is equivalent across traversals
+// Todo: Add node locations to new nodes in traversals and check if accurate
+
 start phase RootPhase {
     actions {
         pass SPdoScanParse;
         SymbolTables;
-        VarInitsToAssignments;
-        TypeChecking;
+        //VarInitsToAssignments;
+        //TypeChecking;
+        //ForCheck;
         //BoolopsToCondops;
         print;
     }
@@ -26,6 +30,18 @@ traversal SymbolTables {
     }
 };
 
+traversal ForCheck {
+    uid = FC,
+    nodes = {
+        For, VarLet, Ste
+    },
+    travdata {
+        int for_loops,
+        user node_ptr current_scope,
+        string var_name
+    }
+};
+
 traversal VarInitsToAssignments {
     uid = VITA,
     nodes = {
@@ -41,7 +57,6 @@ traversal VarInitsToAssignments {
         user node_ptr first_stmts_local,
         string entry_name // dit is naam van de var die opgezocht wordt om te linken bij het splitsen
     }
-
 };
 
 traversal BoolopsToCondops {

@@ -104,7 +104,7 @@ node_st *STglobdef(node_st *node)
     }
     else {
         // Could add where it has been declared before.
-        printf("Error: %s(%d:%d-%d) already declared.",
+        printf("Error: %s(%d:%d-%d) already declared.\n",
                     GLOBDEF_NAME(node), NODE_BLINE(node),
                     NODE_BCOL(node), NODE_ECOL(node));
     }
@@ -152,18 +152,16 @@ node_st *STglobdecl(node_st *node)
  */
 node_st *STfor(node_st *node) {
     struct data_st *data = DATA_ST_GET();
-    // printf("%d\n", data->nest_lvl);
     node_st *new_entry = ASTste(NULL, copy_entry_name(FOR_VAR(node)),
                                 CT_int, false, 0, NULL, data->nest_lvl + 1);
     node_st *symtable = ASTsymtable(new_entry, data->nest_lvl + 1,
                                     data->current_scope, new_entry);
-    // if (NODE_TYPE(symtable) == NT_SYMTABLE) {
-    //     printf("correct code type\n");
-    // }
     FOR_SYMTABLE(node) = symtable;
+    data->current_scope = symtable;
     if (FOR_BLOCK(node)) {
         TRAVblock(node);
     }
+    data->current_scope = SYMTABLE_PARENT(data->current_scope);
 
     return node;
 }
@@ -367,7 +365,7 @@ node_st *STvarlet(node_st *node)
         VARLET_STE(node) = data->link_ste;
     }
     else {
-        printf("Error: %s(%d:%d-%d) not declared.",
+        printf("Error: %s(%d:%d-%d) not declared.\n",
                     VARLET_NAME(node), NODE_BLINE(node),
                     NODE_BCOL(node), NODE_ECOL(node));
     }
