@@ -37,17 +37,23 @@ static void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 
 %define parse.error verbose
 
-%token BRACKET_L BRACKET_R BRACE_L BRACE_R COMMA SEMICOLON
-%token MINUS PLUS STAR SLASH PERCENT LE LT GE GT EQ NE OR AND EXCLAMATION
 %token TRUEVAL FALSEVAL LET
 %token INTTYPE FLOATTYPE BOOLTYPE VOIDTYPE
 %token IF ELSE DO WHILE FOR RETURN EXPORT EXTERN
+%left OR
+%left AND
+%left EQ NE
+%left LE LT GE GT
+%left MINUS PLUS
+%left STAR SLASH PERCENT
+%left EXCLAMATION
+%left BRACKET_L BRACKET_R BRACE_L BRACE_R COMMA SEMICOLON
 
 %token <cint> NUM
 %token <cflt> FLOAT
 %token <id> ID
 
-%type <node> intval floatval boolval constant funcall expr exprs block param
+%type <node> intval floatval boolval constant funcall expr exprs block param binmon
 %type <node> ifelse while dowhile for return
 %type <node> stmts stmt exprstmt assign varlet program vardecl
 %type <node> funbody
@@ -337,19 +343,13 @@ expr: BRACKET_L expr BRACKET_R
       {
         $$ = $1;
       }
-    | expr[left] binop[type] expr[right]
+    | binmon
       {
-        $$ = ASTbinop( $left, $right, $type);
-        AddLocToNode($$, &@left, &@right);
-      }
-    | monop[type] expr[operand]
-      {
-        $$ = ASTmonop( $operand, $type);
-        AddLocToNode($$, &@type, &@operand);
+        $$ = $1;
       }
     | BRACKET_L vartype[type] BRACKET_R expr
       {
-        $$ = ASTcast( $4, $type);
+        $$ = ASTcast( $4, $type, CT_NULL);
         AddLocToNode($$, &@type, &@4);
       }
     ;
@@ -456,6 +456,83 @@ boolval: TRUEVAL
            AddLocToNode($$, &@1, &@1);
          }
        ;
+
+binmon: expr[left] PLUS expr[right]
+        {
+          $$ = ASTbinop( $left, $right, BO_add, CT_NULL);
+          AddLocToNode($$, &@left, &@right);
+        }
+      | expr[left] MINUS expr[right]
+        {
+          $$ = ASTbinop( $left, $right, BO_sub, CT_NULL);
+          AddLocToNode($$, &@left, &@right);
+        }
+      | expr[left] STAR expr[right]
+        {
+          $$ = ASTbinop( $left, $right, BO_mul, CT_NULL);
+          AddLocToNode($$, &@left, &@right);
+        }
+      | expr[left] SLASH expr[right]
+        {
+          $$ = ASTbinop( $left, $right, BO_div, CT_NULL);
+          AddLocToNode($$, &@left, &@right);
+        }
+      | expr[left] PERCENT expr[right]
+        {
+          $$ = ASTbinop( $left, $right, BO_mod, CT_NULL);
+          AddLocToNode($$, &@left, &@right);
+        }
+      | expr[left] LE expr[right]
+        {
+          $$ = ASTbinop( $left, $right, BO_le, CT_NULL);
+          AddLocToNode($$, &@left, &@right);
+        }
+      | expr[left] LT expr[right]
+        {
+          $$ = ASTbinop( $left, $right, BO_lt, CT_NULL);
+          AddLocToNode($$, &@left, &@right);
+        }
+      | expr[left] GE expr[right]
+        {
+          $$ = ASTbinop( $left, $right, BO_ge, CT_NULL);
+          AddLocToNode($$, &@left, &@right);
+        }
+      | expr[left] GT expr[right]
+        {
+          $$ = ASTbinop( $left, $right, BO_gt, CT_NULL);
+          AddLocToNode($$, &@left, &@right);
+        }
+      | expr[left] EQ expr[right]
+        {
+          $$ = ASTbinop( $left, $right, BO_eq, CT_NULL);
+          AddLocToNode($$, &@left, &@right);
+        }
+      | expr[left] NE expr[right]
+        {
+          $$ = ASTbinop( $left, $right, BO_ne, CT_NULL);
+          AddLocToNode($$, &@left, &@right);
+        }
+      | expr[left] OR expr[right]
+        {
+          $$ = ASTbinop( $left, $right, BO_or, CT_NULL);
+          AddLocToNode($$, &@left, &@right);
+        }
+      | expr[left] AND expr[right]
+        {
+          $$ = ASTbinop( $left, $right, BO_and, CT_NULL);
+          AddLocToNode($$, &@left, &@right);
+        }
+      | MINUS expr[operand]
+        {
+          $$ = ASTmonop( $operand, MO_neg, CT_NULL);
+          AddLocToNode($$, &@1, &@operand);
+        }
+      | EXCLAMATION expr[operand]
+        {
+          $$ = ASTmonop( $operand, MO_not, CT_NULL);
+          AddLocToNode($$, &@1, &@operand);
+        }
+
 
 binop: PLUS      { $$ = BO_add; }
      | MINUS     { $$ = BO_sub; }
