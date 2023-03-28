@@ -158,7 +158,12 @@ node_st *STfor(node_st *node) {
     node_st *symtable = ASTsymtable(new_entry, data->nest_lvl + 1,
                                     data->current_scope, new_entry);
     FOR_SYMTABLE(node) = symtable;
+
     data->current_scope = symtable;
+    TRAVstop(node);
+    if (FOR_STEP(node)) {
+        TRAVstep(node);
+    }
     if (FOR_BLOCK(node)) {
         TRAVblock(node);
     }

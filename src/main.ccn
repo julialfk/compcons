@@ -7,7 +7,7 @@ start phase RootPhase {
         SymbolTables;
         VarInitsToAssignments;
         TypeChecking;
-        //ForCheck;
+        ForCheck;
         //BoolopsToCondops;
         //BooleanCasts;
         print;
