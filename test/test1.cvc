@@ -1,3 +1,4 @@
-void function(int x) {
-    int x = x - x;
+void function(bool x, int y) {
+    int a = (int) x;
+    bool b = (bool) (y + 1 * 7 / 4 - 9);
 }

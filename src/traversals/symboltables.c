@@ -30,7 +30,8 @@ void insert_ste(struct data_st *data, node_st *new_entry) {
     SYMTABLE_TAIL(data->current_scope) = new_entry;
 }
 
-void search_ste(struct data_st *data) {
+
+static void search_ste(struct data_st *data) {
     node_st *cur_table = data->current_scope;
     do {
         TRAVnext(cur_table);

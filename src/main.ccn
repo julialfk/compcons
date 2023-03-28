@@ -5,11 +5,11 @@ start phase RootPhase {
     actions {
         pass SPdoScanParse;
         SymbolTables;
-        //VarInitsToAssignments;
-        //TypeChecking;
-        //ForCheck;
-        //BoolopsToCondops;
-        //BooleanCasts;
+        VarInitsToAssignments;
+        TypeChecking;
+        ForCheck;
+        BoolopsToCondops;
+        BooleanCasts;
         print;
     }
 };
@@ -62,14 +62,19 @@ traversal VarInitsToAssignments {
 traversal BoolopsToCondops {
     uid = BTC,
     nodes = {
-        Binop, Monop
+        Binop
     }
 };
 
 traversal BooleanCasts {
     uid = BC,
     nodes = {
-        Cast, binop, monop, Float, Bool, Num, Var, FunCall
+        Cast, FunCall, Var,
+        Binop, Monop, Boolbinop, Boolmonop,
+        Float, Bool, Num
+    },
+    travdata {
+        Type expr_type
     }
 };
 
@@ -131,7 +136,7 @@ enum monboolop_type {
 
 nodeset Constants = {Float, Bool, Num};
 
-nodeset Operations = {Binop, Monop, Boolbinop, Boolmonop};
+nodeset Operations = {Binop, Monop, Boolbinop, Boolmonop, Ternary};
 
 nodeset Decl = {GlobDef, GlobDecl, FunDef};
 
@@ -350,6 +355,14 @@ node Boolbinop {
 
     attributes {
         binboolop_type op { constructor }
+    }
+};
+
+node Ternary {
+    children {
+        Expr pred { constructor, mandatory },
+        Expr then_ { constructor, mandatory },
+        Expr else_ { constructor, mandatory }
     }
 };
 

@@ -7,8 +7,6 @@
 // statement in the list of statements of the function
 // the new assignment statement is inserted before the old
 
-
-
 /**
  * @file
  *
@@ -32,6 +30,16 @@ static void AddLocToNode(node_st *old_node, node_st *new_node)
     NODE_BCOL(new_node) = NODE_BCOL(old_node);
     NODE_ELINE(new_node) = NODE_ELINE(old_node);
     NODE_ECOL(new_node) = NODE_ECOL(old_node);
+}
+
+static void search_ste(struct data_vita *data) {
+    node_st *cur_table = data->current_scope;
+    do {
+        TRAVnext(cur_table);
+        cur_table = SYMTABLE_PARENT(data->current_scope);
+        // printf("searching: ")
+    }
+    while (!data->link_ste && cur_table);
 }
 
 char *copy_entry_name(char *original) {
@@ -70,7 +78,8 @@ node_st *VITAglobdef(node_st *node)
             data->init_fundef = fundef_init;
             data->init_funbody = funbody_init;
         }
-
+        data->link_ste = NULL;
+        search_ste(data);
         node_st *new_varlet = ASTvarlet(NULL, copy_entry_name(GLOBDEF_NAME(node)), data->link_ste);
         AddLocToNode(new_varlet, node);
         node_st *new_assignment = ASTassign(new_varlet, GLOBDEF_INIT(node));
@@ -143,7 +152,10 @@ node_st *VITAvardecl(node_st *node)
 {
     if (VARDECL_INIT(node) != NULL) {
         struct data_vita *data = DATA_VITA_GET();
+        
         data->entry_name = VARDECL_NAME(node);
+        data->link_ste = NULL;
+        search_ste(data);
         node_st *new_varlet = ASTvarlet(NULL, copy_entry_name(VARDECL_NAME(node)), data->link_ste);
         AddLocToNode(new_varlet, node);
         node_st *new_assignment = ASTassign(new_varlet, VARDECL_INIT(node));
