@@ -8,8 +8,8 @@ start phase RootPhase {
         VarInitsToAssignments;
         TypeChecking;
         //ForCheck;
-        BoolopsToCondops;
-        BooleanCasts;
+        //BoolopsToCondops;
+        //BooleanCasts;
         print;
     }
 };
