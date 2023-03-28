@@ -10,13 +10,10 @@
 #include "ccn/ccn.h"
 #include "ccngen/ast.h"
 
-void BCinit() {
-    struct data_bc *data = DATA_BC_GET();
-    data->expr_type;
-    return;
-}
 
+void BCinit() { return; }
 void BCfini() { return; }
+
 
 /**
  * @fn BCcast
@@ -24,9 +21,7 @@ void BCfini() { return; }
 node_st *BCcast(node_st *node)
 {
     struct data_bc *data = DATA_BC_GET();
-    data->expr_type = CAST_TYPE(node);
     TRAVexpr(node);
-
     if (CAST_TYPE(node) == CT_bool) {
         if (data->expr_type == CT_float) {
             node_st *new_node = ASTbinop(CCNcopy(CAST_EXPR(node)), ASTfloat(0.0), BO_ne);
@@ -41,6 +36,29 @@ node_st *BCcast(node_st *node)
             *node_ptr = new_node;
         }
     }
+    
+    else {
+        if (data->expr_type == CT_bool){
+            node_st *pred = ASTbinop(CCNcopy(CAST_EXPR(node)), ASTbool(true), BO_eq);
+            node_st *then_;
+            node_st *else_;
+            if (CAST_TYPE(node) == CT_float) {
+                then_ = ASTfloat(1.0);
+                else_ = ASTfloat(0.0);
+            }
+            else if (CAST_TYPE(node) == CT_int) {
+                then_ = ASTnum(1);
+                else_ = ASTnum(0);
+            }
+            node_st *ternary = ASTternary(pred, then_, else_);
+            node_st **node_ptr = &node;
+            CCNfree(node);
+            *node_ptr = ternary;
+        }
+    }
+
+    data->expr_type = CAST_TYPE(node);
+
     return node;
 }
 

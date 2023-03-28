@@ -533,6 +533,18 @@ node_st *PRTboolmonop(node_st *node)
     return node;
 }
 
+/**
+ * @fn PRTternary
+ */
+node_st *PRTternary(node_st *node)
+{
+    TRAVpred(node),
+    printf(" ? ");
+    TRAVthen_(node);
+    printf(" : ");
+    TRAVelse_(node);
+    return node;
+}
 
 /**
  * @fn PRTmonop

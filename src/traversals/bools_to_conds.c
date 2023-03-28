@@ -15,32 +15,39 @@
  */
 node_st *BTCbinop(node_st *node)
 {
-    if (BINOP_OP(node) == BO_and) {
-        node_st *cond = ASTboolbinop(CCNcopy(BINOP_LEFT(node)), CCNcopy(BINOP_RIGHT(node)), BOO_and);
+    TRAVchildren(node);
+    if (BINOP_OP(node) == BO_or) {
+        node_st *pred = ASTbinop(CCNcopy(BINOP_LEFT(node)), ASTbool(true), BO_eq);
+        node_st *then = ASTbool(true);
+        node_st *els = ASTbinop(CCNcopy(BINOP_RIGHT(node)), ASTbool(true), BO_eq);
+        node_st *ternary = ASTternary(pred, then, els);
         node_st **node_ptr = &node;
         CCNfree(node);
-        *node_ptr = cond;
+        *node_ptr = ternary;
     }
-    else if (BINOP_OP(node) == BO_or) {
-        node_st *cond = ASTboolbinop(CCNcopy(BINOP_LEFT(node)), CCNcopy(BINOP_RIGHT(node)), BOO_or);
+    else if (BINOP_OP(node) == BO_and) {
+        node_st *pred = ASTbinop(CCNcopy(BINOP_LEFT(node)), ASTbool(false), BO_eq);
+        node_st *then = ASTbool(false);
+        node_st *els = ASTbinop(CCNcopy(BINOP_RIGHT(node)), ASTbool(true), BO_eq);
+        node_st *ternary = ASTternary(pred, then, els);
         node_st **node_ptr = &node;
         CCNfree(node);
-        *node_ptr = cond;
+        *node_ptr = ternary;
     }
+    
     return node;
 }
 
-/**
- * @fn BTCmonop
- */
-node_st *BTCmonop(node_st *node)
-{
-    if (MONOP_OP(node) == MO_not) {
-        node_st *cond = ASTboolmonop(CCNcopy(MONOP_OPERAND(node)), MOO_not);
-        node_st **node_ptr = &node;
-        CCNfree(node);
-        *node_ptr = cond;
-    }
-    return node;
-}
+// a || b;
 
+// pred: een binop met a == true
+// then: een constante met true
+// else: een binop met b == true
+
+// --------------------
+
+// a && b;
+
+// pred: een binop met a == false
+// then: een constante met false
+// else: een binop met b == true
