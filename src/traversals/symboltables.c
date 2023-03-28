@@ -30,7 +30,6 @@ void insert_ste(struct data_st *data, node_st *new_entry) {
     SYMTABLE_TAIL(data->current_scope) = new_entry;
 }
 
-
 void search_ste(struct data_st *data) {
     node_st *cur_table = data->current_scope;
     do {
@@ -46,6 +45,24 @@ static char *copy_entry_name(char *original) {
                                         * (strlen(original) + 1));
     strcpy(entry_name_cpy, original);
     return entry_name_cpy;
+}
+
+void void_error(node_st *node, char *name) {
+    printf("Error (%d:%d): %s has invalid void type.\n",
+            NODE_BLINE(node), NODE_BCOL(node), name);
+    CCNerrorAction();
+}
+
+void not_declared_error(node_st *node, char *name) {
+    printf("Error (%d:%d): %s not declared.\n",
+            NODE_BLINE(node), NODE_BCOL(node), name);
+    CCNerrorAction();
+}
+
+void already_declared_error(node_st *node, char *name) {
+    printf("Error (%d:%d): %s already declared.\n",
+            NODE_BLINE(node), NODE_BCOL(node), name);
+    CCNerrorAction();
 }
 
 void STinit()
@@ -83,10 +100,7 @@ node_st *STprogram(node_st *node)
 node_st *STglobdef(node_st *node)
 {
     if (GLOBDEF_TYPE(node) == CT_void) {
-        printf("Error: %s(%d:%d-%d) has invalid void type.",
-                    GLOBDEF_NAME(node), NODE_BLINE(node),
-                    NODE_BCOL(node), NODE_ECOL(node));
-
+        void_error(node, GLOBDEF_NAME(node));
         return node;
     }
 
@@ -104,10 +118,7 @@ node_st *STglobdef(node_st *node)
         insert_ste(data, new_entry);
     }
     else {
-        // Could add where it has been declared before.
-        printf("Error: %s(%d:%d-%d) already declared.\n",
-                    GLOBDEF_NAME(node), NODE_BLINE(node),
-                    NODE_BCOL(node), NODE_ECOL(node));
+        already_declared_error(node, GLOBDEF_NAME(node));
     }
 
     data->link_ste = NULL;
@@ -120,10 +131,7 @@ node_st *STglobdef(node_st *node)
 node_st *STglobdecl(node_st *node)
 {
     if (GLOBDECL_TYPE(node) == CT_void) {
-        printf("Error: %s(%d:%d-%d) has invalid void type.",
-                    GLOBDECL_NAME(node), NODE_BLINE(node),
-                    NODE_BCOL(node), NODE_ECOL(node));
-
+        void_error(node, GLOBDECL_NAME(node));
         return node;
     }
 
@@ -140,9 +148,7 @@ node_st *STglobdecl(node_st *node)
         insert_ste(data, new_entry);
     }
     else {
-        printf("Warning: %s(%d:%d-%d) already declared.",
-                    GLOBDECL_NAME(node), NODE_BLINE(node),
-                    NODE_BCOL(node), NODE_ECOL(node));
+        already_declared_error(node, GLOBDECL_NAME(node));
     }
     data->link_ste = NULL;
     return node;
@@ -186,9 +192,7 @@ node_st *STfuncall(node_st *node)
         FUNCALL_STE(node) = data->link_ste;
     }
     else {
-        printf("Error: %s(%d:%d-%d) not declared.",
-                    VAR_NAME(node), NODE_BLINE(node),
-                    NODE_BCOL(node), NODE_ECOL(node));
+        not_declared_error(node, VAR_NAME(node));
     }
 
     data->link_ste = NULL;
@@ -207,9 +211,7 @@ node_st *STfundef(node_st *node)
     TRAVnext(data->current_scope);
 
     if (data->link_ste) {
-        printf("Error: %s(%d:%d-%d) already declared.",
-                    FUNDEF_NAME(node), NODE_BLINE(node),
-                    NODE_BCOL(node), NODE_ECOL(node));
+        already_declared_error(node, FUNDEF_NAME(node));
         return node;
     }
 
@@ -240,10 +242,7 @@ node_st *STfundef(node_st *node)
 node_st *STparam(node_st *node)
 {
     if (PARAM_TYPE(node) == CT_void) {
-        printf("Error: %s(%d:%d-%d) has invalid void type.",
-                    PARAM_NAME(node), NODE_BLINE(node),
-                    NODE_BCOL(node), NODE_ECOL(node));
-
+        void_error(node, PARAM_NAME(node));
         return node;
     }
 
@@ -263,9 +262,7 @@ node_st *STparam(node_st *node)
         STE_ARITY(data->function_ste)++;
     }
     else {
-        printf("Error: %s(%d:%d-%d) already declared.",
-                    PARAM_NAME(node), NODE_BLINE(node),
-                    NODE_BCOL(node), NODE_ECOL(node));
+        already_declared_error(node, PARAM_NAME(node));
     }
 
     TRAVnext(node);
@@ -280,10 +277,7 @@ node_st *STparam(node_st *node)
 node_st *STvardecl(node_st *node)
 {
     if (VARDECL_TYPE(node) == CT_void) {
-        printf("Error: %s(%d:%d-%d) has invalid void type.",
-                    VARDECL_NAME(node), NODE_BLINE(node),
-                    NODE_BCOL(node), NODE_ECOL(node));
-
+        void_error(node, VARDECL_NAME(node));
         return node;
     }
 
@@ -299,9 +293,7 @@ node_st *STvardecl(node_st *node)
         insert_ste(data, new_entry);
     }
     else {
-        printf("Error: %s(%d:%d-%d) already declared.",
-                    VARDECL_NAME(node), NODE_BLINE(node),
-                    NODE_BCOL(node), NODE_ECOL(node));
+        already_declared_error(node, VARDECL_NAME(node));
     }
     TRAVinit(node);
     TRAVnext(node);
@@ -324,21 +316,10 @@ node_st *STvar(node_st *node)
         VAR_STE(node) = data->link_ste;
     }
     else {
-        printf("Error: %s(%d:%d-%d) not declared.",
-                    VAR_NAME(node), NODE_BLINE(node),
-                    NODE_BCOL(node), NODE_ECOL(node));
+        not_declared_error(node, VAR_NAME(node));
     }
 
     data->link_ste = NULL;
-    return node;
-}
-
-/**
- * @fn STsymtable
- */
-node_st *STsymtable(node_st *node)
-{
-    TRAVnext(node);
     return node;
 }
 
@@ -371,9 +352,7 @@ node_st *STvarlet(node_st *node)
         VARLET_STE(node) = data->link_ste;
     }
     else {
-        printf("Error: %s(%d:%d-%d) not declared.\n",
-                    VARLET_NAME(node), NODE_BLINE(node),
-                    NODE_BCOL(node), NODE_ECOL(node));
+        not_declared_error(node, VARLET_NAME(node));
     }
 
     data->link_ste = NULL;

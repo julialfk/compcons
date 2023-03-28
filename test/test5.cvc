@@ -3,7 +3,8 @@ int x = 0;
 export int main(float variable, int y) {
 
     int z;
-    int x = variable + 3;
+    int x = v + 3;
+    int z;
     y = variable - 3;
 
     for (int i = 0, 9, 2) {

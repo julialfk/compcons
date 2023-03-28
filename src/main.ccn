@@ -18,8 +18,7 @@ traversal SymbolTables {
     uid = ST,
     nodes = {
         Program, GlobDef, GlobDecl, FunDef,
-        VarDecl, Varlet, Var, FunCall, Param, For,
-        Symtable, Ste
+        VarDecl, Varlet, Var, FunCall, Param, For, Ste
     },
     // Could make a stack with ptrs to tables when implementing nested functions.
     travdata {

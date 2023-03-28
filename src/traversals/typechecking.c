@@ -56,6 +56,7 @@ void type_error(node_st *node, enum Type given_type)
 
     printf("Error (%d:%d): incorrect data type (%s).\n",
             NODE_BLINE(node), NODE_BCOL(node), given);
+    CCNerrorAction();
     free(given);
 }
 
@@ -136,6 +137,7 @@ node_st *TCcast(node_st *node)
     if (CAST_TYPE(node) == CT_void) {
         printf("Error (%d:%d): cast type cannot be void.\n",
                 NODE_BLINE(node), NODE_BCOL(node));
+        CCNerrorAction();
     }
 
     data->current_type = CT_NULL;
@@ -144,6 +146,7 @@ node_st *TCcast(node_st *node)
         && data->current_type != CT_bool) {
         type_error(CAST_EXPR(node), data->current_type);
         printf("Unable to cast this data type.\n");
+        CCNerrorAction();
     }
     data->current_type = CAST_TYPE(node);
     CAST_EXPR_TYPE(node) = data->current_type;
@@ -229,6 +232,7 @@ node_st *TCassign(node_st *node)
                 "Expected %s, %s given.\n",
                 VARLET_NAME(ASSIGN_LET(node)), NODE_BLINE(ASSIGN_LET(node)),
                 NODE_BCOL(ASSIGN_LET(node)), expected, given);
+        CCNerrorAction();
         free(expected);
         free(given);
     }
@@ -260,6 +264,7 @@ node_st *TCfuncall(node_st *node)
         if (!arg) {
             printf("Error: not enough arguments for function %s(%d:%d).\n",
                     FUNCALL_NAME(node), NODE_BLINE(node), NODE_BCOL(node));
+            CCNerrorAction();
             break;
         }
 
@@ -276,6 +281,7 @@ node_st *TCfuncall(node_st *node)
     if (arg) {
         printf("Error: too many arguments for function %s(%d:%d).\n",
                 FUNCALL_NAME(node), NODE_BLINE(node), NODE_BCOL(node));
+        CCNerrorAction();
     }
 
     data->current_type = STE_TYPE(FUNCALL_STE(node));
@@ -349,6 +355,7 @@ node_st *TCparam(node_st *node)
     if (PARAM_TYPE(node) == CT_void) {
         printf("Error: function parameter (%s) cannot be void (%d:%d).\n",
                 PARAM_NAME(node), NODE_BLINE(node), NODE_BCOL(node));
+        CCNerrorAction();
     }
     TRAVnext(node);
     return node;
