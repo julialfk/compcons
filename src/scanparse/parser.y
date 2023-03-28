@@ -18,7 +18,7 @@ static node_st *parseresult = NULL;
 extern int yylex();
 static int yyerror( char *errname);
 extern FILE *yyin;
-void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
+static void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 
 
 %}
@@ -484,7 +484,7 @@ vartype: BOOLTYPE      { $$ = CT_bool; }
        ;
 %%
 
-void AddLocToNode(node_st *node, void *begin_loc, void *end_loc)
+static void AddLocToNode(node_st *node, void *begin_loc, void *end_loc)
 {
     // Needed because YYLTYPE unpacks later than top-level decl.
     YYLTYPE *loc_b = (YYLTYPE*)begin_loc;

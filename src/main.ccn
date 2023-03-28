@@ -5,6 +5,7 @@ start phase RootPhase {
         VarInitsToAssignments;
         TypeChecking;
         BoolopsToCondops;
+        BooleanCasts;
         print;
     }
 };
@@ -48,6 +49,13 @@ traversal BoolopsToCondops {
     uid = BTC,
     nodes = {
         Binop, Monop
+    }
+};
+
+traversal BooleanCasts {
+    uid = BC,
+    nodes = {
+        Cast, binop, monop, Float, Bool, Num, Var, FunCall
     }
 };
 
