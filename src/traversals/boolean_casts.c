@@ -7,8 +7,13 @@
  *
  */
 
+#include <stdio.h>
+#include <string.h>
+
 #include "ccn/ccn.h"
 #include "ccngen/ast.h"
+#include "ccngen/enum.h"
+#include "ccngen/trav.h"
 
 
 void BCinit() { return; }
@@ -24,31 +29,31 @@ node_st *BCcast(node_st *node)
     TRAVexpr(node);
     if (CAST_TYPE(node) == CT_bool) {
         if (data->expr_type == CT_float) {
-            node_st *new_node = ASTbinop(CCNcopy(CAST_EXPR(node)), ASTfloat(0.0), BO_ne);
+            node_st *new_node = ASTbinop(CCNcopy(CAST_EXPR(node)), ASTfloat(0.0, NULL), BO_ne, CT_bool);
             node_st **node_ptr = &node;
             CCNfree(node);
             *node_ptr = new_node;
         }
         else if (data->expr_type == CT_int) {
-            node_st *new_node = ASTbinop(CCNcopy(CAST_EXPR(node)), ASTnum(0), BO_ne);
+            node_st *new_node = ASTbinop(CCNcopy(CAST_EXPR(node)), ASTnum(0, NULL), BO_ne, CT_bool);
             node_st **node_ptr = &node;
             CCNfree(node);
             *node_ptr = new_node;
         }
     }
-    
+
     else {
         if (data->expr_type == CT_bool){
-            node_st *pred = ASTbinop(CCNcopy(CAST_EXPR(node)), ASTbool(true), BO_eq);
+            node_st *pred = ASTbinop(CCNcopy(CAST_EXPR(node)), ASTbool(true), BO_eq, CT_bool);
             node_st *then_;
             node_st *else_;
             if (CAST_TYPE(node) == CT_float) {
-                then_ = ASTfloat(1.0);
-                else_ = ASTfloat(0.0);
+                then_ = ASTfloat(1.0, NULL);
+                else_ = ASTfloat(0.0, NULL);
             }
             else if (CAST_TYPE(node) == CT_int) {
-                then_ = ASTnum(1);
-                else_ = ASTnum(0);
+                then_ = ASTnum(1, NULL);
+                else_ = ASTnum(0, NULL);
             }
             node_st *ternary = ASTternary(pred, then_, else_);
             node_st **node_ptr = &node;

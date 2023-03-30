@@ -1,5 +1,6 @@
 // Todo: Check if empty block handling is equivalent across traversals
 // Todo: Add node locations to new nodes in traversals and check if accurate
+// Todo: Check if all constant links are correct in all traversals
 
 start phase RootPhase {
     actions {
@@ -8,6 +9,7 @@ start phase RootPhase {
         VarInitsToAssignments;
         TypeChecking;
         ForCheck;
+        ConstantTable;
         BoolopsToCondops;
         BooleanCasts;
         print;
@@ -24,21 +26,10 @@ traversal SymbolTables {
     travdata {
         user node_ptr current_scope,
         int nest_lvl,
+        int index,
         string entry_name,
         user node_ptr link_ste,
         user node_ptr function_ste
-    }
-};
-
-traversal ForCheck {
-    uid = FC,
-    nodes = {
-        For, VarLet, Ste
-    },
-    travdata {
-        int for_loops,
-        user node_ptr current_scope,
-        string var_name
     }
 };
 
@@ -59,6 +50,46 @@ traversal VarInitsToAssignments {
     }
 };
 
+traversal TypeChecking {
+    uid = TC,
+    nodes = {
+        FunDef, For, Cast, FunCall, Var, Float, Bool, Num,
+        Binop, Monop, Assign, IfElse, Return, Param
+    },
+    travdata {
+        user node_ptr for_counter,
+        user node_ptr return_node,
+        Type current_type,
+        bool bool_return
+    }
+};
+
+traversal ForCheck {
+    uid = FC,
+    nodes = {
+        For, VarLet, Ste
+    },
+    travdata {
+        int for_loops,
+        user node_ptr current_scope,
+        string var_name
+    }
+};
+
+traversal ConstantTable {
+    uid = CST,
+    nodes = {
+        Program, Num, Float, Cte
+    },
+    travdata {
+        int index,
+        user node_ptr tail,
+        user node_ptr program,
+        user node_ptr cur_const,
+        Type cur_type
+    }
+};
+
 traversal BoolopsToCondops {
     uid = BTC,
     nodes = {
@@ -75,20 +106,6 @@ traversal BooleanCasts {
     },
     travdata {
         Type expr_type
-    }
-};
-
-traversal TypeChecking {
-    uid = TC,
-    nodes = {
-        FunDef, For, Cast, FunCall, Var, Float, Bool, Num,
-        Binop, Monop, Assign, IfElse, Return, Param
-    },
-    travdata {
-        user node_ptr for_counter,
-        user node_ptr return_node,
-        Type current_type,
-        bool bool_return
     }
 };
 
@@ -151,11 +168,13 @@ nodeset Stmt = {Assign, ExprStmt, IfElse, While, DoWhile, For, Return};
 // You need to adapt it when working with the symbol tables.
 // I put it as a decl now, because an empty nodeset is not allowed.
 nodeset Link = {Ste};
+nodeset Link_cte = {Cte};
 
 root node Program {
     children {
         Decls decls { constructor, mandatory },
-        Symtable global { constructor }
+        Symtable global { constructor },
+        Cte constants { constructor }
     }
 };
 
@@ -425,13 +444,15 @@ node Var {
 
 node Num {
     attributes {
-        int val { constructor }
+        int val { constructor },
+        Link_cte cte { constructor }
     }
 };
 
 node Float {
     attributes {
-        float val { constructor }
+        float val { constructor },
+        Link_cte cte { constructor }
     }
 };
 
@@ -464,6 +485,20 @@ node Ste {
         bool function { constructor },
         int arity { constructor },
         Link first_param { constructor },
-        int nest_lvl { constructor }
+        int nest_lvl { constructor },
+        int index { constructor }
     }
 };
+
+node Cte {
+    children {
+        Cte next { constructor }
+    },
+
+    attributes {
+        int index { constructor },
+        Type type { constructor },
+        int int_val { constructor },
+        float float_val { constructor }
+    }
+}

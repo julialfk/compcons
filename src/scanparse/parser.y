@@ -69,7 +69,7 @@ static void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 
 program: decls
          {
-           parseresult = ASTprogram($1, NULL);
+           parseresult = ASTprogram($1, NULL, NULL);
          }
        ;
 
@@ -433,14 +433,14 @@ constant: floatval
 
 floatval: FLOAT
           {
-            $$ = ASTfloat($1);
+            $$ = ASTfloat($1, NULL);
             AddLocToNode($$, &@1, &@1);
           }
         ;
 
 intval: NUM
         {
-          $$ = ASTnum($1);
+          $$ = ASTnum($1, NULL);
           AddLocToNode($$, &@1, &@1);
         }
       ;
@@ -484,42 +484,42 @@ binmon: expr[left] PLUS expr[right]
         }
       | expr[left] LE expr[right]
         {
-          $$ = ASTbinop( $left, $right, BO_le, CT_NULL);
+          $$ = ASTbinop( $left, $right, BO_le, CT_bool);
           AddLocToNode($$, &@left, &@right);
         }
       | expr[left] LT expr[right]
         {
-          $$ = ASTbinop( $left, $right, BO_lt, CT_NULL);
+          $$ = ASTbinop( $left, $right, BO_lt, CT_bool);
           AddLocToNode($$, &@left, &@right);
         }
       | expr[left] GE expr[right]
         {
-          $$ = ASTbinop( $left, $right, BO_ge, CT_NULL);
+          $$ = ASTbinop( $left, $right, BO_ge, CT_bool);
           AddLocToNode($$, &@left, &@right);
         }
       | expr[left] GT expr[right]
         {
-          $$ = ASTbinop( $left, $right, BO_gt, CT_NULL);
+          $$ = ASTbinop( $left, $right, BO_gt, CT_bool);
           AddLocToNode($$, &@left, &@right);
         }
       | expr[left] EQ expr[right]
         {
-          $$ = ASTbinop( $left, $right, BO_eq, CT_NULL);
+          $$ = ASTbinop( $left, $right, BO_eq, CT_bool);
           AddLocToNode($$, &@left, &@right);
         }
       | expr[left] NE expr[right]
         {
-          $$ = ASTbinop( $left, $right, BO_ne, CT_NULL);
+          $$ = ASTbinop( $left, $right, BO_ne, CT_bool);
           AddLocToNode($$, &@left, &@right);
         }
       | expr[left] OR expr[right]
         {
-          $$ = ASTbinop( $left, $right, BO_or, CT_NULL);
+          $$ = ASTbinop( $left, $right, BO_or, CT_bool);
           AddLocToNode($$, &@left, &@right);
         }
       | expr[left] AND expr[right]
         {
-          $$ = ASTbinop( $left, $right, BO_and, CT_NULL);
+          $$ = ASTbinop( $left, $right, BO_and, CT_bool);
           AddLocToNode($$, &@left, &@right);
         }
       | MINUS expr[operand]
@@ -529,7 +529,7 @@ binmon: expr[left] PLUS expr[right]
         }
       | EXCLAMATION expr[operand]
         {
-          $$ = ASTmonop( $operand, MO_not, CT_NULL);
+          $$ = ASTmonop( $operand, MO_not, CT_bool);
           AddLocToNode($$, &@1, &@operand);
         }
 

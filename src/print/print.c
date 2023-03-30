@@ -18,6 +18,10 @@
  */
 node_st *PRTprogram(node_st *node)
 {
+    printf("\n/* Constant table: \n\n");
+    TRAVconstants(node);
+    printf("\n*/\n");
+
     printf("\n/* Global symbol table: \n\n");
     TRAVglobal(node);
     printf("\n*/\n");
@@ -678,8 +682,24 @@ node_st *PRTste(node_st *node)
         }
         printf(")");
     }
-    printf("\n");
+    printf("\tScope: %d, Index: %d\n", STE_NEST_LVL(node), STE_INDEX(node));
     free(tmp);
+    TRAVnext(node);
+    return node;
+}
+
+/**
+ * @fn PRTcte
+ */
+node_st *PRTcte(node_st *node)
+{
+    // printf("in cte\n");
+    if (CTE_TYPE(node) == CT_int) {
+        printf("%d: %d\n", CTE_INDEX(node), CTE_INT_VAL(node));
+    }
+    else {
+        printf("%d: %f\n", CTE_INDEX(node), CTE_FLOAT_VAL(node));
+    }
     TRAVnext(node);
     return node;
 }
