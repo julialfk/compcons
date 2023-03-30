@@ -13,10 +13,12 @@
 #include "ccngen/ast.h"
 #include "ccngen/trav.h"
 #include "palm/dbug.h"
+#include "ccngen/enum.h"
+
 
 void print_type(enum Type type) {
     switch(type) {
-      case CT_num:
+      case CT_int:
         printf("i");
         break;
       case CT_float:
@@ -43,6 +45,7 @@ void ASfini() { return; }
 node_st *ASprogram(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -52,6 +55,7 @@ node_st *ASprogram(node_st *node)
 node_st *ASdecls(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -61,6 +65,7 @@ node_st *ASdecls(node_st *node)
 node_st *ASexprs(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -70,6 +75,7 @@ node_st *ASexprs(node_st *node)
 node_st *ASarrexpr(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -79,6 +85,7 @@ node_st *ASarrexpr(node_st *node)
 node_st *ASids(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -88,6 +95,7 @@ node_st *ASids(node_st *node)
 node_st *ASexprstmt(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -97,6 +105,7 @@ node_st *ASexprstmt(node_st *node)
 node_st *ASreturn(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -106,6 +115,7 @@ node_st *ASreturn(node_st *node)
 node_st *ASfuncall(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -115,6 +125,7 @@ node_st *ASfuncall(node_st *node)
 node_st *AScast(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -124,6 +135,7 @@ node_st *AScast(node_st *node)
 node_st *ASfundefs(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -133,6 +145,7 @@ node_st *ASfundefs(node_st *node)
 node_st *ASfundef(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -142,6 +155,7 @@ node_st *ASfundef(node_st *node)
 node_st *ASfunbody(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -151,6 +165,7 @@ node_st *ASfunbody(node_st *node)
 node_st *ASifelse(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -160,6 +175,7 @@ node_st *ASifelse(node_st *node)
 node_st *ASwhile(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -169,6 +185,7 @@ node_st *ASwhile(node_st *node)
 node_st *ASdowhile(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -178,6 +195,7 @@ node_st *ASdowhile(node_st *node)
 node_st *ASfor(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -187,6 +205,7 @@ node_st *ASfor(node_st *node)
 node_st *ASglobdecl(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -196,6 +215,7 @@ node_st *ASglobdecl(node_st *node)
 node_st *ASglobdef(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -205,6 +225,7 @@ node_st *ASglobdef(node_st *node)
 node_st *ASparam(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -214,6 +235,7 @@ node_st *ASparam(node_st *node)
 node_st *ASvardecl(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -223,6 +245,7 @@ node_st *ASvardecl(node_st *node)
 node_st *ASstmts(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -232,6 +255,7 @@ node_st *ASstmts(node_st *node)
 node_st *ASassign(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -241,6 +265,7 @@ node_st *ASassign(node_st *node)
 node_st *ASternary(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
@@ -255,7 +280,6 @@ node_st *ASbinop(node_st *node)
 
     printf("    ");
     print_type(data->last_type);
-
 
     switch (BINOP_OP(node)) {
     case BO_add:
@@ -310,6 +334,7 @@ node_st *ASbinop(node_st *node)
 node_st *ASmonop(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    TRAVchildren(node);
     return node;
 }
 
