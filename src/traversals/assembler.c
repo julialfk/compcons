@@ -279,49 +279,53 @@ node_st *ASbinop(node_st *node)
     TRAVright(node);
 
     printf("    ");
-    print_type(data->last_type);
 
     switch (BINOP_OP(node)) {
     case BO_add:
+      print_type(data->last_type);
       printf("add\n");
       break;
     case BO_sub:
+      print_type(data->last_type);
       printf("sub\n");
       break;
     case BO_mul:
+      print_type(data->last_type);
       printf("mul\n");
       break;
     case BO_div:
+      print_type(data->last_type);
       printf("div\n");
       break;
     case BO_mod:
+      print_type(data->last_type);
       printf("mod\n");
       break;
     case BO_lt:
-      printf("add\n");
+      print_type(data->last_type);
+      printf("lt\n");
       break;
     case BO_le:
-      printf("add\n");
+      print_type(data->last_type);
+      printf("le\n");
       break;
     case BO_gt:
-      printf("add\n");
+      print_type(data->last_type);
+      printf("gt\n");
       break;
     case BO_ge:
-      printf("add\n");
+      print_type(data->last_type);
+      printf("ge\n");
       break;
     case BO_eq:
-      printf("add\n");
+      print_type(data->last_type);
+      printf("eq\n");
       break;
     case BO_ne:
-      printf("add\n");
+      print_type(data->last_type);
+      printf("ne\n");
       break;
-    case BO_or:
-      printf("add\n");
-      break;
-    case BO_and:
-      printf("add\n");
-      break;
-    case BO_NULL:
+    default:
       DBUG_ASSERT(false, "unknown binop detected!");
     }
 
@@ -334,7 +338,22 @@ node_st *ASbinop(node_st *node)
 node_st *ASmonop(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
+    TRAVoperand(node);
+
+    printf("    ");
+    print_type(data->last_type);
+
+    switch (MONOP_OP(node)) {
+    case MO_not:
+      printf("not\n");
+      break;
+    case MO_neg:
+      printf("neg\n");
+      break;
+    default:
+      DBUG_ASSERT(false, "unknown monop detected!");
+    }
+
     return node;
 }
 
@@ -362,16 +381,14 @@ node_st *ASvar(node_st *node)
 node_st *ASnum(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    // switch (NUM_VAL(node)) {
-
-    // }
-    if (NUM_VAL(node) == 0) {
+    switch (NUM_VAL(node)) {
+      case 0:
         printf("    iloadc_0\n");
-    }
-    else if (NUM_VAL(node) == 1) {
+        break;
+      case 1:
         printf("    iloadc_1\n");
-    }
-    else {
+        break;
+      default:
         printf("    iloadc %d\n", CTE_INDEX(NUM_CTE(node)));
     }
 

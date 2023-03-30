@@ -255,7 +255,6 @@ node_st *TCassign(node_st *node)
 node_st *TCfloat(node_st *node)
 {
     struct data_tc *data = DATA_TC_GET();
-    printf("%f\n", FLOAT_VAL(node));
     data->current_type = CT_float;
     return node;
 }

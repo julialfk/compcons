@@ -1,3 +1,3 @@
-    iloadc 0
-    iloadc_1
-    iadd
+    floadc 0
+    floadc 1
+    fadd
