@@ -1,6 +1,7 @@
 // Todo: Check if empty block handling is equivalent across traversals
 // Todo: Add node locations to new nodes in traversals and check if accurate
 // Todo: Check if all constant links are correct in all traversals
+// Todo: add error modulo floats to type checking.
 
 start phase RootPhase {
     actions {
@@ -101,11 +102,17 @@ traversal BooleanCasts {
     uid = BC,
     nodes = {
         Cast, FunCall, Var,
-        Binop, Monop, Boolbinop, Boolmonop,
-        Float, Bool, Num
+        Binop, Monop, Float, Bool, Num
     },
     travdata {
         Type expr_type
+    }
+};
+
+traversal Assembler {
+    uid = AS,
+    travdata {
+        Type last_type
     }
 };
 
@@ -153,7 +160,7 @@ enum monboolop_type {
 
 nodeset Constants = {Float, Bool, Num};
 
-nodeset Operations = {Binop, Monop, Boolbinop, Boolmonop, Ternary};
+nodeset Operations = {Binop, Monop, Ternary};
 
 nodeset Decl = {GlobDef, GlobDecl, FunDef};
 
@@ -366,17 +373,6 @@ node Assign {
     }
 };
 
-node Boolbinop {
-    children {
-        Expr left { constructor, mandatory },
-        Expr right { constructor, mandatory }
-    }, 
-
-    attributes {
-        binboolop_type op { constructor }
-    }
-};
-
 node Ternary {
     children {
         Expr pred { constructor, mandatory },
@@ -406,16 +402,6 @@ node Monop {
     attributes {
         monop_type op { constructor },
         Type expr_type { constructor }
-    }
-};
-
-node Boolmonop {
-    children {
-        Expr operand { constructor, mandatory }
-    },
-
-    attributes {
-        monboolop_type op { constructor }
     }
 };
 

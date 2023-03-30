@@ -38,6 +38,7 @@ node_st *FCfor(node_st *node)
     if (NODE_TYPE(FOR_STEP(node)) == NT_NUM && NUM_VAL(FOR_STEP(node)) == 0) {
         printf("Error (%d:%d): step size cannot be 0.\n",
                 NODE_BLINE(FOR_STEP(node)), NODE_BCOL(FOR_STEP(node)));
+        CCNerrorAction();
     }
 
     data->for_loops++;
@@ -62,6 +63,7 @@ node_st *FCvarlet(node_st *node)
             printf("Error (%d:%d): start variable '%s' cannot be reassigned "
                    "within for loop.\n",
                    NODE_BLINE(node), NODE_BCOL(node), VARLET_NAME(node));
+            CCNerrorAction();
         }
     }
     return node;

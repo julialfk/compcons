@@ -90,9 +90,15 @@ void BreakpointHandler(node_st *root)
 
 int main (int argc, char **argv)
 {
+    FILE *assembly = freopen("output.txt", "w", stdout);
+    if (assembly == NULL) {
+        perror("Error opening output file");
+        return 1;
+    }
     GLBinitializeGlobals();
     ProcessArgs(argc, argv);
 
     CCNrun(NULL);
+    fclose(assembly);
     return 0;
 }

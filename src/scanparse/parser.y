@@ -588,7 +588,7 @@ node_st *SPdoScanParse(node_st *root)
         CTI(CTI_ERROR, true, "Cannot open file '%s'.", global.input_file);
         CTIabortOnError();
     }
-    yydebug = 1;  // Turn on yacc debugging
+    /* yydebug = 1;  // Turn on yacc debugging */
     yyparse();
     return parseresult;
 }

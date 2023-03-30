@@ -29,13 +29,13 @@ node_st *BCcast(node_st *node)
     TRAVexpr(node);
     if (CAST_TYPE(node) == CT_bool) {
         if (data->expr_type == CT_float) {
-            node_st *new_node = ASTbinop(CCNcopy(CAST_EXPR(node)), ASTfloat(0.0, NULL), BO_ne, CT_bool);
+            node_st *new_node = ASTbinop(CCNcopy(CAST_EXPR(node)), ASTfloat(0.0, NULL), BO_ne, CT_float);
             node_st **node_ptr = &node;
             CCNfree(node);
             *node_ptr = new_node;
         }
         else if (data->expr_type == CT_int) {
-            node_st *new_node = ASTbinop(CCNcopy(CAST_EXPR(node)), ASTnum(0, NULL), BO_ne, CT_bool);
+            node_st *new_node = ASTbinop(CCNcopy(CAST_EXPR(node)), ASTnum(0, NULL), BO_ne, CT_int);
             node_st **node_ptr = &node;
             CCNfree(node);
             *node_ptr = new_node;
@@ -77,29 +77,9 @@ node_st *BCbinop(node_st *node)
 }
 
 /**
- * @fn BCboolbinop
- */
-node_st *BCboolbinop(node_st *node)
-{
-    struct data_bc *data = DATA_BC_GET();
-    data->expr_type = CT_bool;
-    return node;
-}
-
-/**
  * @fn BCbool
  */
 node_st *BCbool(node_st *node)
-{
-    struct data_bc *data = DATA_BC_GET();
-    data->expr_type = CT_bool;
-    return node;
-}
-
-/**
- * @fn BCboolmonop
- */
-node_st *BCboolmonop(node_st *node)
 {
     struct data_bc *data = DATA_BC_GET();
     data->expr_type = CT_bool;
