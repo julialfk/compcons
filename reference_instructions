@@ -1,0 +1,17 @@
+; function "main" with 0 parameters and 1 local vars
+main:
+    esr 1
+                           ; local var "y" at index 0
+    bloadc 0               ; true
+    branch_f 1_false_expr
+    iloadc 1               ; 1
+    jump 2_end
+1_false_expr:
+    iloadc 2               ; 0
+2_end:                     ; (true ? 1 : 0)
+    istore 0               ; y = (true ? 1 : 0);
+    return                 ; return;
+
+.const bool true           ; index 0
+.const int 1               ; index 1
+.const int 0               ; index 2

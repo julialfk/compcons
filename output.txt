@@ -1,3 +1,26 @@
-    floadc 0
-    floadc 1
-    fadd
+
+/* Constant table: 
+
+
+*/
+
+/* Global symbol table: 
+
+main:void()	Scope: 0, Index: 0
+
+*/
+void main()
+/* Symbol table: 
+
+y:int	Scope: 1, Index: 0
+
+*/
+ {
+int y;
+y = ( true == true) ? 1 : 0;
+}
+    bloadc_t
+    bloadc_t
+    beq
+    iloadc_1
+    iloadc_0

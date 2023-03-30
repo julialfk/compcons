@@ -126,6 +126,18 @@ node_st *AScast(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
     TRAVchildren(node);
+    // niet casten als types toch al gelijk zijn
+    if (CAST_TYPE(node) == CAST_EXPR_TYPE(node)) {
+        return node;
+    }
+    printf("    ");
+    if (CAST_TYPE(node) == CT_int) {
+        printf("f2i");
+    }
+    else if (CAST_TYPE(node) == CT_float) {
+        printf("i2f");
+    }
+
     return node;
 }
 
