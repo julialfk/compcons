@@ -26,6 +26,15 @@ int yycolumn = 1;
 #define YY_USER_ACTION token_action();
 
 
+#define COMMENT(token) \
+    int count = 0; \
+    char *line = strtok(token, "\n"); \
+    while (line) { \
+        count++; \
+        line = strtok(NULL, "\n"); \
+    }\
+  global.line += count -1;\
+
 %}
 
 %p 6000 /* set positions to 6000 */
@@ -36,6 +45,10 @@ int yycolumn = 1;
 
 
 %%
+
+
+"//".*                                  { }
+[/][*][^*]*[*]+([^*/][^*]*[*]+)*[/]       { COMMENT(yytext) }
 
 "export"                   { FILTER( EXPORT);  }
 "extern"                   { FILTER( EXTERN);  }
