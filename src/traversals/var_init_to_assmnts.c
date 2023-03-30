@@ -139,6 +139,9 @@ node_st *VITAfunbody(node_st *node)
         node_st *old_stmts_head = FUNBODY_STMTS(node);
         TRAVdecls(node);
         FUNBODY_STMTS(node) = data->first_stmts_local;
+        // if (data->last_stmts_local != NULL) {
+        //     STMTS_NEXT(data->last_stmts_local) = old_stmts_head;
+        // }
         STMTS_NEXT(data->last_stmts_local) = old_stmts_head;
     }
     return node;
@@ -152,7 +155,7 @@ node_st *VITAvardecl(node_st *node)
 {
     if (VARDECL_INIT(node) != NULL) {
         struct data_vita *data = DATA_VITA_GET();
-        
+
         data->entry_name = VARDECL_NAME(node);
         data->link_ste = NULL;
         search_ste(data);

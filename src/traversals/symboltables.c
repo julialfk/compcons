@@ -17,7 +17,10 @@
 
 
 /* Append the new Ste node to the end of the symbol table.
-*/
+ *
+ * data     : pointer to trav data
+ * new_entry: the new ste node
+ */
 void insert_ste(struct data_st *data, node_st *new_entry) {
     if (SYMTABLE_TAIL(data->current_scope) == NULL) {
         // printf("tail = symtable\n");
@@ -31,7 +34,10 @@ void insert_ste(struct data_st *data, node_st *new_entry) {
     data->index++;
 }
 
-
+/* Traverse through the symbol tables to find the ste for a var or varlet.
+ *
+ * data: pointer to trav data
+ */
 static void search_ste(struct data_st *data) {
     node_st *cur_table = data->current_scope;
     do {
@@ -42,6 +48,10 @@ static void search_ste(struct data_st *data) {
     while (!data->link_ste && cur_table);
 }
 
+/* Create a copy of a variable name.
+ *
+ * original: the original string to be copied
+ */
 static char *copy_entry_name(char *original) {
     char *entry_name_cpy = (char *)malloc(sizeof(char)
                                         * (strlen(original) + 1));
@@ -49,18 +59,35 @@ static char *copy_entry_name(char *original) {
     return entry_name_cpy;
 }
 
+/* Raise an error when void has been used incorrectly.
+ *
+ * node: the node with the incorrect void type
+ * name: the name string of the variable with the incorrect type
+ */
 void void_error(node_st *node, char *name) {
     printf("Error (%d:%d): %s has invalid void type.\n",
             NODE_BLINE(node), NODE_BCOL(node), name);
     CCNerrorAction();
 }
 
+/* Raise an error when a variable is found that has not previously been
+ * declared.
+ *
+ * node: the node with the incorrect void type
+ * name: the name string of the undeclared variable
+ */
 void not_declared_error(node_st *node, char *name) {
     printf("Error (%d:%d): %s not declared.\n",
             NODE_BLINE(node), NODE_BCOL(node), name);
     CCNerrorAction();
 }
 
+/* Raise an error when the program tries to declare a variable that has already
+ * been declared in that scope.
+ *
+ * node: the node with the incorrect void type
+ * name: the name string of the variable that was already declared
+ */
 void already_declared_error(node_st *node, char *name) {
     printf("Error (%d:%d): %s already declared.\n",
             NODE_BLINE(node), NODE_BCOL(node), name);
@@ -108,10 +135,9 @@ node_st *STglobdef(node_st *node)
     }
 
     struct data_st *data = DATA_ST_GET();
-    // Check if already in table
+    // Check if the variable is already in the table.
     data->link_ste = NULL;
     data->entry_name = GLOBDEF_NAME(node);
-    // printf("in globdef: %s\n", data->entry_name);
     TRAVnext(data->current_scope);
 
     if (!data->link_ste) {

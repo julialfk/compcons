@@ -67,7 +67,6 @@ void TCinit()
     data->for_counter = NULL;
     data->return_node = NULL;
     data->current_type = CT_NULL;
-    data->bool_return = false;
     return;
 }
 void TCfini() { return; }
@@ -81,13 +80,14 @@ node_st *TCfundef(node_st *node)
     TRAVparams(node);
     data->current_type = CT_NULL;
     TRAVbody(node);
-    if (!data->bool_return) {
+    if (!data->return_node) {
         data->current_type = CT_void;
     }
+
     if (data->current_type != FUNDEF_TYPE(node)) {
         if (data->current_type == CT_void) {
             printf("Error (%d:%d): no return value given.\n",
-            NODE_BLINE(data->return_node), NODE_BCOL(data->return_node));
+            NODE_BLINE(node), NODE_BCOL(node));
             CCNerrorAction();
         }
         else {
@@ -96,7 +96,6 @@ node_st *TCfundef(node_st *node)
     }
 
     data->return_node = NULL;
-    data->bool_return = false;
     data->current_type = CT_NULL;
     return node;
 }
@@ -395,7 +394,6 @@ node_st *TCreturn(node_st *node)
         data->current_type = CT_void;
     }
 
-    data->bool_return = true;
     data->return_node = node;
     return node;
 }
