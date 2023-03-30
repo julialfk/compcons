@@ -138,8 +138,10 @@ node_st *VITAfunbody(node_st *node)
         struct data_vita *data = DATA_VITA_GET();
         node_st *old_stmts_head = FUNBODY_STMTS(node);
         TRAVdecls(node);
-        FUNBODY_STMTS(node) = data->first_stmts_local;
-        STMTS_NEXT(data->last_stmts_local) = old_stmts_head;
+        if (data->last_stmts_local != NULL) {
+            FUNBODY_STMTS(node) = data->first_stmts_local;
+            STMTS_NEXT(data->last_stmts_local) = old_stmts_head;
+        }
     }
     return node;
 }
