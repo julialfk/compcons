@@ -65,6 +65,7 @@ void TCinit()
 {
     struct data_tc *data = DATA_TC_GET();
     data->for_counter = NULL;
+    data->return_node = NULL;
     data->current_type = CT_NULL;
     data->bool_return = false;
     return;
@@ -84,9 +85,17 @@ node_st *TCfundef(node_st *node)
         data->current_type = CT_void;
     }
     if (data->current_type != FUNDEF_TYPE(node)) {
-        type_error(data->return_node, data->current_type);
+        if (data->current_type == CT_void) {
+            printf("Error (%d:%d): no return value given.\n",
+            NODE_BLINE(data->return_node), NODE_BCOL(data->return_node));
+            CCNerrorAction();
+        }
+        else {
+            type_error(data->return_node, data->current_type);
+        }
     }
 
+    data->return_node = NULL;
     data->bool_return = false;
     data->current_type = CT_NULL;
     return node;
@@ -387,6 +396,7 @@ node_st *TCreturn(node_st *node)
     }
 
     data->bool_return = true;
+    data->return_node = node;
     return node;
 }
 
