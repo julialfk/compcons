@@ -14,6 +14,7 @@
 #include "ccngen/ast.h"
 #include "ccngen/enum.h"
 #include "ccngen/trav.h"
+#include "palm/ctinfo.h"
 
 
 /* Create a string from a given Type.
@@ -55,7 +56,7 @@ void type_error(node_st *node, enum Type given_type)
     char *given = (char *)malloc(6 * sizeof(char));
     given = type_string(given_type, given);
 
-    printf("Error (%d:%d): incorrect data type (%s).\n",
+    CTI(CTI_ERROR, false, "Error (%d:%d): incorrect data type (%s).",
             NODE_BLINE(node), NODE_BCOL(node), given);
     CCNerrorAction();
     free(given);
@@ -86,8 +87,8 @@ node_st *TCfundef(node_st *node)
 
     if (data->current_type != FUNDEF_TYPE(node)) {
         if (data->current_type == CT_void) {
-            printf("Error (%d:%d): no return value given.\n",
-            NODE_BLINE(node), NODE_BCOL(node));
+            CTI(CTI_ERROR, false, "Error (%d:%d): no return value given.",
+                    NODE_BLINE(node), NODE_BCOL(node));
             CCNerrorAction();
         }
         else {
@@ -144,7 +145,7 @@ node_st *TCcast(node_st *node)
     struct data_tc *data = DATA_TC_GET();
 
     if (CAST_TYPE(node) == CT_void) {
-        printf("Error (%d:%d): cast type cannot be void.\n",
+        CTI(CTI_ERROR, false, "Error (%d:%d): cast type cannot be void.",
                 NODE_BLINE(node), NODE_BCOL(node));
         CCNerrorAction();
     }
@@ -154,7 +155,7 @@ node_st *TCcast(node_st *node)
     if (data->current_type != CT_int && data->current_type != CT_float
         && data->current_type != CT_bool) {
         type_error(CAST_EXPR(node), data->current_type);
-        printf("Unable to cast this data type.\n");
+        CTI(CTI_ERROR, false, "Unable to cast this data type.");
         CCNerrorAction();
     }
     data->current_type = CAST_TYPE(node);
@@ -194,6 +195,15 @@ node_st *TCbinop(node_st *node)
             type_error(BINOP_RIGHT(node), type_right);
         }
         data->current_type = CT_bool;
+    }
+    else if (BINOP_OP(node) == BO_mod) {
+        if (type_left != CT_int) {
+            type_error(BINOP_LEFT(node), type_left);
+        }
+        if (type_right != CT_int) {
+            type_error(BINOP_RIGHT(node), type_right);
+        }
+        data->current_type = CT_int;
     }
     else if (type_left != type_right) {
         bool right_numerical = type_right == CT_int || type_right == CT_float;
@@ -237,10 +247,11 @@ node_st *TCassign(node_st *node)
         expected = type_string(varlet_type, expected);
         given = type_string(data->current_type, given);
 
-        printf("Error: incorrect data type for variable %s(%d:%d). "
-                "Expected %s, %s given.\n",
-                VARLET_NAME(ASSIGN_LET(node)), NODE_BLINE(ASSIGN_LET(node)),
-                NODE_BCOL(ASSIGN_LET(node)), expected, given);
+        CTI(CTI_ERROR, false,
+                "Error (%d:%d): incorrect data type for variable %s. "
+                "Expected %s, %s given.",
+                NODE_BLINE(ASSIGN_LET(node)), NODE_BCOL(ASSIGN_LET(node)),
+                VARLET_NAME(ASSIGN_LET(node)), expected, given);
         CCNerrorAction();
         free(expected);
         free(given);
@@ -270,7 +281,8 @@ node_st *TCfuncall(node_st *node)
     node_st *param = STE_FIRST_PARAM(FUNCALL_STE(node));
     for (int i = STE_ARITY(FUNCALL_STE(node)); i > 0; i--) {
         if (!arg) {
-            printf("Error: not enough arguments for function %s(%d:%d).\n",
+            CTI(CTI_ERROR, false,
+                    "Error: not enough arguments for function %s(%d:%d).",
                     FUNCALL_NAME(node), NODE_BLINE(node), NODE_BCOL(node));
             CCNerrorAction();
             break;
@@ -287,7 +299,8 @@ node_st *TCfuncall(node_st *node)
     }
 
     if (arg) {
-        printf("Error: too many arguments for function %s(%d:%d).\n",
+        CTI(CTI_ERROR, false,
+                "Error: too many arguments for function %s(%d:%d).",
                 FUNCALL_NAME(node), NODE_BLINE(node), NODE_BCOL(node));
         CCNerrorAction();
     }
@@ -361,7 +374,8 @@ node_st *TCmonop(node_st *node)
 node_st *TCparam(node_st *node)
 {
     if (PARAM_TYPE(node) == CT_void) {
-        printf("Error: function parameter (%s) cannot be void (%d:%d).\n",
+        CTI(CTI_ERROR, false,
+                "Error: function parameter (%s) cannot be void (%d:%d).",
                 PARAM_NAME(node), NODE_BLINE(node), NODE_BCOL(node));
         CCNerrorAction();
     }

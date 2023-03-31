@@ -14,6 +14,7 @@
 #include "ccngen/ast.h"
 #include "ccngen/enum.h"
 #include "ccngen/trav.h"
+#include "palm/ctinfo.h"
 
 
 /* Append the new Ste node to the end of the symbol table.
@@ -65,7 +66,7 @@ static char *copy_entry_name(char *original) {
  * name: the name string of the variable with the incorrect type
  */
 void void_error(node_st *node, char *name) {
-    printf("Error (%d:%d): %s has invalid void type.\n",
+    CTI(CTI_ERROR, false, "Error (%d:%d): %s has invalid void type.",
             NODE_BLINE(node), NODE_BCOL(node), name);
     CCNerrorAction();
 }
@@ -77,7 +78,7 @@ void void_error(node_st *node, char *name) {
  * name: the name string of the undeclared variable
  */
 void not_declared_error(node_st *node, char *name) {
-    printf("Error (%d:%d): %s not declared.\n",
+    CTI(CTI_ERROR, false, "Error (%d:%d): %s not declared.",
             NODE_BLINE(node), NODE_BCOL(node), name);
     CCNerrorAction();
 }
@@ -89,7 +90,7 @@ void not_declared_error(node_st *node, char *name) {
  * name: the name string of the variable that was already declared
  */
 void already_declared_error(node_st *node, char *name) {
-    printf("Error (%d:%d): %s already declared.\n",
+    CTI(CTI_ERROR, false, "Error (%d:%d): %s already declared.",
             NODE_BLINE(node), NODE_BCOL(node), name);
     CCNerrorAction();
 }

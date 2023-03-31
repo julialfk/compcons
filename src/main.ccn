@@ -1,7 +1,6 @@
 // Todo: Check if empty block handling is equivalent across traversals
 // Todo: Add node locations to new nodes in traversals and check if accurate
 // Todo: Check if all constant links are correct in all traversals
-// Todo: add error modulo floats to type checking.
 
 start phase RootPhase {
     actions {
@@ -13,7 +12,8 @@ start phase RootPhase {
         ConstantTable;
         BoolopsToCondops;
         BooleanCasts;
-        Assembler;
+        //Assembler;
+        Print;
     }
 };
 
