@@ -59,7 +59,7 @@ traversal TypeChecking {
     },
     travdata {
         user node_ptr for_counter,
-        user node_ptr return_node,
+        Type return_type,
         Type current_type,
         bool bool_return
     }

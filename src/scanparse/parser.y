@@ -575,7 +575,7 @@ monop: MINUS        { $$ = MO_neg; }
 vartype: BOOLTYPE      { $$ = CT_bool; }
        | INTTYPE       { $$ = CT_int; }
        | FLOATTYPE     { $$ = CT_float; }
-       | VOIDTYPE        { $$ = CT_void; }
+       | VOIDTYPE      { $$ = CT_void; }
        ;
 %%
 

@@ -66,7 +66,7 @@ static char *copy_entry_name(char *original) {
  * name: the name string of the variable with the incorrect type
  */
 void void_error(node_st *node, char *name) {
-    CTI(CTI_ERROR, false, "Error (%d:%d): %s has invalid void type.",
+    CTI(CTI_ERROR, false, "Error (%d:%d): \"%s\" has invalid void type.",
             NODE_BLINE(node), NODE_BCOL(node), name);
     CCNerrorAction();
 }
@@ -78,7 +78,7 @@ void void_error(node_st *node, char *name) {
  * name: the name string of the undeclared variable
  */
 void not_declared_error(node_st *node, char *name) {
-    CTI(CTI_ERROR, false, "Error (%d:%d): %s not declared.",
+    CTI(CTI_ERROR, false, "Error (%d:%d): \"%s\" is not declared.",
             NODE_BLINE(node), NODE_BCOL(node), name);
     CCNerrorAction();
 }
@@ -90,7 +90,7 @@ void not_declared_error(node_st *node, char *name) {
  * name: the name string of the variable that was already declared
  */
 void already_declared_error(node_st *node, char *name) {
-    CTI(CTI_ERROR, false, "Error (%d:%d): %s already declared.",
+    CTI(CTI_ERROR, false, "Error (%d:%d): \"%s\" is already declared.",
             NODE_BLINE(node), NODE_BCOL(node), name);
     CCNerrorAction();
 }
@@ -132,7 +132,6 @@ node_st *STglobdef(node_st *node)
 {
     if (GLOBDEF_TYPE(node) == CT_void) {
         void_error(node, GLOBDEF_NAME(node));
-        return node;
     }
 
     struct data_st *data = DATA_ST_GET();
@@ -162,7 +161,6 @@ node_st *STglobdecl(node_st *node)
 {
     if (GLOBDECL_TYPE(node) == CT_void) {
         void_error(node, GLOBDECL_NAME(node));
-        return node;
     }
 
     struct data_st *data = DATA_ST_GET();
@@ -276,7 +274,6 @@ node_st *STparam(node_st *node)
 {
     if (PARAM_TYPE(node) == CT_void) {
         void_error(node, PARAM_NAME(node));
-        return node;
     }
 
     struct data_st *data = DATA_ST_GET();
@@ -311,7 +308,6 @@ node_st *STvardecl(node_st *node)
 {
     if (VARDECL_TYPE(node) == CT_void) {
         void_error(node, VARDECL_NAME(node));
-        return node;
     }
 
     struct data_st *data = DATA_ST_GET();

@@ -306,6 +306,7 @@ node_st *ASifelse(node_st *node)
         printf("\n%d_end:\n", fst_tag_index);
     }
 
+    data->returned = false;
     return node;
 }
 
