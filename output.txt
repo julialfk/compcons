@@ -1,8 +1,6 @@
 
 /* Constant table: 
 
-0: 2
-1: 5
 
 */
 
@@ -14,22 +12,10 @@ main:void()	Scope: 0, Index: 0
 void main()
 /* Symbol table: 
 
-x:int	Scope: 1, Index: 0
-y:int	Scope: 1, Index: 1
-_start_1:int	Scope: 1, Index: 4
-_stop_2:int	Scope: 1, Index: 3
-_step_3:int	Scope: 1, Index: 2
+x:bool	Scope: 1, Index: 0
 
 */
  {
-int x;
-int y;
-int _start_1;
-int _stop_2;
-int _step_3;
-x = 1;
-y = 2;
-_start_1 = 1;
-_stop_2 = 5;
-_step_3 = 1;
+bool x;
+x = ( 1 != 0);
 }

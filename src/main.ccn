@@ -13,8 +13,8 @@ start phase RootPhase {
         ConstantTable;
         BoolopsToCondops;
         BooleanCasts;
-        Print;
-        // Assembler;
+        // Print;
+        Assembler;
     }
 };
 

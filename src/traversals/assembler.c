@@ -431,6 +431,7 @@ node_st *ASternary(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
     TRAVchildren(node);
+    
     return node;
 }
 
