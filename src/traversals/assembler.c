@@ -107,7 +107,6 @@ node_st *ASprogram(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
     TRAVdecls(node);
-    printf("\n\n");
     TRAVconstants(node);
     node_st *global_ste = SYMTABLE_NEXT(PROGRAM_GLOBAL(node));
     // CTI(CTI_NOTE, true, "global = %ld\n", global_ste);
@@ -286,14 +285,12 @@ node_st *ASifelse(node_st *node)
     struct data_as *data = DATA_AS_GET();
     TRAVcond(node);
 
-    int fst_tag_index = data->tag_index;
-    data->tag_index++;
+    int fst_tag_index = data->tag_index++;
     printf("    branch_f %d", fst_tag_index);
 
     if (IFELSE_ELSE_BLOCK(node)) {
         printf("_else\n");
-        int snd_tag_index = data->tag_index;
-        data->tag_index++;
+        int snd_tag_index = data->tag_index++;
 
         TRAVthen(node);
 
@@ -319,7 +316,17 @@ node_st *ASifelse(node_st *node)
 node_st *ASwhile(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
+    int while_index = data->tag_index++;
+    int end_index = data->tag_index++;
+    printf("%d_while:\n", while_index);
+    TRAVcond(node);
+    printf("    branch_f %d_end\n", end_index);
+
+    TRAVblock(node);
+    printf("    jump %d_while\n"
+           "%d_end:\n", while_index, end_index);
+
+    data->returned = false;
     return node;
 }
 
@@ -329,7 +336,14 @@ node_st *ASwhile(node_st *node)
 node_st *ASdowhile(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
+    int dowhile_index = data->tag_index++;
+    int end_index = data->tag_index++;
+    printf("%d_dowhile:\n", dowhile_index);
+    TRAVblock(node);
+    TRAVcond(node);
+    printf("    branch_t %d_dowhile\n", dowhile_index);
+
+    data->returned = false;
     return node;
 }
 
