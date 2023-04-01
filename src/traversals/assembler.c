@@ -14,6 +14,7 @@
 #include "ccngen/trav.h"
 #include "palm/dbug.h"
 #include "ccngen/enum.h"
+#include "palm/ctinfo.h"
 
 
 /* Print the character associated with the basic type.
@@ -109,8 +110,8 @@ node_st *ASprogram(node_st *node)
     printf("\n\n");
     TRAVconstants(node);
     node_st *global_ste = SYMTABLE_NEXT(PROGRAM_GLOBAL(node));
-    if (global_ste) {
-
+    // CTI(CTI_NOTE, true, "global = %ld\n", global_ste);
+    if (global_ste && !STE_FUNCTION(global_ste)) {
         printf(".exportfun \"__init\" void __init");
         do {
             printf(".global ");
@@ -118,7 +119,7 @@ node_st *ASprogram(node_st *node)
             printf("\n");
             global_ste = STE_NEXT(global_ste);
         }
-        while (global_ste);
+        while (global_ste && !STE_FUNCTION(global_ste));
     }
     return node;
 }
@@ -181,9 +182,11 @@ node_st *ASreturn(node_st *node)
     struct data_as *data = DATA_AS_GET();
     TRAVexpr(node);
     printf("    ");
-    enum Type type = get_type(RETURN_EXPR(node));
-    if (type != CT_void) {
-      print_type_char(type);
+    if (RETURN_EXPR(node)) {
+        enum Type type = get_type(RETURN_EXPR(node));
+        if (type != CT_void) {
+          print_type_char(type);
+        }
     }
     printf("return\n");
     data->returned = true;
@@ -335,8 +338,6 @@ node_st *ASdowhile(node_st *node)
  */
 node_st *ASfor(node_st *node)
 {
-    struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
     return node;
 }
 
