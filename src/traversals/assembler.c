@@ -97,6 +97,8 @@ void ASinit()
     struct data_as *data = DATA_AS_GET();
     data->cur_lvl = 0;
     data->tag_index = 1;
+    data->returned = false;
+    data->local_vars = 0;
 }
 void ASfini() { return; }
 
@@ -268,10 +270,15 @@ node_st *ASfundef(node_st *node)
 node_st *ASfunbody(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    data->returned = false;
-    TRAVchildren(node);
+    if (FUNBODY_DECLS(node)) {
+        TRAVdecls(node);
+        printf("    esr %d\n", data->local_vars);
+        data->local_vars = 0;
+    }
+
+    TRAVstmts(node);
     if (!(data->returned)) {
-      printf("    return\n");
+        printf("    return\n");
     }
     data->returned = false;
     return node;
@@ -391,7 +398,8 @@ node_st *ASparam(node_st *node)
 node_st *ASvardecl(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
+    data->local_vars++;
+    TRAVnext(node);
     return node;
 }
 
