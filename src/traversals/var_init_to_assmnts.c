@@ -73,14 +73,20 @@ node_st *VITAglobdef(node_st *node)
 
         if (data->init_fundef == NULL) {
             node_st *funbody_init = ASTfunbody(NULL, NULL, NULL);
-            node_st *symtable_init = ASTsymtable(NULL, 0, data->current_scope, NULL);
-            node_st *fundef_init = ASTfundef(funbody_init, NULL, symtable_init, CT_void, copy_entry_name("__init"), false);
+            node_st *symtable_init = ASTsymtable(NULL, 0, data->current_scope,
+                                                    NULL);
+            node_st *fundef_init = ASTfundef(funbody_init, NULL, symtable_init,
+                                                CT_void,
+                                                copy_entry_name("__init"),
+                                                true, false, NULL);
             data->init_fundef = fundef_init;
             data->init_funbody = funbody_init;
         }
         data->link_ste = NULL;
         search_ste(data);
-        node_st *new_varlet = ASTvarlet(NULL, copy_entry_name(GLOBDEF_NAME(node)), data->link_ste);
+        node_st *new_varlet = ASTvarlet(NULL,
+                                        copy_entry_name(GLOBDEF_NAME(node)),
+                                        data->link_ste);
         AddLocToNode(new_varlet, node);
         node_st *new_assignment = ASTassign(new_varlet, GLOBDEF_INIT(node));
         AddLocToNode(new_assignment, node);
@@ -108,9 +114,10 @@ node_st *VITAprogram(node_st *node)
     TRAVdecls(node);
 
     // add the __init function to the AST
-    if (data-> init_fundef != NULL) {
+    if (data->init_fundef != NULL) {
         node_st *init_decl = ASTdecls(data->init_fundef, PROGRAM_DECLS(node));
         PROGRAM_DECLS(node) = init_decl;
+
     }
     return node;
 }

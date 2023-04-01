@@ -1,14 +1,27 @@
-float a = 0.5;
-int y = 7;
-int z = 0;
+extern void printInt(int val);
+extern void printFloat(float val);
 
-void main(int b) {
-    int x;
-    if (x + 0) {
-        x = 2.0;
-    }
-    else {
-        y = (int) main(x);
-    }
+extern int scanInt();
+extern float scanFloat();
+
+extern void printSpaces(int num);
+extern void printNewlines(int num);
+
+
+export float y = 3.5;
+bool b = true;
+extern bool a;
+
+
+export int main(int x) {
+    printFloat(y);
+    printNewlines(1);
+    printInt(z);
+    return 0;
+}
+
+int z = 10;
+
+void foo() {
     return;
 }

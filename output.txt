@@ -16,6 +16,12 @@ x:bool	Scope: 1, Index: 0
 
 */
  {
-bool x;
-x = ( 1 != 0);
+int x;
+int y;
+x = 1;
+y = 2;
+for (int i = 1, 5, 1) {
+x = ( x + i);
+}
+x = 5;
 }

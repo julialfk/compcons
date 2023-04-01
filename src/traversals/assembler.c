@@ -32,8 +32,21 @@ void print_type(enum Type type) {
       case CT_bool:
         printf("bool");
         break;
+      case CT_void:
+        printf("void");
+        break;
       default:
         DBUG_ASSERT(false, "unknown type detected!");
+    }
+}
+
+void print_types(node_st *node) {
+    print_type(STE_TYPE(node));
+    node_st *arg = STE_FIRST_PARAM(node);
+    for (int i = STE_ARITY(node); i > 0; i--) {
+        printf(" ");
+        print_type(STE_TYPE(arg));
+        arg = STE_NEXT(arg);
     }
 }
 
@@ -97,6 +110,7 @@ void ASinit()
     struct data_as *data = DATA_AS_GET();
     data->cur_lvl = 0;
     data->tag_index = 1;
+    data->init = false;
     data->returned = false;
     data->local_vars = 0;
 }
@@ -110,18 +124,43 @@ node_st *ASprogram(node_st *node)
     struct data_as *data = DATA_AS_GET();
     TRAVdecls(node);
     TRAVconstants(node);
-    node_st *global_ste = SYMTABLE_NEXT(PROGRAM_GLOBAL(node));
-    // CTI(CTI_NOTE, true, "global = %ld\n", global_ste);
-    if (global_ste && !STE_FUNCTION(global_ste)) {
-        printf(".exportfun \"__init\" void __init");
-        do {
-            printf(".global ");
-            print_type(STE_TYPE(global_ste));
-            printf("\n");
-            global_ste = STE_NEXT(global_ste);
-        }
-        while (global_ste && !STE_FUNCTION(global_ste));
+    if (data->init) {
+        printf(".exportfun \"__init\" void __init\n");
     }
+    TRAVglobal(node);
+
+
+
+    // while (global_ste) {
+    //     if (!STE_FUNCTION(global_ste)) {
+    //         if (STE_EXPORT(global_ste)) {
+    //             printf(".exportvar \"%s\" %d\n",
+    //                         STE_NAME(global_ste), STE_INDEX(global_ste));
+    //         }
+    //         printf(".global ");
+    //         print_type(STE_TYPE(global_ste));
+    //         printf("\n");
+    //     }
+    //     else {
+
+    //     }
+    //     global_ste = STE_NEXT(global_ste);
+    // }
+
+
+    // if (global_ste && !STE_FUNCTION(global_ste)) {
+    //     do {
+    //         if (STE_EXPORT(global_ste)) {
+    //             printf(".exportvar \"%s\" %d\n",
+    //                         STE_NAME(global_ste), STE_INDEX(global_ste));
+    //         }
+    //         printf(".global ");
+    //         print_type(STE_TYPE(global_ste));
+    //         printf("\n");
+    //         global_ste = STE_NEXT(global_ste);
+    //     }
+    //     while (global_ste && !STE_FUNCTION(global_ste));
+    // }
     return node;
 }
 
@@ -166,11 +205,14 @@ node_st *ASexprstmt(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
     TRAVexpr(node);
-    printf("    ");
 
     node_st *expr = EXPRSTMT_EXPR(node);
-    print_type_char(get_type(expr));
-    printf("pop");
+    enum Type type = get_type(expr);
+    if (type != CT_void) {
+        printf("    ");
+        print_type_char(get_type(expr));
+        printf("pop");
+    }
 
     return node;
 }
@@ -256,9 +298,12 @@ node_st *ASfundefs(node_st *node)
 node_st *ASfundef(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    if (!strcmp(FUNDEF_NAME(node), "__init")) {
+        data->init = true;
+    }
     printf("%s:\n", FUNDEF_NAME(node));
     data->cur_lvl++;
-    TRAVchildren(node);
+    TRAVbody(node);
     data->cur_lvl--;
     printf("\n");
     return node;
@@ -387,8 +432,6 @@ node_st *ASglobdef(node_st *node)
  */
 node_st *ASparam(node_st *node)
 {
-    struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
     return node;
 }
 
@@ -630,7 +673,7 @@ node_st *ASbool(node_st *node)
  */
 node_st *ASsymtable(node_st *node)
 {
-    struct data_as *data = DATA_AS_GET();
+    TRAVnext(node);
     return node;
 }
 
@@ -640,6 +683,32 @@ node_st *ASsymtable(node_st *node)
 node_st *ASste(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    if (STE_FUNCTION(node)) {
+        if (STE_EXTERN_BOOL(node)) {
+            printf(".importfun \"%s\" ", STE_NAME(node));
+            print_types(node);
+            printf("\n");
+        }
+        else if (STE_EXPORT(node)) {
+            printf(".exportfun \"%s\" ", STE_NAME(node));
+            print_types(node);
+            printf(" %s\n", STE_NAME(node));
+        }
+    }
+    else if (STE_EXTERN_BOOL(node)) {
+        printf(".importvar \"%s\" ", STE_NAME(node));
+        print_type(STE_TYPE(node));
+        printf("\n");
+    }
+    else {
+        if (STE_EXPORT(node)) {
+            printf(".exportvar \"%s\" %d\n", STE_NAME(node), STE_INDEX(node));
+        }
+        printf(".global ");
+        print_type(STE_TYPE(node));
+        printf("\n");
+    }
+    TRAVnext(node);
     return node;
 }
 

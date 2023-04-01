@@ -1,10 +1,4 @@
 int foo ( int a ) {
     int b = 1;
-    int f ( int x ) {
-        return x + b ;
-    }
-    int g ( int x ) {
-        return f ( x - b );
-    }
-    return g ( b );
+    return foo ( b );
 }

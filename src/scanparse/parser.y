@@ -113,36 +113,35 @@ fundefs: fundef fundefs
 
 fundef: EXPORT vartype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R funbody[body]
         {
-          $$ = ASTfundef($body, $parameters, NULL, $funtype, $name, true);
+          $$ = ASTfundef($body, $parameters, NULL, $funtype, $name, true, false, NULL);
           AddLocToNode($$, &@funtype, &@body);
         }
         /* wel export geen parameters, wel body */
       | EXPORT vartype[funtype] ID[name] BRACKET_L BRACKET_R funbody[body]
         {
-          $$ = ASTfundef($body, NULL, NULL, $funtype, $name, true);
+          $$ = ASTfundef($body, NULL, NULL, $funtype, $name, true, false, NULL);
           AddLocToNode($$, &@funtype, &@body);
         }
         /* geen export, wel parameters, wel body */
       | vartype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R funbody[body]
         {
-          $$ = ASTfundef($body, $parameters, NULL, $funtype, $name, false);
+          $$ = ASTfundef($body, $parameters, NULL, $funtype, $name, false, false, NULL);
           AddLocToNode($$, &@funtype, &@body);
         }
         /* geen export, geen parameters, wel body */
       | vartype[funtype] ID[name] BRACKET_L BRACKET_R funbody[body]
         {
-          $$ = ASTfundef($body, NULL, NULL, $funtype, $name, false);
+          $$ = ASTfundef($body, NULL, NULL, $funtype, $name, false, false, NULL);
           AddLocToNode($$, &@funtype, &@body);
         }
-
       | EXTERN vartype[funtype] ID[name] BRACKET_L BRACKET_R SEMICOLON
         {
-          $$ = ASTfundef(NULL, NULL, NULL, $funtype, $name, false);
+          $$ = ASTfundef(NULL, NULL, NULL, $funtype, $name, false, true, NULL);
           AddLocToNode($$, &@funtype, &@name);
         }
       | EXTERN vartype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R SEMICOLON
         {
-          $$ = ASTfundef(NULL, false, NULL, $funtype, $name, false);
+          $$ = ASTfundef(NULL, $parameters, NULL, $funtype, $name, false, true, NULL);
           AddLocToNode($$, &@funtype, &@parameters);
         }
       ;

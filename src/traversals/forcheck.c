@@ -68,6 +68,7 @@ node_st *FCvarlet(node_st *node)
                     NODE_BLINE(node), NODE_BCOL(node), VARLET_NAME(node));
             CCNerrorAction();
         }
+        cur_table = SYMTABLE_PARENT(cur_table);
     }
     return node;
 }
