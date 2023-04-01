@@ -1,0 +1,47 @@
+
+/* Constant table: 
+
+0: 2
+1: 5
+
+*/
+
+/* Global symbol table: 
+
+main:void()	Scope: 0, Index: 0
+
+*/
+void main()
+/* Symbol table: 
+
+x:int	Scope: 1, Index: 0
+y:int	Scope: 1, Index: 1
+
+*/
+ {
+int x;
+int y;
+int _start_7;
+int _stop_8;
+int _step_9;
+int _start_4;
+int _stop_5;
+int _step_6;
+int _start_1;
+int _stop_2;
+int _step_3;
+x = 1;
+y = 2;
+for (int i = 1, 5, 1) {
+x = ( x + i);
+}
+if (( x < 1)) {
+y = ( y - 1);
+}
+for (int i = 1, 5, 1) {
+for (int j = 2, 5, 1) {
+x = ( x + i);
+y = ( y + j);
+}
+}
+}

@@ -9,11 +9,12 @@ start phase RootPhase {
         VarInitsToAssignments;
         TypeChecking;
         ForCheck;
+        ForToWhile;
         ConstantTable;
         BoolopsToCondops;
         BooleanCasts;
-        //Print;
-        Assembler;
+        Print;
+        // Assembler;
     }
 };
 
@@ -74,6 +75,29 @@ traversal ForCheck {
         int for_loops,
         user node_ptr current_scope,
         string var_name
+    }
+};
+
+traversal ForToWhile {
+    uid = FTW,
+    nodes = {
+        For, FunDef, FunBody, Ste, VarDecl, Program, Stmts
+    },
+    travdata {
+        user node_ptr current_scope,
+        int index_counter,
+        string var_name,
+        user node_ptr for_funbody,
+        user node_ptr head_for_decls,
+        user node_ptr tail_funbody_decls,
+        user node_ptr link_ste,
+        string entry_name,
+        user node_ptr ste_index,
+        user node_ptr parent_for_stmt,
+        user node_ptr tail_for_assigns,
+        user node_ptr head_for_assigns,
+        user node_ptr last_ste,
+        user node_ptr last_block_stmts
     }
 };
 
