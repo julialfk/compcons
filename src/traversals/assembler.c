@@ -16,7 +16,31 @@
 #include "ccngen/enum.h"
 
 
+/* Print the character associated with the basic type.
+ *
+ * type: the basic type
+ */
 void print_type(enum Type type) {
+    switch(type) {
+      case CT_int:
+        printf("int");
+        break;
+      case CT_float:
+        printf("float");
+        break;
+      case CT_bool:
+        printf("bool");
+        break;
+      default:
+        DBUG_ASSERT(false, "unknown type detected!");
+    }
+}
+
+/* Print the character associated with the basic type.
+ *
+ * type: the basic type
+ */
+void print_type_char(enum Type type) {
     switch(type) {
       case CT_int:
         printf("i");
@@ -32,10 +56,46 @@ void print_type(enum Type type) {
     }
 }
 
+/* Return the resulting type of an expression
+ *
+ * expr: the expression
+ */
+static enum Type get_type(node_st *expr) {
+    enum Type type;
+    switch (NODE_TYPE(expr)) {
+      case NT_CAST:
+        type = CAST_TYPE(expr);
+        break;
+      case NT_FUNCALL:
+        type = STE_TYPE(FUNCALL_STE(expr));
+        break;
+      case NT_VAR:
+        type = STE_TYPE(VAR_STE(expr));
+        break;
+      case NT_NUM:
+        type = CT_int;
+        break;
+      case NT_FLOAT:
+        type = CT_float;
+        break;
+      case NT_BOOL:
+        type = CT_bool;
+        break;
+      case NT_BINOP:
+        type = BINOP_EXPR_TYPE(expr);
+        break;
+      case NT_MONOP:
+        type = MONOP_EXPR_TYPE(expr);
+    }
+
+    return type;
+}
+
 void ASinit()
 {
     struct data_as *data = DATA_AS_GET();
-    data->last_type = CT_NULL;
+    data->cur_lvl = 0;
+    data->tag_index = 1;
 }
 void ASfini() { return; }
 
@@ -45,7 +105,21 @@ void ASfini() { return; }
 node_st *ASprogram(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
+    TRAVdecls(node);
+    printf("\n\n");
+    TRAVconstants(node);
+    node_st *global_ste = SYMTABLE_NEXT(PROGRAM_GLOBAL(node));
+    if (global_ste) {
+
+        printf(".exportfun \"__init\" void __init");
+        do {
+            printf(".global ");
+            print_type(STE_TYPE(global_ste));
+            printf("\n");
+            global_ste = STE_NEXT(global_ste);
+        }
+        while (global_ste);
+    }
     return node;
 }
 
@@ -54,7 +128,6 @@ node_st *ASprogram(node_st *node)
  */
 node_st *ASdecls(node_st *node)
 {
-    struct data_as *data = DATA_AS_GET();
     TRAVchildren(node);
     return node;
 }
@@ -64,7 +137,6 @@ node_st *ASdecls(node_st *node)
  */
 node_st *ASexprs(node_st *node)
 {
-    struct data_as *data = DATA_AS_GET();
     TRAVchildren(node);
     return node;
 }
@@ -74,8 +146,6 @@ node_st *ASexprs(node_st *node)
  */
 node_st *ASarrexpr(node_st *node)
 {
-    struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
     return node;
 }
 
@@ -84,8 +154,6 @@ node_st *ASarrexpr(node_st *node)
  */
 node_st *ASids(node_st *node)
 {
-    struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
     return node;
 }
 
@@ -95,7 +163,13 @@ node_st *ASids(node_st *node)
 node_st *ASexprstmt(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
+    TRAVexpr(node);
+    printf("    ");
+
+    node_st *expr = EXPRSTMT_EXPR(node);
+    print_type_char(get_type(expr));
+    printf("pop");
+
     return node;
 }
 
@@ -105,7 +179,14 @@ node_st *ASexprstmt(node_st *node)
 node_st *ASreturn(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
+    TRAVexpr(node);
+    printf("    ");
+    enum Type type = get_type(RETURN_EXPR(node));
+    if (type != CT_void) {
+      print_type_char(type);
+    }
+    printf("return\n");
+    data->returned = true;
     return node;
 }
 
@@ -115,7 +196,23 @@ node_st *ASreturn(node_st *node)
 node_st *ASfuncall(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
+    printf("    isrg\n");
+    TRAVargs(node);
+    printf("    jsr %d %s\n",
+                STE_ARITY(FUNCALL_STE(node)), FUNCALL_NAME(node));
+
+    // int nest_lvl = STE_NEST_LVL(FUNCALL_STE(node));
+    // int index = STE_INDEX(FUNCALL_STE(node));
+    // if (nest_lvl == 0) {
+    //     printf("g\n");
+    // }
+    // else if (nest_lvl == data->cur_lvl) {
+    //     printf("l\n");
+    // }
+    // else {
+    //     printf("n %d\n", data->cur_lvl - nest_lvl);
+    // }
+
     return node;
 }
 
@@ -124,10 +221,9 @@ node_st *ASfuncall(node_st *node)
  */
 node_st *AScast(node_st *node)
 {
-    struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
+    TRAVexpr(node);
     // niet casten als types toch al gelijk zijn
-    if (CAST_TYPE(node) == CAST_EXPR_TYPE(node)) {
+    if (CAST_TYPE(node) == get_type(CAST_EXPR(node))) {
         return node;
     }
     printf("    ");
@@ -146,7 +242,6 @@ node_st *AScast(node_st *node)
  */
 node_st *ASfundefs(node_st *node)
 {
-    struct data_as *data = DATA_AS_GET();
     TRAVchildren(node);
     return node;
 }
@@ -157,7 +252,11 @@ node_st *ASfundefs(node_st *node)
 node_st *ASfundef(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    printf("%s:\n", FUNDEF_NAME(node));
+    data->cur_lvl++;
     TRAVchildren(node);
+    data->cur_lvl--;
+    printf("\n");
     return node;
 }
 
@@ -167,7 +266,12 @@ node_st *ASfundef(node_st *node)
 node_st *ASfunbody(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    data->returned = false;
     TRAVchildren(node);
+    if (!(data->returned)) {
+      printf("    return\n");
+    }
+    data->returned = false;
     return node;
 }
 
@@ -177,7 +281,31 @@ node_st *ASfunbody(node_st *node)
 node_st *ASifelse(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
+    TRAVcond(node);
+
+    int fst_tag_index = data->tag_index;
+    data->tag_index++;
+    printf("    branch_f %d", fst_tag_index);
+
+    if (IFELSE_ELSE_BLOCK(node)) {
+        printf("_else\n");
+        int snd_tag_index = data->tag_index;
+        data->tag_index++;
+
+        TRAVthen(node);
+
+        printf("    jump %d_end\n"
+               "\n%d_else:\n", snd_tag_index, fst_tag_index);
+        TRAVelse_block(node);
+
+        printf("%d_end:\n", snd_tag_index);
+    }
+    else {
+        printf("_end\n");
+        TRAVthen(node);
+        printf("\n%d_end:\n", fst_tag_index);
+    }
+
     return node;
 }
 
@@ -256,8 +384,8 @@ node_st *ASvardecl(node_st *node)
  */
 node_st *ASstmts(node_st *node)
 {
-    struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
+    TRAVstmt(node);
+    TRAVnext(node);
     return node;
 }
 
@@ -267,7 +395,8 @@ node_st *ASstmts(node_st *node)
 node_st *ASassign(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
+    TRAVexpr(node);
+    TRAVlet(node);
     return node;
 }
 
@@ -291,54 +420,44 @@ node_st *ASbinop(node_st *node)
     TRAVright(node);
 
     printf("    ");
+    print_type_char(get_type(BINOP_RIGHT(node)));
 
     switch (BINOP_OP(node)) {
-    case BO_add:
-      print_type(data->last_type);
-      printf("add\n");
-      break;
-    case BO_sub:
-      print_type(data->last_type);
-      printf("sub\n");
-      break;
-    case BO_mul:
-      print_type(data->last_type);
-      printf("mul\n");
-      break;
-    case BO_div:
-      print_type(data->last_type);
-      printf("div\n");
-      break;
-    case BO_mod:
-      print_type(data->last_type);
-      printf("mod\n");
-      break;
-    case BO_lt:
-      print_type(data->last_type);
-      printf("lt\n");
-      break;
-    case BO_le:
-      print_type(data->last_type);
-      printf("le\n");
-      break;
-    case BO_gt:
-      print_type(data->last_type);
-      printf("gt\n");
-      break;
-    case BO_ge:
-      print_type(data->last_type);
-      printf("ge\n");
-      break;
-    case BO_eq:
-      print_type(data->last_type);
-      printf("eq\n");
-      break;
-    case BO_ne:
-      print_type(data->last_type);
-      printf("ne\n");
-      break;
-    default:
-      DBUG_ASSERT(false, "unknown binop detected!");
+      case BO_add:
+        printf("add\n");
+        break;
+      case BO_sub:
+        printf("sub\n");
+        break;
+      case BO_mul:
+        printf("mul\n");
+        break;
+      case BO_div:
+        printf("div\n");
+        break;
+      case BO_mod:
+        printf("mod\n");
+        break;
+      case BO_lt:
+        printf("lt\n");
+        break;
+      case BO_le:
+        printf("le\n");
+        break;
+      case BO_gt:
+        printf("gt\n");
+        break;
+      case BO_ge:
+        printf("ge\n");
+        break;
+      case BO_eq:
+        printf("eq\n");
+        break;
+      case BO_ne:
+        printf("ne\n");
+        break;
+      default:
+        DBUG_ASSERT(false, "unknown binop detected!");
     }
 
     return node;
@@ -353,7 +472,7 @@ node_st *ASmonop(node_st *node)
     TRAVoperand(node);
 
     printf("    ");
-    print_type(data->last_type);
+    print_type_char(get_type(MONOP_OPERAND(node)));
 
     switch (MONOP_OP(node)) {
     case MO_not:
@@ -375,6 +494,24 @@ node_st *ASmonop(node_st *node)
 node_st *ASvarlet(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    enum Type type = STE_TYPE(VARLET_STE(node));
+    printf("    ");
+    print_type_char(type);
+    printf("store");
+
+    int nest_lvl = STE_NEST_LVL(VARLET_STE(node));
+    int index = STE_INDEX(VARLET_STE(node));
+    if (nest_lvl == 0) {
+        printf("g ");
+    }
+    else if (nest_lvl == data->cur_lvl) {
+        printf(" ");
+    }
+    else {
+        printf("n %d ", data->cur_lvl - nest_lvl);
+    }
+    printf("%d\n", index);
+
     return node;
 }
 
@@ -384,6 +521,30 @@ node_st *ASvarlet(node_st *node)
 node_st *ASvar(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    enum Type type = STE_TYPE(VAR_STE(node));
+    // printf("Var %s", VAR_NAME(node));
+    printf("    ");
+    print_type_char(type);
+    printf("load");
+
+    int nest_lvl = STE_NEST_LVL(VAR_STE(node));
+    int index = STE_INDEX(VAR_STE(node));
+    if (nest_lvl == 0) {
+        printf("g ");
+    }
+    else if (nest_lvl == data->cur_lvl) {
+        if (index <= 3) {
+            printf("_");
+        }
+        else {
+            printf(" ");
+        }
+    }
+    else {
+        printf("n %d ", data->cur_lvl - nest_lvl);
+    }
+    printf("%d\n", index);
+
     return node;
 }
 
@@ -403,8 +564,6 @@ node_st *ASnum(node_st *node)
       default:
         printf("    iloadc %d\n", CTE_INDEX(NUM_CTE(node)));
     }
-
-    data->last_type = CT_int;
     return node;
 }
 
@@ -423,8 +582,6 @@ node_st *ASfloat(node_st *node)
     else {
         printf("    floadc %d\n", CTE_INDEX(FLOAT_CTE(node)));
     }
-
-    data->last_type = CT_float;
     return node;
 }
 
@@ -440,7 +597,6 @@ node_st *ASbool(node_st *node)
     else {
         printf("    bloadc_f\n");
     }
-    data->last_type = CT_bool;
     return node;
 }
 
@@ -468,6 +624,16 @@ node_st *ASste(node_st *node)
 node_st *AScte(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
+    printf(".const ");
+    print_type(CTE_TYPE(node));
+    if (CTE_TYPE(node) == CT_int) {
+        printf(" %d\n", CTE_INT_VAL(node));
+    }
+    else {
+        printf(" %f\n", CTE_FLOAT_VAL(node));
+    }
+
+    TRAVnext(node);
     return node;
 }
 

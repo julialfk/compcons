@@ -12,8 +12,8 @@ start phase RootPhase {
         ConstantTable;
         BoolopsToCondops;
         BooleanCasts;
-        //Assembler;
-        Print;
+        //Print;
+        Assembler;
     }
 };
 
@@ -112,7 +112,9 @@ traversal BooleanCasts {
 traversal Assembler {
     uid = AS,
     travdata {
-        Type last_type
+        int cur_lvl,
+        int tag_index,
+        bool returned
     }
 };
 
@@ -144,20 +146,6 @@ enum binop_type {
     }
 };
 
-enum binboolop_type {
-    prefix = BOO,
-    values {
-        and, or
-    }
-};
-
-enum monboolop_type {
-    prefix = MOO,
-    values {
-        not
-    }
-};
-
 nodeset Constants = {Float, Bool, Num};
 
 nodeset Operations = {Binop, Monop, Ternary};
@@ -170,10 +158,6 @@ nodeset Expr = {Cast, FunCall, Var, ArrExpr} | (Constants | Operations);
 
 nodeset Stmt = {Assign, ExprStmt, IfElse, While, DoWhile, For, Return};
 
-// Link you need to adapt.
-// In the old framework it points to node* (so can be everything).
-// You need to adapt it when working with the symbol tables.
-// I put it as a decl now, because an empty nodeset is not allowed.
 nodeset Link = {Ste};
 nodeset Link_cte = {Cte};
 
@@ -241,8 +225,7 @@ node Cast {
         Expr expr {constructor, mandatory }
     }, 
     attributes {
-        Type type { constructor },
-        Type expr_type { constructor }
+        Type type { constructor }
     }
 };
 

@@ -83,7 +83,7 @@ node_st *CSTfloat(node_st *node)
         TRAVconstants(data->program);
         if (!FLOAT_CTE(node)) {
             node_st *new_entry = ASTcte(NULL, data->index,
-                                        CT_float, FLOAT_VAL(node), 0.0);
+                                        CT_float, 0, FLOAT_VAL(node));
             insert_cte(data, new_entry);
             FLOAT_CTE(node) = new_entry;
         }

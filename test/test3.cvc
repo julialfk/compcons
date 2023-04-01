@@ -1,19 +1,10 @@
-int a = (-1);
-b = (!true);
-c = (-a);
-d = (int) 3.0;
-e = prob(a, b, c);
-return a;
-abc(10);
+float a = 0.5;
+int y = 7;
+int z = 0;
 
-if (a) {
-    f = 9;
-    return f;
-}
-else {
-    abc(90);
-}
-
-for (int n = 0, 5, 2) {
-    f = (f + 1);
+int main(int x) {
+    if (x > 0) {
+        x = 2;
+    }
+    return 4;
 }

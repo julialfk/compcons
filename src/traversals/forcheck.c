@@ -14,6 +14,7 @@
 #include "ccngen/ast.h"
 #include "ccngen/enum.h"
 #include "ccngen/trav.h"
+#include "palm/ctinfo.h"
 
 
 void FCinit()
@@ -35,8 +36,9 @@ node_st *FCfor(node_st *node)
     // if (NODE_TYPE(FOR_STEP(node)) == NT_NUM) {
     //     printf("is num\n");
     // }
-    if (NODE_TYPE(FOR_STEP(node)) == NT_NUM && NUM_VAL(FOR_STEP(node)) == 0) {
-        printf("Error (%d:%d): step size cannot be 0.\n",
+    if (FOR_STEP(node) && NODE_TYPE(FOR_STEP(node)) == NT_NUM
+        && NUM_VAL(FOR_STEP(node)) == 0) {
+        CTI(CTI_ERROR, false, "Error (%d:%d): step size cannot be 0.",
                 NODE_BLINE(FOR_STEP(node)), NODE_BCOL(FOR_STEP(node)));
         CCNerrorAction();
     }
@@ -60,9 +62,10 @@ node_st *FCvarlet(node_st *node)
     for (int i = data->for_loops; i > 0; i--) {
         char *cur_start = STE_NAME(SYMTABLE_NEXT(cur_table));
         if (!strcmp(cur_start, VARLET_NAME(node))) {
-            printf("Error (%d:%d): start variable '%s' cannot be reassigned "
-                   "within for loop.\n",
-                   NODE_BLINE(node), NODE_BCOL(node), VARLET_NAME(node));
+            CTI(CTI_ERROR, false,
+                    "Error (%d:%d): start variable '%s' cannot be reassigned "
+                    "within for loop.\n",
+                    NODE_BLINE(node), NODE_BCOL(node), VARLET_NAME(node));
             CCNerrorAction();
         }
     }

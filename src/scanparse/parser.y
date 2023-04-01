@@ -34,7 +34,6 @@ static void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 }
 
 %locations
-
 %define parse.error verbose
 
 %token TRUEVAL FALSEVAL LET
@@ -177,9 +176,24 @@ globdef: EXPORT vartype[type] ID[name] LET expr[init] SEMICOLON
          }
        ;
 
-funbody: BRACE_L vardecl stmts BRACE_R
+funbody: BRACE_L vardecl fundefs stmts BRACE_R
+         {
+           $$ = ASTfunbody($2, $3, $4);
+           AddLocToNode($$, &@2, &@4);
+         }
+       | BRACE_L vardecl fundefs BRACE_R
+         {
+           $$ = ASTfunbody($2, $3, NULL);
+           AddLocToNode($$, &@2, &@3);
+         }
+       | BRACE_L vardecl stmts BRACE_R
          {
            $$ = ASTfunbody($2, NULL, $3);
+           AddLocToNode($$, &@2, &@3);
+         }
+       | BRACE_L fundefs stmts BRACE_R
+         {
+           $$ = ASTfunbody(NULL, $2, $3);
            AddLocToNode($$, &@2, &@3);
          }
        | BRACE_L vardecl BRACE_R
@@ -187,12 +201,16 @@ funbody: BRACE_L vardecl stmts BRACE_R
            $$ = ASTfunbody($2, NULL, NULL);
            AddLocToNode($$, &@2, &@2);
          }
+       | BRACE_L vardecl BRACE_R
+         {
+           $$ = ASTfunbody(NULL, $2, NULL);
+           AddLocToNode($$, &@2, &@2);
+         }
        | BRACE_L stmts BRACE_R
          {
            $$ = ASTfunbody(NULL, NULL, $2);
            AddLocToNode($$, &@2, &@2);
          }
- 
        | BRACE_L BRACE_R
          {
            $$ = ASTfunbody(NULL, NULL, NULL);
@@ -349,7 +367,7 @@ expr: BRACKET_L expr BRACKET_R
       }
     | BRACKET_L vartype[type] BRACKET_R expr
       {
-        $$ = ASTcast( $4, $type, CT_NULL);
+        $$ = ASTcast( $4, $type);
         AddLocToNode($$, &@type, &@4);
       }
     ;

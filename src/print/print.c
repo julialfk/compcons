@@ -586,7 +586,7 @@ node_st *PRTsymtable(node_st *node)
     return node;
 }
 
-char *get_type(node_st *node, char *str) {
+static char *get_type(node_st *node, char *str) {
     char *tmp = NULL;
     switch (STE_TYPE(node)) {
     case CT_bool:

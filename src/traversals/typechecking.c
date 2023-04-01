@@ -159,7 +159,6 @@ node_st *TCcast(node_st *node)
         CCNerrorAction();
     }
     data->current_type = CAST_TYPE(node);
-    CAST_EXPR_TYPE(node) = data->current_type;
     return node;
 }
 
@@ -227,6 +226,11 @@ node_st *TCbinop(node_st *node)
         }
     }
 
+    if (BINOP_OP(node) == BO_lt || BINOP_OP(node) == BO_le
+        || BINOP_OP(node) == BO_gt || BINOP_OP(node) == BO_ge
+        || BINOP_OP(node) == BO_eq || BINOP_OP(node) == BO_ne) {
+        data->current_type = CT_bool;
+    }
     BINOP_EXPR_TYPE(node) = data->current_type;
     return node;
 }
