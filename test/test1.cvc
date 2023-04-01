@@ -1,28 +1,10 @@
-// void main() {
-//     int x = 1;
-//     int y = 2;
-//     // if (x < 1) {
-//     //     y = y - 1;
-//     // }
-//     for (int i = 1, 5, 1) {
-//         x = x + i;
-//     }
-// }
-
-void main() {
+int main() {
     int x = 1;
     int y = 2;
     for (int i = 1, 5, 1) {
         x = x + i;
-    }
-    if (x < 1) {
-        y = y - 1;
-    }
-    for (int i = 1, 5, 1) {
-        for (int j = 2, 5, 1) {
-           x = x + i;
-           y = y + j;
-        }
         
     }
+    x = 5;
+    return 1;
 }
