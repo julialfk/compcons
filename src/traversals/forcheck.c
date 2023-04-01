@@ -63,8 +63,8 @@ node_st *FCvarlet(node_st *node)
         char *cur_start = STE_NAME(SYMTABLE_NEXT(cur_table));
         if (!strcmp(cur_start, VARLET_NAME(node))) {
             CTI(CTI_ERROR, false,
-                    "Error (%d:%d): start variable '%s' cannot be reassigned "
-                    "within for loop.\n",
+                    "Error (%d:%d): start variable \"%s\" cannot be reassigned"
+                    " within for loop.\n",
                     NODE_BLINE(node), NODE_BCOL(node), VARLET_NAME(node));
             CCNerrorAction();
         }

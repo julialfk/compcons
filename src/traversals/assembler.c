@@ -14,6 +14,7 @@
 #include "ccngen/trav.h"
 #include "palm/dbug.h"
 #include "ccngen/enum.h"
+#include "palm/ctinfo.h"
 
 
 /* Print the character associated with the basic type.
@@ -96,6 +97,8 @@ void ASinit()
     struct data_as *data = DATA_AS_GET();
     data->cur_lvl = 0;
     data->tag_index = 1;
+    data->returned = false;
+    data->local_vars = 0;
 }
 void ASfini() { return; }
 
@@ -106,11 +109,10 @@ node_st *ASprogram(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
     TRAVdecls(node);
-    printf("\n\n");
     TRAVconstants(node);
     node_st *global_ste = SYMTABLE_NEXT(PROGRAM_GLOBAL(node));
-    if (global_ste) {
-
+    // CTI(CTI_NOTE, true, "global = %ld\n", global_ste);
+    if (global_ste && !STE_FUNCTION(global_ste)) {
         printf(".exportfun \"__init\" void __init");
         do {
             printf(".global ");
@@ -118,7 +120,7 @@ node_st *ASprogram(node_st *node)
             printf("\n");
             global_ste = STE_NEXT(global_ste);
         }
-        while (global_ste);
+        while (global_ste && !STE_FUNCTION(global_ste));
     }
     return node;
 }
@@ -181,9 +183,11 @@ node_st *ASreturn(node_st *node)
     struct data_as *data = DATA_AS_GET();
     TRAVexpr(node);
     printf("    ");
-    enum Type type = get_type(RETURN_EXPR(node));
-    if (type != CT_void) {
-      print_type_char(type);
+    if (RETURN_EXPR(node)) {
+        enum Type type = get_type(RETURN_EXPR(node));
+        if (type != CT_void) {
+          print_type_char(type);
+        }
     }
     printf("return\n");
     data->returned = true;
@@ -266,10 +270,15 @@ node_st *ASfundef(node_st *node)
 node_st *ASfunbody(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    data->returned = false;
-    TRAVchildren(node);
+    if (FUNBODY_DECLS(node)) {
+        TRAVdecls(node);
+        printf("    esr %d\n", data->local_vars);
+        data->local_vars = 0;
+    }
+
+    TRAVstmts(node);
     if (!(data->returned)) {
-      printf("    return\n");
+        printf("    return\n");
     }
     data->returned = false;
     return node;
@@ -283,14 +292,12 @@ node_st *ASifelse(node_st *node)
     struct data_as *data = DATA_AS_GET();
     TRAVcond(node);
 
-    int fst_tag_index = data->tag_index;
-    data->tag_index++;
+    int fst_tag_index = data->tag_index++;
     printf("    branch_f %d", fst_tag_index);
 
     if (IFELSE_ELSE_BLOCK(node)) {
         printf("_else\n");
-        int snd_tag_index = data->tag_index;
-        data->tag_index++;
+        int snd_tag_index = data->tag_index++;
 
         TRAVthen(node);
 
@@ -316,7 +323,17 @@ node_st *ASifelse(node_st *node)
 node_st *ASwhile(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
+    int while_index = data->tag_index++;
+    int end_index = data->tag_index++;
+    printf("%d_while:\n", while_index);
+    TRAVcond(node);
+    printf("    branch_f %d_end\n", end_index);
+
+    TRAVblock(node);
+    printf("    jump %d_while\n"
+           "%d_end:\n", while_index, end_index);
+
+    data->returned = false;
     return node;
 }
 
@@ -326,7 +343,14 @@ node_st *ASwhile(node_st *node)
 node_st *ASdowhile(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
+    int dowhile_index = data->tag_index++;
+    int end_index = data->tag_index++;
+    printf("%d_dowhile:\n", dowhile_index);
+    TRAVblock(node);
+    TRAVcond(node);
+    printf("    branch_t %d_dowhile\n", dowhile_index);
+
+    data->returned = false;
     return node;
 }
 
@@ -335,8 +359,6 @@ node_st *ASdowhile(node_st *node)
  */
 node_st *ASfor(node_st *node)
 {
-    struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
     return node;
 }
 
@@ -376,7 +398,8 @@ node_st *ASparam(node_st *node)
 node_st *ASvardecl(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
+    data->local_vars++;
+    TRAVnext(node);
     return node;
 }
 
