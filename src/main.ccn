@@ -12,8 +12,8 @@ start phase RootPhase {
         ConstantTable;
         BoolopsToCondops;
         BooleanCasts;
-        //Print;
-        Assembler;
+        Print;
+        //Assembler;
     }
 };
 
@@ -27,10 +27,15 @@ traversal SymbolTables {
     travdata {
         user node_ptr current_scope,
         int nest_lvl,
-        int index,
+        int index_extern_fun,
+        int index_extern_var,
+        int index_var,
+        int index_fun,
+        int index_local,
         string entry_name,
         user node_ptr link_ste,
-        user node_ptr function_ste
+        user node_ptr function_ste,
+        bool globals_finished
     }
 };
 
@@ -114,7 +119,9 @@ traversal Assembler {
     travdata {
         int cur_lvl,
         int tag_index,
-        bool returned
+        bool init,
+        bool returned,
+        int local_vars
     }
 };
 
@@ -245,7 +252,9 @@ node FunDef {
     attributes {
         Type type { constructor },
         string name { constructor },
-        bool export  { constructor }
+        bool export  { constructor },
+        bool extern_bool { constructor },
+        Link ste { constructor }
     }
 };
 
@@ -455,7 +464,9 @@ node Ste {
         int arity { constructor },
         Link first_param { constructor },
         int nest_lvl { constructor },
-        int index { constructor }
+        int index { constructor },
+        bool extern_bool { constructor },
+        bool export { constructor }
     }
 };
 
