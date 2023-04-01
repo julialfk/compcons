@@ -86,7 +86,7 @@ traversal ForCheck {
 traversal ForToWhile {
     uid = FTW,
     nodes = {
-        For, FunDef, FunBody, Ste, VarDecl, Program, Stmts
+        For, FunDef, FunBody, Ste, VarDecl, Program, Stmts, Symtable
     },
     travdata {
         user node_ptr current_scope,
@@ -97,12 +97,13 @@ traversal ForToWhile {
         user node_ptr tail_funbody_decls,
         user node_ptr link_ste,
         string entry_name,
-        user node_ptr ste_index,
+        int ste_index,
         user node_ptr parent_for_stmt,
         user node_ptr tail_for_assigns,
         user node_ptr head_for_assigns,
         user node_ptr last_ste,
-        user node_ptr last_block_stmts
+        user node_ptr last_block_stmts,
+        user node_ptr next_for_stmt
     }
 };
 

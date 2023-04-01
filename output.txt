@@ -16,6 +16,9 @@ void main()
 
 x:int	Scope: 1, Index: 0
 y:int	Scope: 1, Index: 1
+_start_1:int	Scope: 1, Index: 4
+_stop_2:int	Scope: 1, Index: 3
+_step_3:int	Scope: 1, Index: 2
 
 */
  {
