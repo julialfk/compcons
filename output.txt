@@ -1,7 +1,15 @@
+########first stmts local == null##########
+$$$$$$$$$$$$not null$$$$$$$$$$$$$
+########first stmts local == null##########
+$$$$$$$$$$$$not null$$$$$$$$$$$$$
 
 /* Constant table: 
 
-0: 3
+0: 4
+1: 5
+2: 6
+3: 10
+4: 2
 
 */
 
@@ -9,6 +17,9 @@
 
 x:int	Scope: 0, Index: 0
 main:int()	Scope: 0, Index: 0
+s:int	Scope: 0, Index: 1
+f:int	Scope: 0, Index: 2
+other:int()	Scope: 0, Index: 1
 
 */
 export void __init()
@@ -17,46 +28,41 @@ export void __init()
 
 */
  {
-x = 3;
+x = 4;
+s = 4;
 }
 int x;
-export int main()
+int main()
 /* Symbol table: 
 
-x:bool	Scope: 1, Index: 0
+x:int	Scope: 1, Index: 0
+q:int	Scope: 1, Index: 1
+y:int	Scope: 1, Index: 2
 
 */
  {
-bool x;
-x = true;
-return ( x == true) ? 1 : 0;
+int x;
+int q;
+int y;
+x = 5;
+q = 6;
+return ( x + y);
 }
-__init:
-    iloadc 0
-    istoreg 0
-    return
+int s;
+int f;
+int other()
+/* Symbol table: 
 
-main:
-    esr 1
-    bloadc_t
-    bstore 0
-    bload_0
-<<<<<<< HEAD
-    bloadc_t
-    beq
-=======
->>>>>>> b353030449ed834988f018dfd4461984adcfbd6d
-    branch_t 1_then
-    iloadc_0
-    jump 2_end
-1_then:
-    iloadc_1
-    jump 2_end
-2_end:
-<<<<<<< HEAD
-    
-=======
-    ireturn
+q:int	Scope: 1, Index: 0
+s:int	Scope: 1, Index: 1
+y:int	Scope: 1, Index: 2
 
-.exportfun "main" int main
->>>>>>> b353030449ed834988f018dfd4461984adcfbd6d
+*/
+ {
+int q;
+int s;
+int y;
+q = 10;
+y = 2;
+return ( q + y);
+}
