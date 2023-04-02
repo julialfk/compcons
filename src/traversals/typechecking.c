@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "ccn/ccn.h"
 #include "ccngen/ast.h"
@@ -91,12 +92,8 @@ void type_error(node_st *node, enum Type expected_type, enum Type given_type)
     char *given = (char *)malloc(6 * sizeof(char));
     char *expected = (char *)malloc(13 * sizeof(char));
     expected = type_string(expected_type, expected);
-    if (!strcmp(expected, "UNDEF")) {
-        strcpy(expected, "int or float");
-    }
-
     CTI(CTI_ERROR, false,
-            "Error (%d:%d): type mismatch: expected type %s, got %s.",
+            "Line %d, Col %d type mismatch: expected type %s, got %s.",
             NODE_BLINE(node), NODE_BCOL(node),
             expected, type_string(given_type, given));
     CCNerrorAction();
@@ -163,7 +160,7 @@ node_st *TCcast(node_st *node)
     struct data_tc *data = DATA_TC_GET();
 
     if (CAST_TYPE(node) == CT_void) {
-        CTI(CTI_ERROR, false, "Error (%d:%d): cast type cannot be void.",
+        CTI(CTI_ERROR, false, "Line %d, Col %d cast type cannot be void.",
                 NODE_BLINE(node), NODE_BCOL(node));
         CCNerrorAction();
     }
@@ -172,7 +169,7 @@ node_st *TCcast(node_st *node)
     enum Type type = get_type(CAST_EXPR(node));
     if (type == CT_void) {
         CTI(CTI_ERROR, false,
-                "Error (%d:%d): typecast cannot be applied to type void, "
+                "Line %d, Col %d typecast cannot be applied to type void, "
                 "only to bool or int or float",
                 NODE_BLINE(CAST_EXPR(node)), NODE_BCOL(CAST_EXPR(node)));
         CCNerrorAction();
@@ -266,7 +263,7 @@ node_st *TCassign(node_st *node)
         char *expected = (char *)malloc(6 * sizeof(char));
         char *got = (char *)malloc(6 * sizeof(char));
         CTI(CTI_ERROR, false,
-                "Error (%d:%d): incorrect data type for variable \"%s\". "
+                "Line %d, Col %d incorrect data type for variable \"%s\". "
                 "Expected %s, got %s.",
                 NODE_BLINE(ASSIGN_LET(node)), NODE_BCOL(ASSIGN_LET(node)),
                 VARLET_NAME(ASSIGN_LET(node)),
@@ -301,7 +298,7 @@ node_st *TCfuncall(node_st *node)
     for (int i = arity; i > 0; i--) {
         if (!arg) {
             CTI(CTI_ERROR, false,
-                    "Error (%d:%d): function \"%s\" expects %d arguments.",
+                    "Line %d, Col %d function \"%s\" expects %d arguments.",
                     NODE_BLINE(node), NODE_BCOL(node), FUNCALL_NAME(node),
                     arity);
             CCNerrorAction();
@@ -320,7 +317,7 @@ node_st *TCfuncall(node_st *node)
 
     if (arg) {
         CTI(CTI_ERROR, false,
-                "Error (%d:%d): function \"%s\" expects %d arguments.",
+                "Line %d, Col %d function \"%s\" expects %d arguments.",
                 NODE_BLINE(node), NODE_BCOL(node), FUNCALL_NAME(node), arity);
         CCNerrorAction();
     }
@@ -352,7 +349,6 @@ node_st *TCifelse(node_st *node)
  */
 node_st *TCnum(node_st *node)
 {
-    struct data_tc *data = DATA_TC_GET();
     return node;
 }
 
@@ -390,7 +386,7 @@ node_st *TCparam(node_st *node)
 {
     if (PARAM_TYPE(node) == CT_void) {
         CTI(CTI_ERROR, false,
-                "Error (%d:%d): function parameter \"%s\" cannot be void.",
+                "Line %d, Col %d function parameter \"%s\" cannot be void.",
                 NODE_BLINE(node), NODE_BCOL(node), PARAM_NAME(node));
         CCNerrorAction();
     }
@@ -424,17 +420,19 @@ node_st *TCreturn(node_st *node)
 
     if (data->return_type == CT_void && type != CT_void) {
         CTI(CTI_ERROR, false,
-                "Error (%d:%d): void function should not have a return value",
+                "Line %d, Col %d void function should not have a return value",
                 NODE_BLINE(RETURN_EXPR(node)), NODE_BCOL(RETURN_EXPR(node)));
+        CCNerrorAction();
     }
     else if (data->return_type != type) {
         char *expected = (char *)malloc(6 * sizeof(char));
         char *got = (char *)malloc(6 * sizeof(char));
         CTI(CTI_ERROR, false,
-                "Error (%d:%d): expected return value of type %s, got %s",
+                "Line %d, Col %d expected return value of type %s, got %s",
                 NODE_BLINE(node), NODE_BCOL(node),
                 type_string(data->return_type, expected),
                 type_string(type, got));
+        CCNerrorAction();
         free(expected);
         free(got);
     }

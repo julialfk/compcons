@@ -33,7 +33,6 @@ static void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 
 %locations
 %define parse.error verbose
-%expect 14
 
 %token TRUEVAL FALSEVAL LET
 %token INTTYPE FLOATTYPE BOOLTYPE VOIDTYPE
@@ -44,8 +43,11 @@ static void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 %left LE LT GE GT
 %left MINUS PLUS
 %left STAR SLASH PERCENT
-%right EXCLAMATION UMINUS
+%right EXCLAMATION UMINUS CAST
 %token BRACKET_L BRACKET_R BRACE_L BRACE_R COMMA SEMICOLON
+
+%precedence THEN
+%precedence ELSE
 
 %token <cint> NUM
 %token <cflt> FLOAT
@@ -279,7 +281,7 @@ ifelse: IF BRACKET_L expr[cond] BRACKET_R block[then] ELSE block[elseblock]
           $$ = ASTifelse($cond, $then, $elseblock);
           AddLocToNode($$, &@1, &@elseblock);
         }
-      | IF BRACKET_L expr[cond] BRACKET_R block[then]
+      | IF BRACKET_L expr[cond] BRACKET_R block[then] %prec THEN
         {
           $$ = ASTifelse($cond, $then, NULL);
           AddLocToNode($$, &@1, &@then);
@@ -327,7 +329,7 @@ expr: BRACKET_L expr BRACKET_R
       {
         $$ = $1;
       }
-    | BRACKET_L vartype[type] BRACKET_R expr
+    | BRACKET_L vartype[type] BRACKET_R expr %prec CAST
       {
         $$ = ASTcast( $4, $type);
         AddLocToNode($$, &@type, &@4);
@@ -420,8 +422,15 @@ floatval: FLOAT
 
 intval: NUM
         {
-          $$ = ASTnum($1, NULL);
-          AddLocToNode($$, &@1, &@1);
+          if ($1 > 2147483647 || $1 < 0)
+          {
+            yyerror("integer overflow");
+          }
+          else
+          {
+            $$ = ASTnum($1, NULL);
+            AddLocToNode($$, &@1, &@1);
+          }
         }
       ;
 

@@ -1,0 +1,7 @@
+Usage: civicc [OPTION...] <civic file>
+Options:
+  -h                           This help message.
+  --output/-o <output_file>    Output assembly to output file instead of STDOUT.
+  --verbose/-v                 Enable verbose mode.
+  --breakpoint/-b <breakpoint> Set a breakpoint.
+  --structure/-s               Pretty print the structure of the compiler.

@@ -21,7 +21,7 @@
  *
  * type: the basic type
  */
-void print_type(enum Type type) {
+static void print_type(enum Type type) {
     switch(type) {
       case CT_int:
         printf("int");
@@ -40,7 +40,7 @@ void print_type(enum Type type) {
     }
 }
 
-void print_types(node_st *node) {
+static void print_types(node_st *node) {
     print_type(STE_TYPE(node));
     node_st *arg = STE_FIRST_PARAM(node);
     for (int i = STE_ARITY(node); i > 0; i--) {
@@ -54,7 +54,7 @@ void print_types(node_st *node) {
  *
  * type: the basic type
  */
-void print_type_char(enum Type type) {
+static void print_type_char(enum Type type) {
     switch(type) {
       case CT_int:
         printf("i");
@@ -100,6 +100,7 @@ static enum Type get_type(node_st *expr) {
         break;
       case NT_MONOP:
         type = MONOP_EXPR_TYPE(expr);
+        break;
       case NT_TERNARY:
         type = TERNARY_EXPR_TYPE(expr);
     }
@@ -246,20 +247,13 @@ node_st *ASfuncall(node_st *node)
     struct data_as *data = DATA_AS_GET();
     printf("    isrg\n");
     TRAVargs(node);
-    printf("    jsr %d %s\n",
-                STE_ARITY(FUNCALL_STE(node)), FUNCALL_NAME(node));
-
-    // int nest_lvl = STE_NEST_LVL(FUNCALL_STE(node));
-    // int index = STE_INDEX(FUNCALL_STE(node));
-    // if (nest_lvl == 0) {
-    //     printf("g\n");
-    // }
-    // else if (nest_lvl == data->cur_lvl) {
-    //     printf("l\n");
-    // }
-    // else {
-    //     printf("n %d\n", data->cur_lvl - nest_lvl);
-    // }
+    printf("    jsr");
+    if (STE_EXTERN_BOOL(FUNCALL_STE(node))) {
+        printf("e %d\n", STE_INDEX(FUNCALL_STE(node)));
+    }
+    else {
+        printf(" %d %s\n", STE_INDEX(FUNCALL_STE(node)), FUNCALL_NAME(node));
+    }
 
     return node;
 }
@@ -303,11 +297,16 @@ node_st *ASfundef(node_st *node)
     if (!strcmp(FUNDEF_NAME(node), "__init")) {
         data->init = true;
     }
-    printf("%s:\n", FUNDEF_NAME(node));
+    if (!FUNDEF_EXTERN_BOOL(node)) {
+        printf("%s:\n", FUNDEF_NAME(node));
+    }
     data->cur_lvl++;
     TRAVbody(node);
     data->cur_lvl--;
-    printf("\n");
+
+    if (!FUNDEF_EXTERN_BOOL(node)) {
+        printf("\n");
+    }
     return node;
 }
 
@@ -476,14 +475,13 @@ node_st *ASternary(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
     TRAVpred(node);
-    int then_index = data->tag_index++;
-    printf("    branch_t %d_then\n", then_index);
-    TRAVelse_(node);
+    int false_index = data->tag_index++;
+    printf("    branch_f %d_false_expr\n", false_index);
+    TRAVthen_(node);
     int end_index = data->tag_index++;
     printf("    jump %d_end\n", end_index);
-    printf("%d_then:\n", then_index);
-    TRAVthen_(node);
-    printf("    jump %d_end\n", end_index);
+    printf("%d_false_expr:\n", false_index);
+    TRAVelse_(node);
     // Generate a label for the end of the ternary operator
     printf("%d_end:\n", end_index);
 
@@ -603,7 +601,6 @@ node_st *ASvar(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
     enum Type type = STE_TYPE(VAR_STE(node));
-    // printf("Var %s", VAR_NAME(node));
     printf("    ");
     print_type_char(type);
     printf("load");
@@ -613,16 +610,13 @@ node_st *ASvar(node_st *node)
     if (nest_lvl == 0) {
         printf("g ");
     }
-    else if (nest_lvl == data->cur_lvl) {
+    else {
         if (index <= 3) {
             printf("_");
         }
         else {
             printf(" ");
         }
-    }
-    else {
-        printf("n %d ", data->cur_lvl - nest_lvl);
     }
     printf("%d\n", index);
 

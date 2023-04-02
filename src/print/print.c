@@ -90,7 +90,6 @@ node_st *PRTreturn(node_st *node)
     printf("return ");
     TRAVexpr(node);
     printf(";");
-    // printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     printf("\n");
     return node;
 }
@@ -103,7 +102,6 @@ node_st *PRTfuncall(node_st *node)
     printf("%s(", FUNCALL_NAME(node));
     TRAVargs(node);
     printf(")");
-    // printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
 
     return node;
 }
@@ -114,7 +112,6 @@ node_st *PRTfuncall(node_st *node)
 node_st *PRTcast(node_st *node)
 {
     char *tmp = NULL;
-    // printf( "( ");
 
     switch (CAST_TYPE(node)) {
     case CT_bool:
@@ -134,7 +131,6 @@ node_st *PRTcast(node_st *node)
 
     TRAVexpr(node);
 
-    // printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     return node;
 }
 
@@ -200,7 +196,6 @@ node_st *PRTfundef(node_st *node)
 node_st *PRTfunbody(node_st *node)
 {
     TRAVdecls(node);
-    // TRAVlocal_fundefs(node);
     TRAVstmts(node);
     return node;
 }
@@ -219,7 +214,6 @@ node_st *PRTifelse(node_st *node)
         TRAVelse_block(node);
     }
     printf("}\n");
-    // printf( "(%d:%d-%d)\n", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     return node;
 }
 
@@ -266,7 +260,6 @@ node_st *PRTfor(node_st *node)
     printf(") {\n");
     TRAVblock(node);
     printf("}\n");
-    // printf( "(%d:%d-%d)\n", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     return node;
 }
 
@@ -387,8 +380,6 @@ node_st *PRTvardecl(node_st *node)
 
     printf(";\n");
 
-    // printf(" (%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
-
     TRAVnext(node);
 
     return node;
@@ -480,7 +471,6 @@ node_st *PRTbinop(node_st *node)
     TRAVright(node);
 
     printf(")");
-    // printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
 
     return node;
 }
@@ -522,7 +512,6 @@ node_st *PRTmonop(node_st *node)
     TRAVoperand(node);
 
     printf(")");
-    // printf( "(%d:%d-%d)", NODE_BLINE(node), NODE_BCOL(node), NODE_ECOL(node));
     return node;
 }
 
@@ -532,9 +521,6 @@ node_st *PRTmonop(node_st *node)
 node_st *PRTvarlet(node_st *node)
 {
     printf("%s", VARLET_NAME(node));
-    // printf("(ste check: %s)", STE_NAME(VARLET_STE(node)));
-
-    // printf("%s(%d:%d)", VARLET_NAME(node), NODE_BLINE(node), NODE_BCOL(node));
     return node;
 }
 
@@ -544,7 +530,6 @@ node_st *PRTvarlet(node_st *node)
 node_st *PRTvar(node_st *node)
 {
     printf( "%s", VAR_NAME(node));
-    // printf("(ste check: %s)", STE_NAME(VAR_STE(node)));
 
     return node;
 }

@@ -22,6 +22,7 @@
 #include "ccn/ccn.h"
 #include "ccngen/ast.h"
 #include "ccngen/trav.h"
+#include "palm/str.h"
 
 
 static void AddLocToNode(node_st *old_node, node_st *new_node)
@@ -40,13 +41,6 @@ static void search_ste(struct data_vita *data) {
         // printf("searching: ")
     }
     while (!data->link_ste && cur_table);
-}
-
-char *copy_entry_name(char *original) {
-    char *entry_name_cpy = (char *)malloc(sizeof(char)
-                                        * (strlen(original) + 1));
-    strcpy(entry_name_cpy, original);
-    return entry_name_cpy;
 }
 
 void VITAinit() {
@@ -77,15 +71,14 @@ node_st *VITAglobdef(node_st *node)
                                                     NULL, 0);
             node_st *fundef_init = ASTfundef(funbody_init, NULL, symtable_init,
                                                 CT_void,
-                                                copy_entry_name("__init"),
+                                                STRcpy("__init"),
                                                 true, false, NULL);
             data->init_fundef = fundef_init;
             data->init_funbody = funbody_init;
         }
         data->link_ste = NULL;
         search_ste(data);
-        node_st *new_varlet = ASTvarlet(NULL,
-                                        copy_entry_name(GLOBDEF_NAME(node)),
+        node_st *new_varlet = ASTvarlet(NULL, STRcpy(GLOBDEF_NAME(node)),
                                         data->link_ste);
         AddLocToNode(new_varlet, node);
         node_st *new_assignment = ASTassign(new_varlet, GLOBDEF_INIT(node));
@@ -128,7 +121,7 @@ node_st *VITAprogram(node_st *node)
  * @fn VITAfundef
  */
 node_st *VITAfundef(node_st *node)
-{   
+{
     struct data_vita *data = DATA_VITA_GET();
     data->last_stmts_local = NULL;
     data->last_stmts_local = NULL;
@@ -169,7 +162,8 @@ node_st *VITAvardecl(node_st *node)
         data->entry_name = VARDECL_NAME(node);
         data->link_ste = NULL;
         search_ste(data);
-        node_st *new_varlet = ASTvarlet(NULL, copy_entry_name(VARDECL_NAME(node)), data->link_ste);
+        node_st *new_varlet = ASTvarlet(NULL, STRcpy(VARDECL_NAME(node)),
+                                            data->link_ste);
         AddLocToNode(new_varlet, node);
         node_st *new_assignment = ASTassign(new_varlet, VARDECL_INIT(node));
         AddLocToNode(new_assignment, node);

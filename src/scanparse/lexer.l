@@ -36,7 +36,8 @@ int yycolumn = 1;
   global.line += count -1;\
 
 #define HANDLE_ERROR(col, len, text) \
-    CTI(CTI_ERROR, false, "Line %d, Column %d: Unexpected token: %s\n", len, col, text); \
+    CTI(CTI_ERROR, false, "Line %d, Column %d: Unexpected token: %s\n", \
+            len, col, text); \
     exit(1); \
 
 %}
@@ -120,7 +121,7 @@ int yycolumn = 1;
 [ \t]                      { global.col += yyleng;
                            } 
 
-.                         { HANDLE_ERROR(yycolumn, yyleng, yytext);
+.                          { HANDLE_ERROR(yycolumn, yyleng, yytext);
                            }
 %%
 

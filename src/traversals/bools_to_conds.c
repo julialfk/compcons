@@ -39,20 +39,16 @@ node_st *BTCbinop(node_st *node)
         CCNfree(node);
         *node_ptr = ternary;
     }
+    else if (BINOP_OP(node) == BO_eq) {
+        node_st *ternary_left = ASTternary(CCNcopy(BINOP_LEFT(node)),
+                            ASTnum(1, NULL), ASTnum(0, NULL), CT_int);
+        node_st *ternary_right = ASTternary(CCNcopy(BINOP_RIGHT(node)),
+                            ASTnum(1, NULL), ASTnum(0, NULL), CT_int);
+        free(BINOP_LEFT(node));
+        free(BINOP_RIGHT(node));
+        BINOP_LEFT(node) = ternary_left;
+        BINOP_RIGHT(node) = ternary_right;
+    }
 
     return node;
 }
-
-// a || b;
-
-// pred: a
-// then: true
-// else: b
-
-// --------------------
-
-// a && b;
-
-// pred: a
-// then: b
-// else: false

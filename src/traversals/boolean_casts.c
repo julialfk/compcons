@@ -89,6 +89,7 @@ node_st *BCbool(node_st *node)
 node_st *BCfuncall(node_st *node)
 {
     struct data_bc *data = DATA_BC_GET();
+    TRAVargs(node);
     data->expr_type = STE_TYPE(FUNCALL_STE(node));
     return node;
 }

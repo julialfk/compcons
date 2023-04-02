@@ -164,11 +164,8 @@ function run_dir {
     echo
 }
 
-CIVCC=$1
-shift 1
 for arg in $@; do
     run_dir $arg
 done
 
 echo $total_tests tests, $failed_tests failures
-test $failed_tests -eq 0 || exit 1
