@@ -68,7 +68,7 @@ node_st *FTWfunbody(node_st *node)
             node_st *old_next = STMTS_NEXT(old_stmt);
             TRAVstmt(old_stmt);
             FUNBODY_STMTS(node) = data->head_new;
-            STMTS_NEXT(data->tail_new) = old_next;
+            STMTS_NEXT(data->tail_new) = CCNcopy(old_next);
             CCNfree(old_stmt);
         }
         TRAVstmts(node);

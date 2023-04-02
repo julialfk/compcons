@@ -422,8 +422,15 @@ floatval: FLOAT
 
 intval: NUM
         {
-          $$ = ASTnum($1, NULL);
-          AddLocToNode($$, &@1, &@1);
+          if ($1 > 2147483647 || $1 < 0)
+          {
+            yyerror("integer overflow");
+          }
+          else
+          {
+            $$ = ASTnum($1, NULL);
+            AddLocToNode($$, &@1, &@1);
+          }
         }
       ;
 

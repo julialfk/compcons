@@ -15,6 +15,7 @@
 #include "ccngen/enum.h"
 #include "ccngen/trav.h"
 #include "palm/ctinfo.h"
+#include "palm/str.h"
 
 
 /* Append the new Ste node to the end of the symbol table.
@@ -48,24 +49,13 @@ static void search_ste(struct data_st *data) {
     while (!data->link_ste && cur_table);
 }
 
-/* Create a copy of a variable name.
- *
- * original: the original string to be copied
- */
-static char *copy_entry_name(char *original) {
-    char *entry_name_cpy = (char *)malloc(sizeof(char)
-                                        * (strlen(original) + 1));
-    strcpy(entry_name_cpy, original);
-    return entry_name_cpy;
-}
-
 /* Raise an error when void has been used incorrectly.
  *
  * node: the node with the incorrect void type
  * name: the name string of the variable with the incorrect type
  */
 void void_error(node_st *node, char *name) {
-    CTI(CTI_ERROR, false, "Error (%d:%d): \"%s\" has invalid void type.",
+    CTI(CTI_ERROR, false, "Line %d, Col %d \"%s\" has invalid void type.",
             NODE_BLINE(node), NODE_BCOL(node), name);
     CCNerrorAction();
 }
@@ -77,7 +67,7 @@ void void_error(node_st *node, char *name) {
  * name: the name string of the undeclared variable
  */
 void not_declared_error(node_st *node, char *name) {
-    CTI(CTI_ERROR, false, "Error (%d:%d): \"%s\" is not declared.",
+    CTI(CTI_ERROR, false, "Line %d, Col %d \"%s\" is not declared.",
             NODE_BLINE(node), NODE_BCOL(node), name);
     CCNerrorAction();
 }
@@ -89,7 +79,7 @@ void not_declared_error(node_st *node, char *name) {
  * name: the name string of the variable that was already declared
  */
 void already_declared_error(node_st *node, char *name) {
-    CTI(CTI_ERROR, false, "Error (%d:%d): \"%s\" is already declared.",
+    CTI(CTI_ERROR, false, "Line %d, Col %d \"%s\" is already declared.",
             NODE_BLINE(node), NODE_BCOL(node), name);
     CCNerrorAction();
 }
@@ -150,7 +140,7 @@ node_st *STglobdef(node_st *node)
     TRAVnext(data->current_scope);
 
     if (!data->link_ste) {
-        node_st *new_entry = ASTste(NULL, copy_entry_name(data->entry_name),
+        node_st *new_entry = ASTste(NULL, STRcpy(data->entry_name),
                                     GLOBDEF_TYPE(node), false, 0, NULL,
                                     data->nest_lvl, data->index_var++, false,
                                     GLOBDEF_EXPORT(node));
@@ -184,7 +174,7 @@ node_st *STglobdecl(node_st *node)
     TRAVnext(data->current_scope);
 
     if (!data->link_ste) {
-        node_st *new_entry = ASTste(NULL, copy_entry_name(data->entry_name),
+        node_st *new_entry = ASTste(NULL, STRcpy(data->entry_name),
                                     GLOBDECL_TYPE(node), false, 0, NULL,
                                     data->nest_lvl, data->index_extern_var++,
                                     true, false);
@@ -203,7 +193,7 @@ node_st *STglobdecl(node_st *node)
  */
 node_st *STfor(node_st *node) {
     struct data_st *data = DATA_ST_GET();
-    node_st *new_entry = ASTste(NULL, copy_entry_name(FOR_VAR(node)),
+    node_st *new_entry = ASTste(NULL, STRcpy(FOR_VAR(node)),
                                 CT_int, false, 0, NULL, data->nest_lvl + 1, 0,
                                 false, false);
     node_st *symtable = ASTsymtable(new_entry, data->nest_lvl + 1,
@@ -263,13 +253,13 @@ node_st *STfundef(node_st *node)
 
         node_st *new_entry;
         if (FUNDEF_EXTERN_BOOL(node)) {
-            new_entry = ASTste(NULL, copy_entry_name(data->entry_name),
+            new_entry = ASTste(NULL, STRcpy(data->entry_name),
                                     FUNDEF_TYPE(node), true, 0, NULL,
                                     data->nest_lvl, data->index_extern_fun++,
                                     true, false);
         }
         else {
-            new_entry = ASTste(NULL, copy_entry_name(data->entry_name),
+            new_entry = ASTste(NULL, STRcpy(data->entry_name),
                                     FUNDEF_TYPE(node), true, 0, NULL,
                                     data->nest_lvl, data->index_fun++,
                                     false, FUNDEF_EXPORT(node));
@@ -314,7 +304,7 @@ node_st *STparam(node_st *node)
     TRAVnext(data->current_scope);
 
     if (!data->link_ste) {
-        node_st *new_entry = ASTste(NULL, copy_entry_name(data->entry_name),
+        node_st *new_entry = ASTste(NULL, STRcpy(data->entry_name),
                                     PARAM_TYPE(node), false, 0, NULL,
                                     data->nest_lvl,
                                     SYMTABLE_NEXT_INDEX(data->current_scope)++,
@@ -352,7 +342,7 @@ node_st *STvardecl(node_st *node)
     TRAVnext(data->current_scope);
 
     if (!data->link_ste) {
-        node_st *new_entry = ASTste(NULL, copy_entry_name(data->entry_name),
+        node_st *new_entry = ASTste(NULL, STRcpy(data->entry_name),
                                     VARDECL_TYPE(node), false, 0, NULL,
                                     data->nest_lvl,
                                     SYMTABLE_NEXT_INDEX(data->current_scope)++,

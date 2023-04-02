@@ -20,7 +20,6 @@ traversal SymbolTables {
         Program, GlobDef, GlobDecl, FunDef,
         VarDecl, Varlet, Var, FunCall, Param, For, Ste
     },
-    // Could make a stack with ptrs to tables when implementing nested functions.
     travdata {
         user node_ptr current_scope,
         int nest_lvl,
@@ -48,7 +47,7 @@ traversal VarInitsToAssignments {
         user node_ptr init_fundef,
         user node_ptr last_stmts_local,
         user node_ptr first_stmts_local,
-        string entry_name // dit is naam van de var die opgezocht wordt om te linken bij het splitsen
+        string entry_name
     }
 };
 
