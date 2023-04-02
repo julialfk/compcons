@@ -7,126 +7,49 @@
  *
  */
 
+#include <stdio.h>
+#include <string.h>
+
 #include "ccn/ccn.h"
 #include "ccngen/ast.h"
+#include "ccngen/enum.h"
+#include "ccngen/trav.h"
+#include "palm/ctinfo.h"
+#include "palm/str.h"
 
-static char *copy_entry_name(char *original) {
-    char *entry_name_cpy = (char *)malloc(sizeof(char)
-                                        * (strlen(original) + 1));
-    strcpy(entry_name_cpy, original);
-    return entry_name_cpy;
-}
 
 int digit_counter(int digit) {
     int count = 0;
     do {
-    digit /= 10;
-    ++count;
-  } while (digit != 0);
-  return count;
+        digit /= 10;
+        ++count;
+    } while (digit != 0);
+    return count;
 }
 
-void FTWinit() {
+void FTWinit()
+{
     struct data_ftw *data = DATA_FTW_GET();
-    data->index_counter = 0;
-    data->for_funbody = NULL;
-    data->head_for_decls = NULL;
-    data->tail_funbody_decls = NULL;
-    data->parent_for_stmt = NULL;
-    // data->ste_index = NULL;
-    data->tail_for_assigns = NULL;
-    data->head_for_assigns = NULL;
+    data->cur_function = NULL;
+    data->last_vardecl = NULL;
     data->last_ste = NULL;
-    data->last_block_stmts = NULL;
-    data->next_for_stmt = NULL;
-    return;
+    data->last_stmts = NULL;
+    data->head_new = NULL;
+    data->tail_new = NULL;
+    data->insert = NULL;
+    data->counter = 1;
 }
 void FTWfini() { return; }
 
-/**
- * @fn FTWfor
- */
-node_st *FTWfor(node_st *node)
-{
-    struct data_ftw *data = DATA_FTW_GET();
-    // create the decls for the for loop
-    data->index_counter++;
-    char *start_name = malloc(sizeof(char) * (strlen("_start_") + digit_counter(data->index_counter) + 1));
-    sprintf(start_name, "_start_%d", data->index_counter);
-    data->index_counter++;
-    char *stop_name = malloc(sizeof(char) * (strlen("_stop_") + digit_counter(data->index_counter) + 1));
-    sprintf(stop_name, "_stop_%d", data->index_counter);
-    data->index_counter++;
-    char *step_name = malloc(sizeof(char) * (strlen("_step_") + digit_counter(data->index_counter) + 1));
-    sprintf(step_name, "_step_%d", data->index_counter);
-    node_st *step_next;
-    if (data->head_for_decls == NULL) {
-        step_next = NULL;
-    }
-    else {
-        step_next = data->head_for_decls;
-    }
-    node_st *step_decl = ASTvardecl(NULL, NULL, step_next, step_name, CT_int);
-    node_st *stop_decl = ASTvardecl(NULL, NULL, step_decl, stop_name, CT_int);
-    node_st *start_decl = ASTvardecl(NULL, NULL, stop_decl, start_name, CT_int);
-    data->head_for_decls = start_decl;
-
-    // create the assigns for the for loop
-    data->ste_index++;
-    node_st *step_ste = ASTste(NULL, copy_entry_name(step_name), CT_int, false, 0, NULL, SYMTABLE_NEST_LVL(data->current_scope), data->ste_index, NULL, NULL);
-    node_st *step_varlet = ASTvarlet(NULL, copy_entry_name(VARDECL_NAME(step_decl)), step_ste);
-    node_st *step_assign = ASTassign(step_varlet, CCNcopy(FOR_STEP(node)));
-    node_st *step_stmts = ASTstmts(step_assign, NULL);
-    node_st *step_expr = ASTvar(NULL, copy_entry_name(VARDECL_NAME(step_decl)), step_ste);
-
-    data->ste_index++;
-    node_st *stop_ste = ASTste(step_ste, copy_entry_name(stop_name), CT_int, false, 0, NULL, SYMTABLE_NEST_LVL(data->current_scope), data->ste_index, NULL, NULL);
-    node_st *stop_varlet = ASTvarlet(NULL, copy_entry_name(VARDECL_NAME(stop_decl)), stop_ste);
-    node_st *stop_assign = ASTassign(stop_varlet, CCNcopy(FOR_STOP(node)));
-    node_st *stop_stmts = ASTstmts(stop_assign, step_stmts);
-    node_st *stop_expr = ASTvar(NULL, copy_entry_name(VARDECL_NAME(stop_decl)), stop_ste);
-    
-    data->ste_index++;
-    node_st *start_ste = ASTste(stop_ste, copy_entry_name(start_name), CT_int, false, 0, NULL, SYMTABLE_NEST_LVL(data->current_scope), data->ste_index, NULL, NULL);
-    node_st *start_varlet = ASTvarlet(NULL, copy_entry_name(VARDECL_NAME(start_decl)), start_ste);
-    node_st *start_assign = ASTassign(start_varlet, CCNcopy(FOR_START_EXPR(node)));
-    node_st *start_stmts = ASTstmts(start_assign, stop_stmts);
-    node_st *start_expr = ASTvar(NULL, copy_entry_name(VARDECL_NAME(start_decl)), start_ste);
-    
-    // connect ste's to symtable
-    STE_NEXT(data->last_ste) = start_ste;
-    data->last_ste = step_ste;
-
-    // create the while stmt
-    node_st *pred = ASTbinop(step_expr, ASTnum(0, NULL), BO_gt, CT_bool);
-    node_st *then_ = ASTbinop(start_expr, stop_expr, BO_lt, CT_bool);
-    node_st *else_ = ASTbinop(CCNcopy(start_expr), CCNcopy(stop_expr), BO_gt, CT_bool);
-    node_st *while_cond = ASTternary(pred, then_, else_);
-    node_st *while_loop = ASTwhile(while_cond, CCNcopy(FOR_BLOCK(node)));
-    node_st *while_stmts = ASTstmts(while_loop, CCNcopy(data->next_for_stmt));
-
-    // replace for node with while node
-    data->head_for_assigns = start_stmts;
-    data->tail_for_assigns = while_stmts;
-    // STMTS_NEXT(data->parent_for_stmt) = start_stmts;
-    STMTS_NEXT(step_stmts) = while_stmts;
-
-    CCNfree(node);
-
-    TRAVblock(while_loop);
-
-    return while_loop;
-}
 /**
  * @fn FTWfundef
  */
 node_st *FTWfundef(node_st *node)
 {
     struct data_ftw *data = DATA_FTW_GET();
-    data->current_scope = FUNDEF_SYMTABLE(node);
-    TRAVsymtable(node);
+    data->cur_function = node;
+    TRAVnext(FUNDEF_SYMTABLE(node));
     TRAVbody(node);
-    data->current_scope = SYMTABLE_PARENT(node);
     return node;
 }
 
@@ -136,13 +59,217 @@ node_st *FTWfundef(node_st *node)
 node_st *FTWfunbody(node_st *node)
 {
     struct data_ftw *data = DATA_FTW_GET();
-    data->for_funbody = node;
-    TRAVdecls(node);
-    TRAVstmts(node);
-    if (data->head_for_decls != NULL) {
-        VARDECL_NEXT(data->tail_funbody_decls) = data->head_for_decls;
-        data->head_for_decls = NULL;
+    if (FUNBODY_STMTS(node)) {
+        // Find the last vardecl.
+        TRAVdecls(node);
+
+        node_st *old_stmt = FUNBODY_STMTS(node);
+        if (NODE_TYPE(STMTS_STMT(old_stmt)) == NT_FOR) {
+            node_st *old_next = STMTS_NEXT(old_stmt);
+            TRAVstmt(old_stmt);
+            FUNBODY_STMTS(node) = data->head_new;
+            STMTS_NEXT(data->tail_new) = old_next;
+            CCNfree(old_stmt);
+        }
+        TRAVstmts(node);
     }
+    return node;
+}
+
+/**
+ * @fn FTWvardecl
+ */
+node_st *FTWvardecl(node_st *node)
+{
+    struct data_ftw *data = DATA_FTW_GET();
+    if (!VARDECL_NEXT(node)) {
+        data->last_vardecl = node;
+    }
+    else {
+        TRAVnext(node);
+    }
+    return node;
+}
+
+
+/**
+ * @fn FTWstmts
+ */
+node_st *FTWstmts(node_st *node)
+{
+    struct data_ftw *data = DATA_FTW_GET();
+    // if (NODE_TYPE(STMTS_STMT(node)) == NT_ASSIGN) {
+    //     CTI(CTI_NOTE, true, "%s assign %d", VARLET_NAME(ASSIGN_LET(STMTS_STMT(node))), NUM_VAL(ASSIGN_EXPR(STMTS_STMT(node))));
+    // }
+    // else if (NODE_TYPE(STMTS_STMT(node)) == NT_FOR) {
+    //     CTI(CTI_NOTE, true, "for");
+    // }
+    // else if (NODE_TYPE(STMTS_STMT(node)) == NT_RETURN) {
+    //     CTI(CTI_NOTE, true, "return");
+    // }
+    // else if (NODE_TYPE(STMTS_STMT(node)) == NT_WHILE) {
+    //     CTI(CTI_NOTE, true, "while");
+    //     if (STMTS_STMT(STMTS_NEXT(node))) {
+    //         CTI(CTI_NOTE, true, "NEXT TAIL = %ld", STMTS_NEXT(node));
+    //     }
+    //     if (NODE_TYPE(STMTS_STMT(STMTS_NEXT(node))) == NT_RETURN) {
+    //         CTI(CTI_NOTE, true, "NEXT TAIL = RETURN");
+    //     }
+    // }
+
+    TRAVstmt(node);
+    if (STMTS_NEXT(node)) {
+        node_st *old_stmt = STMTS_NEXT(node);
+        if (NODE_TYPE(STMTS_STMT(old_stmt)) == NT_FOR) {
+            node_st *old_next = STMTS_NEXT(old_stmt);
+            TRAVstmt(old_stmt);
+
+            STMTS_NEXT(node) = data->head_new;
+            STMTS_NEXT(data->tail_new) = CCNcopy(old_next);
+            // if (NODE_TYPE(STMTS_STMT(old_next)) == NT_RETURN) {
+            //     CTI(CTI_NOTE, true, "OLD NEXT = WHILE");
+            // }
+            //     CTI(CTI_NOTE, true, "OLD NEXT = %ld", old_next);
+            CCNfree(old_stmt);
+        }
+        TRAVnext(node);
+    }
+
+    return node;
+}
+
+/**
+ * @fn FTWfor
+ */
+node_st *FTWfor(node_st *node)
+{
+    struct data_ftw *data = DATA_FTW_GET();
+
+    // Extend the list of vardecls.
+    char *start_name = (char *)malloc(sizeof(char) * (strlen(FOR_VAR(node))
+                                        + digit_counter(data->counter) + 3));
+    sprintf(start_name, "_%s_%d", FOR_VAR(node), (data->counter)++);
+
+    char *stop_name = (char *)malloc(sizeof(char)
+                                        * (digit_counter(data->counter) + 8));
+    sprintf(stop_name, "_stop_%d_", (data->counter)++);
+
+    char *step_name = (char *)malloc(sizeof(char)
+                                        * (digit_counter(data->counter) + 8));
+    sprintf(step_name, "_step_%d_", (data->counter)++);
+
+    node_st *step_vardecl = ASTvardecl(NULL, NULL, NULL, step_name, CT_int);
+    node_st *stop_vardecl = ASTvardecl(NULL, NULL, step_vardecl,
+                                        stop_name, CT_int);
+    node_st *start_vardecl = ASTvardecl(NULL, NULL, stop_vardecl,
+                                        start_name, CT_int);
+    if (data->last_vardecl) {
+        VARDECL_NEXT(data->last_vardecl) = start_vardecl;
+    }
+    else {
+        FUNBODY_DECLS(FUNDEF_BODY(data->cur_function)) = start_vardecl;
+    }
+    data->last_vardecl = step_vardecl;
+
+    // Extend the symboltable.
+    node_st *symtable = FUNDEF_SYMTABLE(data->cur_function);
+
+    node_st *start_ste = ASTste(NULL, STRcpy(start_name), CT_int, false, 0,
+                                    NULL, SYMTABLE_NEST_LVL(symtable),
+                                    SYMTABLE_NEXT_INDEX(symtable)++,
+                                    false, false);
+    node_st *stop_ste = ASTste(NULL, STRcpy(stop_name), CT_int, false, 0,
+                                    NULL, SYMTABLE_NEST_LVL(symtable),
+                                    SYMTABLE_NEXT_INDEX(symtable)++,
+                                    false, false);
+    node_st *step_ste = ASTste(NULL, STRcpy(step_name), CT_int, false, 0,
+                                    NULL, SYMTABLE_NEST_LVL(symtable),
+                                    SYMTABLE_NEXT_INDEX(symtable)++,
+                                    false, false);
+
+    STE_NEXT(start_ste) = stop_ste;
+    STE_NEXT(stop_ste) = step_ste;
+
+    if (data->last_ste) {
+        STE_NEXT(data->last_ste) = start_ste;
+    }
+    else {
+        SYMTABLE_NEXT(symtable) = start_ste;
+    }
+    data->last_ste = step_ste;
+
+    // Create initializing assign nodes.
+    node_st *start_varlet = ASTvarlet(NULL, STRcpy(start_name), start_ste);
+    node_st *stop_varlet = ASTvarlet(NULL, STRcpy(stop_name), stop_ste);
+    node_st *step_varlet = ASTvarlet(NULL, STRcpy(step_name), step_ste);
+
+    node_st *start_assign = ASTassign(start_varlet,
+                                            CCNcopy(FOR_START_EXPR(node)));
+    node_st *stop_assign = ASTassign(stop_varlet, CCNcopy(FOR_STOP(node)));
+    node_st *step_assign;
+    if (FOR_STEP(node)) {
+        step_assign = ASTassign(step_varlet, CCNcopy(FOR_STEP(node)));
+    }
+    else {
+        step_assign = ASTassign(step_varlet, ASTnum(1, NULL));
+    }
+
+    // Create Ternary node.
+    node_st *start_var = ASTvar(NULL, STRcpy(start_name), start_ste);
+    node_st *stop_var = ASTvar(NULL, STRcpy(stop_name), stop_ste);
+    node_st *step_var = ASTvar(NULL, STRcpy(step_name), step_ste);
+
+    node_st *pred = ASTbinop(step_var, ASTnum(0, NULL), BO_gt, CT_bool);
+    node_st *then_ = ASTbinop(start_var, stop_var, BO_lt, CT_bool);
+    node_st *else_ = ASTbinop(CCNcopy(start_var), CCNcopy(stop_var),
+                                BO_gt, CT_bool);
+
+    node_st *cond = ASTternary(pred, then_, else_);
+
+    // Extend the block with the increment assignment.
+    // TRAVblock(node);
+    if (FOR_BLOCK(node)) {
+        node_st *old_stmt = FOR_BLOCK(node);
+        if (NODE_TYPE(STMTS_STMT(old_stmt)) == NT_FOR) {
+            node_st *old_next = STMTS_NEXT(old_stmt);
+            TRAVstmt(old_stmt);
+            FOR_BLOCK(node) = data->head_new;
+            STMTS_NEXT(data->tail_new) = old_next;
+            CCNfree(old_stmt);
+        }
+    }
+
+    node_st *increment = ASTbinop(CCNcopy(start_var), CCNcopy(step_var),
+                                    BO_add, CT_int);
+    node_st *increment_assign = ASTassign(CCNcopy(start_varlet), increment);
+    node_st *increment_stmts = ASTstmts(increment_assign, NULL);
+
+    node_st *last_stmts = FOR_BLOCK(node);
+    if (last_stmts) {
+        while (STMTS_NEXT(last_stmts)) {
+            last_stmts = STMTS_NEXT(last_stmts);
+        }
+        STMTS_NEXT(last_stmts) = increment_stmts;
+    }
+    else {
+        FOR_BLOCK(node) = increment_stmts;
+    }
+    // while (last_stmts) {
+
+    // }
+    // if (data->last_stmts) {
+    // }
+
+    // Create While node.
+    node_st *while_node = ASTwhile(cond, CCNcopy(FOR_BLOCK(node)));
+    node_st *while_stmts = ASTstmts(while_node, NULL);
+    node_st *step_stmts = ASTstmts(step_assign, while_stmts);
+    node_st *stop_stmts = ASTstmts(stop_assign, step_stmts);
+    node_st *start_stmts = ASTstmts(start_assign, stop_stmts);
+
+    data->head_new = start_stmts;
+    data->tail_new = while_stmts;
+
     return node;
 }
 
@@ -152,67 +279,11 @@ node_st *FTWfunbody(node_st *node)
 node_st *FTWste(node_st *node)
 {
     struct data_ftw *data = DATA_FTW_GET();
-    if (STE_NEXT(node) == NULL) {
-        data->ste_index = STE_INDEX(node);
+    if (!STE_NEXT(node)) {
         data->last_ste = node;
     }
     else {
         TRAVnext(node);
     }
-    return node;
-}
-
-/**
- * @fn FTWsymtable
- */
-node_st *FTWsymtable(node_st *node)
-{
-    TRAVnext(node);
-    return node;
-}
-
-/**
- * @fn FTWvardecl
- */
-node_st *FTWvardecl(node_st *node)
-{
-    TRAVnext(node);
-    if (VARDECL_NEXT(node) == NULL) {
-        struct data_ftw *data = DATA_FTW_GET();
-        data->tail_funbody_decls = node;
-    }
-    return node;
-}
-
-/**
- * @fn FTWprogram
- */
-node_st *FTWprogram(node_st *node)
-{
-    TRAVdecls(node);
-    return node;
-}
-
-/**
- * @fn FTWstmts
- */
-node_st *FTWstmts(node_st *node)
-{
-    // TRAVchildren(node);
-    struct data_ftw *data = DATA_FTW_GET();
-    if (STMTS_NEXT(node) != NULL && NODE_TYPE(STMTS_STMT(STMTS_NEXT(node))) == NT_FOR) {
-        data->parent_for_stmt = node;
-        data->next_for_stmt = STMTS_NEXT(STMTS_NEXT(node));
-        TRAVstmt(node);
-        TRAVnext(node);
-        // CCNfree(STMTS_NEXT(node));
-        STMTS_NEXT(node) = data->head_for_assigns;
-        TRAVnext(data->tail_for_assigns);
-    }
-    else {
-        TRAVstmt(node);
-        TRAVnext(node);
-    }
-    
     return node;
 }

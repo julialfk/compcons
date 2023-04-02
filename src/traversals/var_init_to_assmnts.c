@@ -74,7 +74,7 @@ node_st *VITAglobdef(node_st *node)
         if (data->init_fundef == NULL) {
             node_st *funbody_init = ASTfunbody(NULL, NULL, NULL);
             node_st *symtable_init = ASTsymtable(NULL, 0, data->current_scope,
-                                                    NULL);
+                                                    NULL, 0);
             node_st *fundef_init = ASTfundef(funbody_init, NULL, symtable_init,
                                                 CT_void,
                                                 copy_entry_name("__init"),
