@@ -432,7 +432,7 @@ node_st *TCreturn(node_st *node)
         char *got = (char *)malloc(6 * sizeof(char));
         CTI(CTI_ERROR, false,
                 "Error (%d:%d): expected return value of type %s, got %s",
-                NODE_BLINE(RETURN_EXPR(node)), NODE_BCOL(RETURN_EXPR(node)),
+                NODE_BLINE(node), NODE_BCOL(node),
                 type_string(data->return_type, expected),
                 type_string(type, got));
         free(expected);

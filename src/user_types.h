@@ -6,3 +6,4 @@
 
 typedef htable_st *htable_ptr;
 typedef node_st *node_ptr;
+typedef node_st **node_ptr_ptr;

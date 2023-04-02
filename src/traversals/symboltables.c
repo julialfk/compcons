@@ -103,6 +103,7 @@ void STinit()
     data->index_extern_var = 0;
     data->index_var = 0;
     data->index_fun = 0;
+    // data->index_local = 0;
     data->entry_name = "";
     data->link_ste = NULL;
     data->function_ste = NULL;
@@ -118,7 +119,7 @@ node_st *STprogram(node_st *node)
 {
     struct data_st *data = DATA_ST_GET();
 
-    node_st *global_symtable = ASTsymtable(NULL, data->nest_lvl, NULL, NULL);
+    node_st *global_symtable = ASTsymtable(NULL, data->nest_lvl, NULL, NULL, 0);
     PROGRAM_GLOBAL(node) = global_symtable;
     data->current_scope = global_symtable;
     // printf("%ld\n", data->current_scope);
@@ -206,7 +207,7 @@ node_st *STfor(node_st *node) {
                                 CT_int, false, 0, NULL, data->nest_lvl + 1, 0,
                                 false, false);
     node_st *symtable = ASTsymtable(new_entry, data->nest_lvl + 1,
-                                    data->current_scope, new_entry);
+                                    data->current_scope, new_entry, 1);
     FOR_SYMTABLE(node) = symtable;
 
     data->current_scope = symtable;
@@ -278,10 +279,10 @@ node_st *STfundef(node_st *node)
     }
     else {
         data->nest_lvl++;
-        int prev_index = data->index_local;
-        data->index_local = 0;
+        // int prev_index = data->index_local;
+        // data->index_local = 0;
         node_st *symtable = ASTsymtable(NULL, data->nest_lvl,
-                                        data->current_scope, NULL);
+                                        data->current_scope, NULL, 0);
         FUNDEF_SYMTABLE(node) = symtable;
         data->current_scope = symtable;
 
@@ -290,7 +291,7 @@ node_st *STfundef(node_st *node)
         TRAVbody(node);
 
         data->nest_lvl--;
-        data->index_local = prev_index;
+        // data->index_local = prev_index;
         data->current_scope = SYMTABLE_PARENT(data->current_scope);
         data->function_ste = NULL;
     }
@@ -315,7 +316,8 @@ node_st *STparam(node_st *node)
     if (!data->link_ste) {
         node_st *new_entry = ASTste(NULL, copy_entry_name(data->entry_name),
                                     PARAM_TYPE(node), false, 0, NULL,
-                                    data->nest_lvl, data->index_local++,
+                                    data->nest_lvl,
+                                    SYMTABLE_NEXT_INDEX(data->current_scope)++,
                                     false, false);
         insert_ste(data, new_entry);
         if (STE_ARITY(data->function_ste) == 0) {
@@ -352,7 +354,8 @@ node_st *STvardecl(node_st *node)
     if (!data->link_ste) {
         node_st *new_entry = ASTste(NULL, copy_entry_name(data->entry_name),
                                     VARDECL_TYPE(node), false, 0, NULL,
-                                    data->nest_lvl, data->index_local++,
+                                    data->nest_lvl,
+                                    SYMTABLE_NEXT_INDEX(data->current_scope)++,
                                     false, false);
         insert_ste(data, new_entry);
     }
