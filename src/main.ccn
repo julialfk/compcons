@@ -9,7 +9,7 @@ start phase RootPhase {
         VarInitsToAssignments;
         TypeChecking;
         ForCheck;
-        // ForToWhile;
+        ForToWhile;
         ConstantTable;
         BoolopsToCondops;
         BooleanCasts;
@@ -32,7 +32,6 @@ traversal SymbolTables {
         int index_extern_var,
         int index_var,
         int index_fun,
-        //int index_local,
         string entry_name,
         user node_ptr link_ste,
         user node_ptr function_ste,

@@ -41,8 +41,11 @@ main:
     bloadc_t
     bstore 0
     bload_0
+<<<<<<< HEAD
     bloadc_t
     beq
+=======
+>>>>>>> b353030449ed834988f018dfd4461984adcfbd6d
     branch_t 1_then
     iloadc_0
     jump 2_end
@@ -50,4 +53,10 @@ main:
     iloadc_1
     jump 2_end
 2_end:
+<<<<<<< HEAD
     
+=======
+    ireturn
+
+.exportfun "main" int main
+>>>>>>> b353030449ed834988f018dfd4461984adcfbd6d
