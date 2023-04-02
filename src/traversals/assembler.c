@@ -214,7 +214,7 @@ node_st *ASexprstmt(node_st *node)
     if (type != CT_void) {
         printf("    ");
         print_type_char(get_type(expr));
-        printf("pop");
+        printf("pop\n");
     }
 
     return node;
