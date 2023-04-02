@@ -17,7 +17,7 @@ start phase RootPhase {
 traversal SymbolTables {
     uid = ST,
     nodes = {
-        Program, GlobDef, GlobDecl, FunDef,
+        Program, GlobDef, GlobDecl, FunDef, Assign,
         VarDecl, Varlet, Var, FunCall, Param, For, Ste
     },
     travdata {
@@ -118,11 +118,7 @@ traversal BoolopsToCondops {
 traversal BooleanCasts {
     uid = BC,
     nodes = {
-        Cast, FunCall, Var,
-        Binop, Monop, Float, Bool, Num
-    },
-    travdata {
-        Type expr_type
+        Cast
     }
 };
 

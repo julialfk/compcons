@@ -93,7 +93,6 @@ void STinit()
     data->index_extern_var = 0;
     data->index_var = 0;
     data->index_fun = 0;
-    // data->index_local = 0;
     data->entry_name = "";
     data->link_ste = NULL;
     data->function_ste = NULL;
@@ -112,7 +111,6 @@ node_st *STprogram(node_st *node)
     node_st *global_symtable = ASTsymtable(NULL, data->nest_lvl, NULL, NULL, 0);
     PROGRAM_GLOBAL(node) = global_symtable;
     data->current_scope = global_symtable;
-    // printf("%ld\n", data->current_scope);
 
     TRAVdecls(node);
     data->globals_finished = true;
@@ -170,7 +168,6 @@ node_st *STglobdecl(node_st *node)
 
     data->link_ste = NULL;
     data->entry_name = GLOBDECL_NAME(node);
-    // printf("in globdecl: %s\n", data->entry_name);
     TRAVnext(data->current_scope);
 
     if (!data->link_ste) {
@@ -187,6 +184,17 @@ node_st *STglobdecl(node_st *node)
     data->link_ste = NULL;
     return node;
 }
+
+/**
+ * @fn STassign
+ */
+node_st *STassign(node_st *node)
+{
+    TRAVexpr(node);
+    TRAVlet(node);
+    return node;
+}
+
 
 /**
  * @fn STfor
@@ -269,8 +277,6 @@ node_st *STfundef(node_st *node)
     }
     else {
         data->nest_lvl++;
-        // int prev_index = data->index_local;
-        // data->index_local = 0;
         node_st *symtable = ASTsymtable(NULL, data->nest_lvl,
                                         data->current_scope, NULL, 0);
         FUNDEF_SYMTABLE(node) = symtable;
@@ -281,7 +287,6 @@ node_st *STfundef(node_st *node)
         TRAVbody(node);
 
         data->nest_lvl--;
-        // data->index_local = prev_index;
         data->current_scope = SYMTABLE_PARENT(data->current_scope);
         data->function_ste = NULL;
     }
@@ -313,8 +318,6 @@ node_st *STparam(node_st *node)
         if (STE_ARITY(data->function_ste) == 0) {
             STE_FIRST_PARAM(data->function_ste) = new_entry;
         }
-        // CTI(CTI_NOTE, false, "in function %s, param %s",
-        //         STE_NAME(data->function_ste), PARAM_NAME(node));
         STE_ARITY(data->function_ste)++;
     }
     else {

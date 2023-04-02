@@ -1,141 +1,92 @@
-foo:
-    iload_0
-    fload_1
-    f2i
-    iadd
-    iload_2
-    iadd
-    ireturn
-
-fun:
-    esr 7
+__init:
     iloadc_1
-    istore 0
+    istoreg 0
     iloadc 0
-    istore 1
-    iloadc 1
-    istore 2
-    iloadc 2
-    istore 3
-    floadc_1
-    fstore 4
-    floadc 3
-    fstore 5
-    bloadc_t
-    bstore 6
-    iload_0
-    iload_1
-    ilt
-    branch_f 1_false_expr
-    iload_2
-    iload_3
-    igt
-    jump 2_end
-1_false_expr:
-    bloadc_f
-2_end:
-    branch_f 3_false_expr
-    iloadc_1
-    jump 4_end
-3_false_expr:
-    iloadc_0
-4_end:
-    istore 3
-    isrg
-    iload_3
-    jsre 0
-    isrg
-    iloadc_1
-    jsre 5
-    isrg
-    iload_0
-    iload_2
-    ilt
-    branch_f 5_false_expr
-    iloadc_1
-    jump 6_end
-5_false_expr:
-    iloadc_0
-6_end:
-    fload 4
-    fload 5
-    fadd
-    iload_1
-    iload_3
-    ilt
-    branch_f 7_false_expr
-    iloadc_1
-    jump 8_end
-7_false_expr:
-    iloadc_0
-8_end:
-    jsr 3 foo
-    istore 3
-    isrg
-    iload_3
-    jsre 0
-    isrg
-    iloadc_1
-    jsre 5
-    iload_1
-    iload_3
-    ilt
-    branch_f 9_false_expr
-    bloadc_t
-    jump 10_end
-9_false_expr:
-    iload_0
-    iload_2
-    igt
-10_end:
-    branch_f 11_end
-    iloadc 4
-    istore 0
+    istoreg 1
+    return
 
-11_end:
+foo:
+    esr 2
+    iloadc 1
+    istore 0
+    iload_0
+    istore 1
+    isrg
+    iload_0
+    jsre 0
+    isrg
     iloadc_1
-    ireturn
+    jsre 1
+    isrg
+    iload_1
+    jsre 0
+    isrg
+    iloadc_1
+    jsre 1
+    isrg
+    iloadg 1
+    jsre 0
+    isrg
+    iloadc_1
+    jsre 1
+    return
 
 bar:
-    esr 3
-    iloadc 5
-    istore 0
-    floadc 6
-    fstore 1
+    esr 1
     iload_0
-    fload_1
-    f2i
-    iload_0
-    imul
+    iloadc_1
     iadd
-    istore 2
+    istore 0
     isrg
-    iload_2
+    iload_0
     jsre 0
     isrg
     iloadc_1
-    jsre 5
+    jsre 1
+    return
+
+baz:
+    esr 2
+    iloadg 1
+    istore 0
+    iloadc 2
+    istore 1
+    isrg
+    iload_0
+    jsre 0
+    isrg
+    iloadc_1
+    jsre 1
     return
 
 main:
     isrg
-    jsr 0 fun
-    ipop    isrg
+    jsr 0 foo
+    isrg
     jsr 0 bar
+    isrg
+    iloadg 0
+    jsre 0
+    isrg
+    iloadc_1
+    jsre 1
+    isrg
+    jsr 0 baz
+    isrg
+    iloadg 1
+    jsre 0
+    isrg
+    iloadc_1
+    jsre 1
     iloadc_0
     ireturn
 
-.const int 2
+.const int 10
 .const int 3
-.const int 4
-.const float 2.000000
-.const int 7
 .const int 5
-.const float 6.000000
+.exportfun "__init" void __init
 .importfun "printInt" void int
-.importfun "printFloat" void float
-.importfun "scanInt" int
-.importfun "scanFloat" float
-.importfun "printSpaces" void int
 .importfun "printNewlines" void int
+.global int
+.global int
 .exportfun "main" int main

@@ -131,39 +131,6 @@ node_st *ASprogram(node_st *node)
         printf(".exportfun \"__init\" void __init\n");
     }
     TRAVglobal(node);
-
-
-
-    // while (global_ste) {
-    //     if (!STE_FUNCTION(global_ste)) {
-    //         if (STE_EXPORT(global_ste)) {
-    //             printf(".exportvar \"%s\" %d\n",
-    //                         STE_NAME(global_ste), STE_INDEX(global_ste));
-    //         }
-    //         printf(".global ");
-    //         print_type(STE_TYPE(global_ste));
-    //         printf("\n");
-    //     }
-    //     else {
-
-    //     }
-    //     global_ste = STE_NEXT(global_ste);
-    // }
-
-
-    // if (global_ste && !STE_FUNCTION(global_ste)) {
-    //     do {
-    //         if (STE_EXPORT(global_ste)) {
-    //             printf(".exportvar \"%s\" %d\n",
-    //                         STE_NAME(global_ste), STE_INDEX(global_ste));
-    //         }
-    //         printf(".global ");
-    //         print_type(STE_TYPE(global_ste));
-    //         printf("\n");
-    //         global_ste = STE_NEXT(global_ste);
-    //     }
-    //     while (global_ste && !STE_FUNCTION(global_ste));
-    // }
     return node;
 }
 

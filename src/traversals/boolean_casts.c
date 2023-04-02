@@ -19,6 +19,10 @@
 void BCinit() { return; }
 void BCfini() { return; }
 
+/* Return the resulting type of an expression
+ *
+ * expr: the expression
+ */
 static enum Type get_type(node_st *expr) {
     enum Type type;
     switch (NODE_TYPE(expr)) {
@@ -58,7 +62,6 @@ static enum Type get_type(node_st *expr) {
  */
 node_st *BCcast(node_st *node)
 {
-    struct data_bc *data = DATA_BC_GET();
     TRAVexpr(node);
     if (CAST_TYPE(node) == CT_bool) {
         if (get_type(CAST_EXPR(node)) == CT_float) {
@@ -95,69 +98,5 @@ node_st *BCcast(node_st *node)
         *node_ptr = ternary;
     }
 
-    return node;
-}
-
-/**
- * @fn BCbinop
- */
-node_st *BCbinop(node_st *node)
-{
-    TRAVleft(node);
-    return node;
-}
-
-/**
- * @fn BCbool
- */
-node_st *BCbool(node_st *node)
-{
-    struct data_bc *data = DATA_BC_GET();
-    return node;
-}
-
-/**
- * @fn BCfuncall
- */
-node_st *BCfuncall(node_st *node)
-{
-    struct data_bc *data = DATA_BC_GET();
-    TRAVargs(node);
-    return node;
-}
-
-/**
- * @fn BCfloat
- */
-node_st *BCfloat(node_st *node)
-{
-    struct data_bc *data = DATA_BC_GET();
-    return node;
-}
-
-/**
- * @fn BCvar
- */
-node_st *BCvar(node_st *node)
-{
-    struct data_bc *data = DATA_BC_GET();
-    return node;
-}
-
-/**
- * @fn BCmonop
- */
-node_st *BCmonop(node_st *node)
-{
-    TRAVoperand(node);
-    return node;
-}
-
-/**
- * @fn BCnum
- */
-node_st *BCnum(node_st *node)
-{
-    struct data_bc *data = DATA_BC_GET();
     return node;
 }

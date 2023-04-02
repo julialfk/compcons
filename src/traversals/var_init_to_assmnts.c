@@ -38,7 +38,6 @@ static void search_ste(struct data_vita *data) {
     do {
         TRAVnext(cur_table);
         cur_table = SYMTABLE_PARENT(data->current_scope);
-        // printf("searching: ")
     }
     while (!data->link_ste && cur_table);
 }
@@ -183,8 +182,6 @@ node_st *VITAvardecl(node_st *node)
     return node;
 }
 
-// deze functie traveset de symbol table op zoek naar de juiste
-// var. Die var wordt dan opgeslagen in data->link_ste
 /**
  * @fn VITAste
  */
