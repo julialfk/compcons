@@ -73,21 +73,21 @@ node_st *FTWfor(node_st *node)
 
     // create the assigns for the for loop
     data->ste_index++;
-    node_st *step_ste = ASTste(NULL, copy_entry_name(step_name), CT_int, false, 0, NULL, SYMTABLE_NEST_LVL(data->current_scope), data->ste_index);
+    node_st *step_ste = ASTste(NULL, copy_entry_name(step_name), CT_int, false, 0, NULL, SYMTABLE_NEST_LVL(data->current_scope), data->ste_index, NULL, NULL);
     node_st *step_varlet = ASTvarlet(NULL, copy_entry_name(VARDECL_NAME(step_decl)), step_ste);
     node_st *step_assign = ASTassign(step_varlet, CCNcopy(FOR_STEP(node)));
     node_st *step_stmts = ASTstmts(step_assign, NULL);
     node_st *step_expr = ASTvar(NULL, copy_entry_name(VARDECL_NAME(step_decl)), step_ste);
 
     data->ste_index++;
-    node_st *stop_ste = ASTste(step_ste, copy_entry_name(stop_name), CT_int, false, 0, NULL, SYMTABLE_NEST_LVL(data->current_scope), data->ste_index);
+    node_st *stop_ste = ASTste(step_ste, copy_entry_name(stop_name), CT_int, false, 0, NULL, SYMTABLE_NEST_LVL(data->current_scope), data->ste_index, NULL, NULL);
     node_st *stop_varlet = ASTvarlet(NULL, copy_entry_name(VARDECL_NAME(stop_decl)), stop_ste);
     node_st *stop_assign = ASTassign(stop_varlet, CCNcopy(FOR_STOP(node)));
     node_st *stop_stmts = ASTstmts(stop_assign, step_stmts);
     node_st *stop_expr = ASTvar(NULL, copy_entry_name(VARDECL_NAME(stop_decl)), stop_ste);
     
     data->ste_index++;
-    node_st *start_ste = ASTste(stop_ste, copy_entry_name(start_name), CT_int, false, 0, NULL, SYMTABLE_NEST_LVL(data->current_scope), data->ste_index);
+    node_st *start_ste = ASTste(stop_ste, copy_entry_name(start_name), CT_int, false, 0, NULL, SYMTABLE_NEST_LVL(data->current_scope), data->ste_index, NULL, NULL);
     node_st *start_varlet = ASTvarlet(NULL, copy_entry_name(VARDECL_NAME(start_decl)), start_ste);
     node_st *start_assign = ASTassign(start_varlet, CCNcopy(FOR_START_EXPR(node)));
     node_st *start_stmts = ASTstmts(start_assign, stop_stmts);
