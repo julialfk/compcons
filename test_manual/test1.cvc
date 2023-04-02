@@ -1,15 +1,4 @@
-int x = 4;
+int y = 4;
 int main() {
-    int x = 5;
-    int q = 6;
-    int y;
-    return x + y;
-}
-int s = 4;
-int f;
-int other() {
-    int q = 10;
-    int s;
-    int y = 2;
-    return q + y;
+    int x = y + 1;
 }

@@ -84,12 +84,12 @@ node_st *BCcast(node_st *node)
         node_st *then_;
         node_st *else_;
         if (CAST_TYPE(node) == CT_float) {
-            then_ = ASTfloat(1.0, NULL);
-            else_ = ASTfloat(0.0, NULL);
+            then_ = ASTfloat(1.0, CT_float);
+            else_ = ASTfloat(0.0, CT_float);
         }
         else if (CAST_TYPE(node) == CT_int) {
-            then_ = ASTnum(1, NULL);
-            else_ = ASTnum(0, NULL);
+            then_ = ASTnum(1, CT_int);
+            else_ = ASTnum(0, CT_int);
         }
         node_st *ternary = ASTternary(CCNcopy(CAST_EXPR(node)), then_, else_,
                                         CAST_TYPE(node));

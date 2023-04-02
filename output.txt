@@ -1,52 +1,5 @@
-
-/* Constant table: 
-
-0: 8
-
-*/
-
-/* Global symbol table: 
-
-x:int	Scope: 0, Index: 0
-main:int()	Scope: 0, Index: 0
-
-*/
-export void __init()
-/* Symbol table: 
-
-
-*/
- {
-x = 1;
-}
-int x;
-int main()
-/* Symbol table: 
-
-_i_1:int	Scope: 1, Index: 0
-_stop_2_:int	Scope: 1, Index: 1
-_step_3_:int	Scope: 1, Index: 2
-
-*/
- {
-int _i_1;
-int _stop_2_;
-int _step_3_;
-_i_1 = 0;
-_stop_2_ = 8;
-_step_3_ = 1;
-while (( _step_3_ > 0) ? ( _i_1 < _stop_2_) : ( _i_1 > _stop_2_)) {
-	x = ( x + ( -1));
-_i_1 = ( _i_1 + _step_3_);
-}
-}
-__init:
-    iloadc_1
-    istoreg 0
-    return
-
 main:
-    esr 3
+    esr 21
     iloadc_0
     istore 0
     iloadc 0
@@ -68,19 +21,168 @@ main:
     igt
 4_end:
     branch_f 2_end
-    iloadg 0
+    isrg
+    iload_0
+    jsre 0
+    isrg
     iloadc_1
-    ineg
-    iadd
-    istoreg 0
+    jsre 1
     iload_0
     iload_2
     iadd
     istore 0
     jump 1_while
 2_end:
-    return
+    isrg
+    iloadc_1
+    jsre 2
+    iloadc 0
+    istore 3
+    iloadc_0
+    istore 4
+    iloadc_1
+    ineg
+    istore 5
+5_while:
+    iload 5
+    iloadc_0
+    igt
+    branch_f 7_false_expr
+    iload_3
+    iload 4
+    ilt
+    jump 8_end
+7_false_expr:
+    iload_3
+    iload 4
+    igt
+8_end:
+    branch_f 6_end
+    isrg
+    iload_0
+    jsre 0
+    isrg
+    iloadc_1
+    jsre 1
+    iload_3
+    iload 5
+    iadd
+    istore 3
+    jump 5_while
+6_end:
+    isrg
+    iloadc_1
+    jsre 2
+    iloadc_0
+    istore 6
+    iloadc 0
+    istore 7
+    iloadc 1
+    istore 8
+9_while:
+    iload 8
+    iloadc_0
+    igt
+    branch_f 11_false_expr
+    iload 6
+    iload 7
+    ilt
+    jump 12_end
+11_false_expr:
+    iload 6
+    iload 7
+    igt
+12_end:
+    branch_f 10_end
+    isrg
+    iload_0
+    jsre 0
+    isrg
+    iloadc_1
+    jsre 1
+    iload 6
+    iload 8
+    iadd
+    istore 6
+    jump 9_while
+10_end:
+    isrg
+    iloadc_1
+    jsre 2
+    iloadc 2
+    istore 9
+    iloadc_0
+    istore 10
+    iloadc 3
+    ineg
+    istore 11
+13_while:
+    iload 11
+    iloadc_0
+    igt
+    branch_f 15_false_expr
+    iload 9
+    iload 10
+    ilt
+    jump 16_end
+15_false_expr:
+    iload 9
+    iload 10
+    igt
+16_end:
+    branch_f 14_end
+    isrg
+    iload_0
+    jsre 0
+    isrg
+    iloadc_1
+    jsre 1
+    iload 9
+    iload 11
+    iadd
+    istore 9
+    jump 13_while
+14_end:
+    iloadc_0
+    istore 12
+    iloadc 4
+    istore 13
+    iloadc_1
+    istore 14
+17_while:
+    iload 14
+    iloadc_0
+    igt
+    branch_f 19_false_expr
+    iload 12
+    iload 13
+    ilt
+    jump 20_end
+19_false_expr:
+    iload 12
+    iload 13
+    igt
+20_end:
+    branch_f 18_end
+    isrg
+    iloadc_1
+    jsre 2
+    iload 12
+    iload 14
+    iadd
+    istore 12
+    jump 17_while
+18_end:
+    iloadc_0
+    ireturn
 
-.const int 8
-.exportfun "__init" void __init
-.global int
+.const int 10
+.const int 2
+.const int 7
+.const int 3
+.const int 5
+.const int 4
+.importfun "printInt" void int
+.importfun "printSpaces" void int
+.importfun "printNewlines" void int
+.exportfun "main" int main
