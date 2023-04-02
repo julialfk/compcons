@@ -203,7 +203,7 @@ node_st *FTWfor(node_st *node)
                                 BO_gt, CT_bool);
 
     node_st *cond = ASTternary(pred, then_, else_, CT_bool);
-
+    bool check = true;
     // Extend the block with the increment assignment.
     if (FOR_BLOCK(node)) {
         node_st *old_stmt = FOR_BLOCK(node);
@@ -212,6 +212,7 @@ node_st *FTWfor(node_st *node)
             TRAVstmt(old_stmt);
             FOR_BLOCK(node) = data->head_new;
             STMTS_NEXT(data->tail_new) = old_next;
+            check = false;
             CCNfree(old_stmt);
         }
     }
@@ -222,8 +223,8 @@ node_st *FTWfor(node_st *node)
     node_st *increment_stmts = ASTstmts(increment_assign, NULL);
 
     node_st *last_stmts = FOR_BLOCK(node);
-    if (last_stmts) {
-        while (STMTS_NEXT(last_stmts)) {
+    if (check && last_stmts) {
+        while (STMTS_NEXT(last_stmts) != NULL) {
             last_stmts = STMTS_NEXT(last_stmts);
         }
         STMTS_NEXT(last_stmts) = increment_stmts;
