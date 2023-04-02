@@ -1,39 +1,86 @@
+
+/* Constant table: 
+
+0: 8
+
+*/
+
+/* Global symbol table: 
+
+x:int	Scope: 0, Index: 0
+main:int()	Scope: 0, Index: 0
+
+*/
+export void __init()
+/* Symbol table: 
+
+
+*/
+ {
+x = 1;
+}
+int x;
+int main()
+/* Symbol table: 
+
+_i_1:int	Scope: 1, Index: 0
+_stop_2_:int	Scope: 1, Index: 1
+_step_3_:int	Scope: 1, Index: 2
+
+*/
+ {
+int _i_1;
+int _stop_2_;
+int _step_3_;
+_i_1 = 0;
+_stop_2_ = 8;
+_step_3_ = 1;
+while (( _step_3_ > 0) ? ( _i_1 < _stop_2_) : ( _i_1 > _stop_2_)) {
+	x = ( x + ( -1));
+_i_1 = ( _i_1 + _step_3_);
+}
+}
 __init:
-    floadc 0
-    fstoreg 0
-    bloadc_t
-    bstoreg 1
-    iloadc 1
-    istoreg 2
+    iloadc_1
+    istoreg 0
     return
 
 main:
-    isrg
-    floadg 0
-    jsre 1
-    isrg
-    iloadc_1
-    jsre 5
-    isrg
-    iloadg 2
-    jsre 0
+    esr 3
     iloadc_0
-    ireturn
-
-foo:
+    istore 0
+    iloadc 0
+    istore 1
+    iloadc_1
+    istore 2
+1_while:
+    iload_2
+    iloadc_0
+    igt
+    branch_f 3_false_expr
+    iload_0
+    iload_1
+    ilt
+    jump 4_end
+3_false_expr:
+    iload_0
+    iload_1
+    igt
+4_end:
+    branch_f 2_end
+    iloadg 0
+    iloadc_1
+    ineg
+    iadd
+    istoreg 0
+    iload_0
+    iload_2
+    iadd
+    istore 0
+    jump 1_while
+2_end:
     return
 
-.const float 3.500000
-.const int 10
+.const int 8
 .exportfun "__init" void __init
-.importfun "printInt" void int
-.importfun "printFloat" void float
-.importfun "scanInt" int
-.importfun "scanFloat" float
-.importfun "printSpaces" void int
-.importfun "printNewlines" void int
-.exportvar "y" 0
-.global float
-.global bool
-.exportfun "main" int main
 .global int

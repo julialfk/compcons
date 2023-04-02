@@ -1,4 +1,0 @@
-export int main() {
-    bool y = true;
-    return (int) y;
-}

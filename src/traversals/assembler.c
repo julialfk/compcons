@@ -100,6 +100,7 @@ static enum Type get_type(node_st *expr) {
         break;
       case NT_MONOP:
         type = MONOP_EXPR_TYPE(expr);
+        break;
       case NT_TERNARY:
         type = TERNARY_EXPR_TYPE(expr);
     }

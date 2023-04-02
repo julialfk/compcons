@@ -1,7 +1,3 @@
-// Todo: Check if empty block handling is equivalent across traversals
-// Todo: Add node locations to new nodes in traversals and check if accurate
-// Todo: Check if all constant links are correct in all traversals
-
 start phase RootPhase {
     actions {
         pass SPdoScanParse;
@@ -13,7 +9,7 @@ start phase RootPhase {
         ForToWhile;
         BoolopsToCondops;
         BooleanCasts;
-        //Print;
+        Print;
         Assembler;
     }
 };
