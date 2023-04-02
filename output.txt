@@ -1,49 +1,39 @@
+__init:
+    floadc 0
+    fstoreg 0
+    bloadc_t
+    bstoreg 1
+    iloadc 1
+    istoreg 2
+    return
 
-/* Constant table: 
+main:
+    isrg
+    floadg 0
+    jsre 1
+    isrg
+    iloadc_1
+    jsre 5
+    isrg
+    iloadg 2
+    jsre 0
+    iloadc_0
+    ireturn
 
-0: 3
-1: 5
+foo:
+    return
 
-*/
-
-/* Global symbol table: 
-
-main:void()	Scope: 0, Index: 0
-
-*/
-void main()
-/* Symbol table: 
-
-x:int	Scope: 1, Index: 0
-_i_1:int	Scope: 1, Index: 1
-_stop_2_:int	Scope: 1, Index: 2
-_step_3_:int	Scope: 1, Index: 3
-_i_4:int	Scope: 1, Index: 4
-_stop_5_:int	Scope: 1, Index: 5
-_step_6_:int	Scope: 1, Index: 6
-
-*/
- {
-int x;
-int _i_1;
-int _stop_2_;
-int _step_3_;
-int _i_4;
-int _stop_5_;
-int _step_6_;
-x = 3;
-_i_1 = 0;
-_stop_2_ = 5;
-_step_3_ = 1;
-while (( _step_3_ > 0) ? ( _i_1 < _stop_2_) : ( _i_1 > _stop_2_)) {
-	_i_4 = 0;
-_stop_5_ = 5;
-_step_6_ = 1;
-while (( _step_6_ > 0) ? ( _i_4 < _stop_5_) : ( _i_4 > _stop_5_)) {
-	x = 0;
-_i_4 = ( _i_4 + _step_6_);
-}
-_i_1 = ( _i_1 + _step_3_);
-}
-return ;
-}
+.const float 3.500000
+.const int 10
+.exportfun "__init" void __init
+.importfun "printInt" void int
+.importfun "printFloat" void float
+.importfun "scanInt" int
+.importfun "scanFloat" float
+.importfun "printSpaces" void int
+.importfun "printNewlines" void int
+.exportvar "y" 0
+.global float
+.global bool
+.exportfun "main" int main
+.global int

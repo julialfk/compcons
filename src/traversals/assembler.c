@@ -246,20 +246,13 @@ node_st *ASfuncall(node_st *node)
     struct data_as *data = DATA_AS_GET();
     printf("    isrg\n");
     TRAVargs(node);
-    printf("    jsr %d %s\n",
-                STE_ARITY(FUNCALL_STE(node)), FUNCALL_NAME(node));
-
-    // int nest_lvl = STE_NEST_LVL(FUNCALL_STE(node));
-    // int index = STE_INDEX(FUNCALL_STE(node));
-    // if (nest_lvl == 0) {
-    //     printf("g\n");
-    // }
-    // else if (nest_lvl == data->cur_lvl) {
-    //     printf("l\n");
-    // }
-    // else {
-    //     printf("n %d\n", data->cur_lvl - nest_lvl);
-    // }
+    printf("    jsr");
+    if (STE_EXTERN_BOOL(node)) {
+        printf("e %d\n", STE_INDEX(FUNCALL_STE(node)));
+    }
+    else {
+        printf(" %d %s\n", STE_INDEX(FUNCALL_STE(node)), FUNCALL_NAME(node));
+    }
 
     return node;
 }
@@ -303,11 +296,16 @@ node_st *ASfundef(node_st *node)
     if (!strcmp(FUNDEF_NAME(node), "__init")) {
         data->init = true;
     }
-    printf("%s:\n", FUNDEF_NAME(node));
+    if (!FUNDEF_EXTERN_BOOL(node)) {
+        printf("%s:\n", FUNDEF_NAME(node));
+    }
     data->cur_lvl++;
     TRAVbody(node);
     data->cur_lvl--;
-    printf("\n");
+
+    if (!FUNDEF_EXTERN_BOOL(node)) {
+        printf("\n");
+    }
     return node;
 }
 
@@ -476,14 +474,13 @@ node_st *ASternary(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
     TRAVpred(node);
-    int then_index = data->tag_index++;
-    printf("    branch_t %d_then\n", then_index);
-    TRAVelse_(node);
+    int false_index = data->tag_index++;
+    printf("    branch_f %d_false_expr\n", false_index);
+    TRAVthen_(node);
     int end_index = data->tag_index++;
     printf("    jump %d_end\n", end_index);
-    printf("%d_then:\n", then_index);
-    TRAVthen_(node);
-    printf("    jump %d_end\n", end_index);
+    printf("%d_false_expr:\n", false_index);
+    TRAVelse_(node);
     // Generate a label for the end of the ternary operator
     printf("%d_end:\n", end_index);
 

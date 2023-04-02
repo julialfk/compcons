@@ -13,8 +13,8 @@ start phase RootPhase {
         ForToWhile;
         BoolopsToCondops;
         BooleanCasts;
-        Print;
-        // Assembler;
+        //Print;
+        Assembler;
     }
 };
 

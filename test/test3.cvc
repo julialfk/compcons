@@ -10,10 +10,9 @@ extern void printNewlines(int num);
 
 export float y = 3.5;
 bool b = true;
-extern bool a;
 
 
-export int main(int x) {
+export int main() {
     printFloat(y);
     printNewlines(1);
     printInt(z);
