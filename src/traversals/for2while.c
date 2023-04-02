@@ -98,24 +98,6 @@ node_st *FTWvardecl(node_st *node)
 node_st *FTWstmts(node_st *node)
 {
     struct data_ftw *data = DATA_FTW_GET();
-    // if (NODE_TYPE(STMTS_STMT(node)) == NT_ASSIGN) {
-    //     CTI(CTI_NOTE, true, "%s assign %d", VARLET_NAME(ASSIGN_LET(STMTS_STMT(node))), NUM_VAL(ASSIGN_EXPR(STMTS_STMT(node))));
-    // }
-    // else if (NODE_TYPE(STMTS_STMT(node)) == NT_FOR) {
-    //     CTI(CTI_NOTE, true, "for");
-    // }
-    // else if (NODE_TYPE(STMTS_STMT(node)) == NT_RETURN) {
-    //     CTI(CTI_NOTE, true, "return");
-    // }
-    // else if (NODE_TYPE(STMTS_STMT(node)) == NT_WHILE) {
-    //     CTI(CTI_NOTE, true, "while");
-    //     if (STMTS_STMT(STMTS_NEXT(node))) {
-    //         CTI(CTI_NOTE, true, "NEXT TAIL = %ld", STMTS_NEXT(node));
-    //     }
-    //     if (NODE_TYPE(STMTS_STMT(STMTS_NEXT(node))) == NT_RETURN) {
-    //         CTI(CTI_NOTE, true, "NEXT TAIL = RETURN");
-    //     }
-    // }
 
     TRAVstmt(node);
     if (STMTS_NEXT(node)) {
@@ -126,10 +108,6 @@ node_st *FTWstmts(node_st *node)
 
             STMTS_NEXT(node) = data->head_new;
             STMTS_NEXT(data->tail_new) = CCNcopy(old_next);
-            // if (NODE_TYPE(STMTS_STMT(old_next)) == NT_RETURN) {
-            //     CTI(CTI_NOTE, true, "OLD NEXT = WHILE");
-            // }
-            //     CTI(CTI_NOTE, true, "OLD NEXT = %ld", old_next);
             CCNfree(old_stmt);
         }
         TRAVnext(node);
@@ -224,10 +202,9 @@ node_st *FTWfor(node_st *node)
     node_st *else_ = ASTbinop(CCNcopy(start_var), CCNcopy(stop_var),
                                 BO_gt, CT_bool);
 
-    node_st *cond = ASTternary(pred, then_, else_);
+    node_st *cond = ASTternary(pred, then_, else_, CT_bool);
 
     // Extend the block with the increment assignment.
-    // TRAVblock(node);
     if (FOR_BLOCK(node)) {
         node_st *old_stmt = FOR_BLOCK(node);
         if (NODE_TYPE(STMTS_STMT(old_stmt)) == NT_FOR) {
@@ -254,13 +231,8 @@ node_st *FTWfor(node_st *node)
     else {
         FOR_BLOCK(node) = increment_stmts;
     }
-    // while (last_stmts) {
 
-    // }
-    // if (data->last_stmts) {
-    // }
-
-    // Create While node.
+    // Create While stmt.
     node_st *while_node = ASTwhile(cond, CCNcopy(FOR_BLOCK(node)));
     node_st *while_stmts = ASTstmts(while_node, NULL);
     node_st *step_stmts = ASTstmts(step_assign, while_stmts);

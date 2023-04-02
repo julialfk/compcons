@@ -1,105 +1,34 @@
 
 /* Constant table: 
 
-0: 3
-1: 5
 
 */
 
 /* Global symbol table: 
 
-main:void()	Scope: 0, Index: 0
+main:int()	Scope: 0, Index: 0
 
 */
-void main()
+export int main()
 /* Symbol table: 
 
-x:int	Scope: 1, Index: 0
-_i_1:int	Scope: 1, Index: 1
-_stop_2_:int	Scope: 1, Index: 2
-_step_3_:int	Scope: 1, Index: 3
-_i_4:int	Scope: 1, Index: 4
-_stop_5_:int	Scope: 1, Index: 5
-_step_6_:int	Scope: 1, Index: 6
+y:bool	Scope: 1, Index: 0
 
 */
  {
-int x;
-int _i_1;
-int _stop_2_;
-int _step_3_;
-int _i_4;
-int _stop_5_;
-int _step_6_;
-x = 3;
-_i_1 = 0;
-_stop_2_ = 5;
-_step_3_ = 1;
-while (( _step_3_ > 0) ? ( _i_1 < _stop_2_) : ( _i_1 > _stop_2_)) {
-	_i_4 = 0;
-_stop_5_ = 5;
-_step_6_ = 1;
-while (( _step_6_ > 0) ? ( _i_4 < _stop_5_) : ( _i_4 > _stop_5_)) {
-	x = 0;
-_i_4 = ( _i_4 + _step_6_);
-}
-_i_1 = ( _i_1 + _step_3_);
-}
-return ;
+bool y;
+y = true;
+return ( y == true) ? 1 : 0;
 }
 main:
-    esr 7
-    iloadc 0
-    istore 0
-    iloadc_0
-    istore 1
-    iloadc 1
-    istore 2
+    esr 1
+    bloadc_t
+    bstore 0
+    bload_0
+    bloadc_t
+    beq
     iloadc_1
-    istore 3
-1_while:
-    iload_3
     iloadc_0
-    igt
-    iload_1
-    iload_2
-    ilt
-    iload_1
-    iload_2
-    igt
-    branch_f 2_end
-    iloadc_0
-    istore 4
-    iloadc 1
-    istore 5
-    iloadc_1
-    istore 6
-3_while:
-    iload 6
-    iloadc_0
-    igt
-    iload 4
-    iload 5
-    ilt
-    iload 4
-    iload 5
-    igt
-    branch_f 4_end
-    iloadc_0
-    istore 0
-    iload 4
-    iload 6
-    iadd
-    istore 4
-    jump 3_while
-4_end:
-    iload_1
-    iload_3
-    iadd
-    istore 1
-    jump 1_while
-2_end:
-    return
+    ireturn
 
-.const int 3
-.const int 5
+.exportfun "main" int main

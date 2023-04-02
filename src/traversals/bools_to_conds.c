@@ -25,7 +25,7 @@ node_st *BTCbinop(node_st *node)
         node_st *pred = ASTbinop(CCNcopy(BINOP_LEFT(node)), ASTbool(true), BO_eq, CT_bool);
         node_st *then = ASTbool(true);
         node_st *els = ASTbinop(CCNcopy(BINOP_RIGHT(node)), ASTbool(true), BO_eq, CT_bool);
-        node_st *ternary = ASTternary(pred, then, els);
+        node_st *ternary = ASTternary(pred, then, els, CT_bool);
         node_st **node_ptr = &node;
         CCNfree(node);
         *node_ptr = ternary;
@@ -34,7 +34,7 @@ node_st *BTCbinop(node_st *node)
         node_st *pred = ASTbinop(CCNcopy(BINOP_LEFT(node)), ASTbool(false), BO_eq, CT_bool);
         node_st *then = ASTbool(false);
         node_st *els = ASTbinop(CCNcopy(BINOP_RIGHT(node)), ASTbool(true), BO_eq, CT_bool);
-        node_st *ternary = ASTternary(pred, then, els);
+        node_st *ternary = ASTternary(pred, then, els, CT_bool);
         node_st **node_ptr = &node;
         CCNfree(node);
         *node_ptr = ternary;
