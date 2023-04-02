@@ -44,12 +44,13 @@ node_st *BCcast(node_st *node)
 
     else {
         if (data->expr_type == CT_bool){
-            node_st *pred = ASTbinop(CCNcopy(CAST_EXPR(node)), ASTbool(true), BO_eq, CT_bool);
+            node_st *pred = ASTbinop(CCNcopy(CAST_EXPR(node)), ASTbool(true), BO_eq, CT_int);
             node_st *then_;
             node_st *else_;
             if (CAST_TYPE(node) == CT_float) {
                 then_ = ASTfloat(1.0, NULL);
                 else_ = ASTfloat(0.0, NULL);
+                BINOP_EXPR_TYPE(pred) = CT_float;
             }
             else if (CAST_TYPE(node) == CT_int) {
                 then_ = ASTnum(1, NULL);

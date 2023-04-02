@@ -475,9 +475,21 @@ node_st *ASassign(node_st *node)
 node_st *ASternary(node_st *node)
 {
     struct data_as *data = DATA_AS_GET();
-    TRAVchildren(node);
+    TRAVpred(node);
+    int then_index = data->tag_index++;
+    printf("    branch_t %d_then\n", then_index);
+    TRAVelse_(node);
+    int end_index = data->tag_index++;
+    printf("    jump %d_end\n", end_index);
+    printf("%d_then:\n", then_index);
+    TRAVthen_(node);
+    printf("    jump %d_end\n", end_index);
+    // Generate a label for the end of the ternary operator
+    printf("%d_end:\n", end_index);
+
     return node;
 }
+
 
 /**
  * @fn ASbinop

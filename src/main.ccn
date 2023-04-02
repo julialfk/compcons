@@ -9,7 +9,7 @@ start phase RootPhase {
         VarInitsToAssignments;
         TypeChecking;
         ForCheck;
-        ForToWhile;
+        // ForToWhile;
         ConstantTable;
         BoolopsToCondops;
         BooleanCasts;
