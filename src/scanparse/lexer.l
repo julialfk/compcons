@@ -94,7 +94,7 @@ int yycolumn = 1;
 "true"                     { FILTER( TRUEVAL); }
 "false"                    { FILTER( FALSEVAL); }
 
-[A-Za-z][A-Za-z0-9_]*      { yylval.id = STRcpy(yytext);
+[A-Za-z]+[A-Za-z0-9_]*      { yylval.id = STRcpy(yytext);
                              FILTER( ID);
                            }
 
@@ -114,7 +114,8 @@ int yycolumn = 1;
                            }
 
 [ \t]                      { global.col += yyleng;
-                           } 
+                           }
+
 %%
 
 static inline void token_action() {

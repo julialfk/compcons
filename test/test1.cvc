@@ -1,8 +1,4 @@
 export int main() {
-    x = 10;
-    return 1;
-}
-
-foo(int x) {
-    return x;
+    bool y = true;
+    return (int) y;
 }

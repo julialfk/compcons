@@ -128,8 +128,10 @@ node_st *VITAprogram(node_st *node)
  * @fn VITAfundef
  */
 node_st *VITAfundef(node_st *node)
-{
+{   
     struct data_vita *data = DATA_VITA_GET();
+    data->last_stmts_local = NULL;
+    data->last_stmts_local = NULL;
     data->current_scope = FUNDEF_SYMTABLE(node);
     TRAVbody(node);
     data->current_scope = SYMTABLE_PARENT(node);
@@ -141,8 +143,9 @@ node_st *VITAfundef(node_st *node)
  */
 node_st *VITAfunbody(node_st *node)
 {
+    struct data_vita *data = DATA_VITA_GET();
     if (FUNBODY_DECLS(node) != NULL) {
-        struct data_vita *data = DATA_VITA_GET();
+        
         node_st *old_stmts_head = FUNBODY_STMTS(node);
         TRAVdecls(node);
         if (data->last_stmts_local != NULL) {
