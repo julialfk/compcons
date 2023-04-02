@@ -1,15 +1,8 @@
-########first stmts local == null##########
-$$$$$$$$$$$$not null$$$$$$$$$$$$$
-########first stmts local == null##########
-$$$$$$$$$$$$not null$$$$$$$$$$$$$
 
 /* Constant table: 
 
-0: 4
+0: 3
 1: 5
-2: 6
-3: 10
-4: 2
 
 */
 
@@ -17,9 +10,6 @@ $$$$$$$$$$$$not null$$$$$$$$$$$$$
 
 x:int	Scope: 0, Index: 0
 main:int()	Scope: 0, Index: 0
-s:int	Scope: 0, Index: 1
-f:int	Scope: 0, Index: 2
-other:int()	Scope: 0, Index: 1
 
 */
 export void __init()
@@ -28,41 +18,26 @@ export void __init()
 
 */
  {
-x = 4;
-s = 4;
+x = 3;
 }
 int x;
 int main()
 /* Symbol table: 
 
-x:int	Scope: 1, Index: 0
-q:int	Scope: 1, Index: 1
-y:int	Scope: 1, Index: 2
+_i_1:int	Scope: 1, Index: 0
+_stop_2_:int	Scope: 1, Index: 1
+_step_3_:int	Scope: 1, Index: 2
 
 */
  {
-int x;
-int q;
-int y;
-x = 5;
-q = 6;
-return ( x + y);
+int _i_1;
+int _stop_2_;
+int _step_3_;
+_i_1 = 0;
+_stop_2_ = 5;
+_step_3_ = 1;
+while (( _step_3_ > 0) ? ( _i_1 < _stop_2_) : ( _i_1 > _stop_2_)) {
+	x = ( x + 1);
+_i_1 = ( _i_1 + _step_3_);
 }
-int s;
-int f;
-int other()
-/* Symbol table: 
-
-q:int	Scope: 1, Index: 0
-s:int	Scope: 1, Index: 1
-y:int	Scope: 1, Index: 2
-
-*/
- {
-int q;
-int s;
-int y;
-q = 10;
-y = 2;
-return ( q + y);
 }
