@@ -1,5 +1,5 @@
 main:
-    esr 18
+    esr 21
     iloadc_0
     istore 0
     iloadc 0
@@ -164,6 +164,9 @@ main:
     igt
 20_end:
     branch_f 18_end
+    isrg
+    iloadc_1
+    jsre 2
     iload 12
     iload 14
     iadd
