@@ -33,6 +33,7 @@ static void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 
 %locations
 %define parse.error verbose
+%expect 14
 
 %token TRUEVAL FALSEVAL LET
 %token INTTYPE FLOATTYPE BOOLTYPE VOIDTYPE
@@ -44,7 +45,7 @@ static void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 %left MINUS PLUS
 %left STAR SLASH PERCENT
 %right EXCLAMATION UMINUS
-%left BRACKET_L BRACKET_R BRACE_L BRACE_R COMMA SEMICOLON
+%token BRACKET_L BRACKET_R BRACE_L BRACE_R COMMA SEMICOLON
 
 %token <cint> NUM
 %token <cflt> FLOAT

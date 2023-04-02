@@ -1,68 +1,49 @@
-########first stmts local == null##########
-$$$$$$$$$$$$not null$$$$$$$$$$$$$
-########first stmts local == null##########
-$$$$$$$$$$$$not null$$$$$$$$$$$$$
 
 /* Constant table: 
 
-0: 4
+0: 3
 1: 5
-2: 6
-3: 10
-4: 2
 
 */
 
 /* Global symbol table: 
 
-x:int	Scope: 0, Index: 0
-main:int()	Scope: 0, Index: 0
-s:int	Scope: 0, Index: 1
-f:int	Scope: 0, Index: 2
-other:int()	Scope: 0, Index: 1
+main:void()	Scope: 0, Index: 0
 
 */
-export void __init()
-/* Symbol table: 
-
-
-*/
- {
-x = 4;
-s = 4;
-}
-int x;
-int main()
+void main()
 /* Symbol table: 
 
 x:int	Scope: 1, Index: 0
-q:int	Scope: 1, Index: 1
-y:int	Scope: 1, Index: 2
+_i_1:int	Scope: 1, Index: 1
+_stop_2_:int	Scope: 1, Index: 2
+_step_3_:int	Scope: 1, Index: 3
+_i_4:int	Scope: 1, Index: 4
+_stop_5_:int	Scope: 1, Index: 5
+_step_6_:int	Scope: 1, Index: 6
 
 */
  {
 int x;
-int q;
-int y;
-x = 5;
-q = 6;
-return ( x + y);
+int _i_1;
+int _stop_2_;
+int _step_3_;
+int _i_4;
+int _stop_5_;
+int _step_6_;
+x = 3;
+_i_1 = 0;
+_stop_2_ = 5;
+_step_3_ = 1;
+while (( _step_3_ > 0) ? ( _i_1 < _stop_2_) : ( _i_1 > _stop_2_)) {
+	_i_4 = 0;
+_stop_5_ = 5;
+_step_6_ = 1;
+while (( _step_6_ > 0) ? ( _i_4 < _stop_5_) : ( _i_4 > _stop_5_)) {
+	x = 0;
+_i_4 = ( _i_4 + _step_6_);
 }
-int s;
-int f;
-int other()
-/* Symbol table: 
-
-q:int	Scope: 1, Index: 0
-s:int	Scope: 1, Index: 1
-y:int	Scope: 1, Index: 2
-
-*/
- {
-int q;
-int s;
-int y;
-q = 10;
-y = 2;
-return ( q + y);
+_i_1 = ( _i_1 + _step_3_);
+}
+return ;
 }

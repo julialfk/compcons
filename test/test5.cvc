@@ -1,4 +1,9 @@
-export int main() {
-    bool y = true;
-    return (int) y;
+void main() {
+    int x = 3;
+    for (int i = 0, 5) {
+        for (int i = 0, 5) {
+            x = 0;
+        }
+    }
+    return;
 }
