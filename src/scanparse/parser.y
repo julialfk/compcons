@@ -27,8 +27,6 @@ static void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
  char               *id;
  int                 cint;
  float               cflt;
- enum binop_type     cbinop;
- enum monop_type     cmonop;
  enum Type           ctype;
  node_st             *node;
 }
@@ -56,10 +54,7 @@ static void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 %type <node> ifelse while dowhile for return
 %type <node> stmts stmt exprstmt assign varlet program vardecl
 %type <node> funbody
-%type <node> decls decl fundef fundefs globdecl globdef
-%type <cbinop> binop
-%type <cmonop> monop
-/* %type <ctype> returntype */
+%type <node> decls decl fundef globdecl globdef
 %type <ctype> vartype
 
 %start program
@@ -97,19 +92,6 @@ decl: fundef
         $$ = $1;
       }
     ;
-
-fundefs: fundef fundefs
-         {
-           $$ = ASTfundefs($1, $2);
-           AddLocToNode($$, &@1, &@1);
-         }
-       | fundef
-         {
-           $$ = ASTfundefs($1, NULL);
-           AddLocToNode($$, &@1, &@1);
-         }
-       ;
-
 
 fundef: EXPORT vartype[funtype] ID[name] BRACKET_L param[parameters] BRACKET_R funbody[body]
         {
@@ -175,34 +157,14 @@ globdef: EXPORT vartype[type] ID[name] LET expr[init] SEMICOLON
          }
        ;
 
-funbody: BRACE_L vardecl fundefs stmts BRACE_R
-         {
-           $$ = ASTfunbody($2, $3, $4);
-           AddLocToNode($$, &@2, &@4);
-         }
-       | BRACE_L vardecl fundefs BRACE_R
-         {
-           $$ = ASTfunbody($2, $3, NULL);
-           AddLocToNode($$, &@2, &@3);
-         }
-       | BRACE_L vardecl stmts BRACE_R
+funbody: BRACE_L vardecl stmts BRACE_R
          {
            $$ = ASTfunbody($2, NULL, $3);
-           AddLocToNode($$, &@2, &@3);
-         }
-       | BRACE_L fundefs stmts BRACE_R
-         {
-           $$ = ASTfunbody(NULL, $2, $3);
            AddLocToNode($$, &@2, &@3);
          }
        | BRACE_L vardecl BRACE_R
          {
            $$ = ASTfunbody($2, NULL, NULL);
-           AddLocToNode($$, &@2, &@2);
-         }
-       | BRACE_L vardecl BRACE_R
-         {
-           $$ = ASTfunbody(NULL, $2, NULL);
            AddLocToNode($$, &@2, &@2);
          }
        | BRACE_L stmts BRACE_R
@@ -549,26 +511,6 @@ binmon: expr[left] PLUS expr[right]
           $$ = ASTmonop( $operand, MO_not, CT_bool);
           AddLocToNode($$, &@1, &@operand);
         }
-
-
-binop: PLUS      { $$ = BO_add; }
-     | MINUS     { $$ = BO_sub; }
-     | STAR      { $$ = BO_mul; }
-     | SLASH     { $$ = BO_div; }
-     | PERCENT   { $$ = BO_mod; }
-     | LE        { $$ = BO_le; }
-     | LT        { $$ = BO_lt; }
-     | GE        { $$ = BO_ge; }
-     | GT        { $$ = BO_gt; }
-     | EQ        { $$ = BO_eq; }
-     | NE        { $$ = BO_ne; }
-     | OR        { $$ = BO_or; }
-     | AND       { $$ = BO_and; }
-     ;
-
-monop: MINUS        { $$ = MO_neg; }
-     | EXCLAMATION  { $$ = MO_not; }
-     ;
 
 /* voidtype in globals later met type checker filteren */
 vartype: BOOLTYPE      { $$ = CT_bool; }
