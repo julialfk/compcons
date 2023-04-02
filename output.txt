@@ -18,17 +18,20 @@ y:bool	Scope: 1, Index: 0
  {
 bool y;
 y = true;
-return ( y == true) ? 1 : 0;
+return y ? 1 : 0;
 }
 main:
     esr 1
     bloadc_t
     bstore 0
     bload_0
-    bloadc_t
-    beq
-    iloadc_1
+    branch_t 1_then
     iloadc_0
+    jump 2_end
+1_then:
+    iloadc_1
+    jump 2_end
+2_end:
     ireturn
 
 .exportfun "main" int main
