@@ -1,0 +1,59 @@
+
+/* Constant table: 
+
+0: 3
+1: 10
+
+*/
+
+/* Global symbol table: 
+
+x:int	Scope: 0, Index: 0
+main:int()	Scope: 0, Index: 0
+y:int	Scope: 0, Index: 1
+
+*/
+export void __init()
+/* Symbol table: 
+
+
+*/
+ {
+x = 3;
+y = 10;
+}
+int x;
+export int main()
+/* Symbol table: 
+
+x:bool	Scope: 1, Index: 0
+
+*/
+ {
+bool x;
+x = true;
+return ( x == true) ? 1 : 0;
+}
+int y;
+__init:
+    iloadc 0
+    istoreg 0
+    iloadc 1
+    istoreg 1
+    return
+
+main:
+    esr 1
+    bloadc_t
+    bstore 0
+    bload_0
+    bloadc_t
+    beq
+    branch_t 1_then
+    iloadc_0
+    jump 2_end
+1_then:
+    iloadc_1
+    jump 2_end
+2_end:
+    
