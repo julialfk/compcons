@@ -19,6 +19,39 @@
 void BCinit() { return; }
 void BCfini() { return; }
 
+static enum Type get_type(node_st *expr) {
+    enum Type type;
+    switch (NODE_TYPE(expr)) {
+      case NT_CAST:
+        type = CAST_TYPE(expr);
+        break;
+      case NT_FUNCALL:
+        type = STE_TYPE(FUNCALL_STE(expr));
+        break;
+      case NT_VAR:
+        type = STE_TYPE(VAR_STE(expr));
+        break;
+      case NT_NUM:
+        type = CT_int;
+        break;
+      case NT_FLOAT:
+        type = CT_float;
+        break;
+      case NT_BOOL:
+        type = CT_bool;
+        break;
+      case NT_BINOP:
+        type = BINOP_EXPR_TYPE(expr);
+        break;
+      case NT_MONOP:
+        type = MONOP_EXPR_TYPE(expr);
+        break;
+      case NT_TERNARY:
+        type = TERNARY_EXPR_TYPE(expr);
+    }
+
+    return type;
+}
 
 /**
  * @fn BCcast
@@ -28,21 +61,23 @@ node_st *BCcast(node_st *node)
     struct data_bc *data = DATA_BC_GET();
     TRAVexpr(node);
     if (CAST_TYPE(node) == CT_bool) {
-        if (data->expr_type == CT_float) {
-            node_st *new_node = ASTbinop(CCNcopy(CAST_EXPR(node)), ASTfloat(0.0, NULL), BO_ne, CT_float);
+        if (get_type(CAST_EXPR(node)) == CT_float) {
+            node_st *new_node = ASTbinop(CCNcopy(CAST_EXPR(node)),
+                                            ASTfloat(0.0, NULL), BO_ne,
+                                            CT_float);
             node_st **node_ptr = &node;
             CCNfree(node);
             *node_ptr = new_node;
         }
-        else if (data->expr_type == CT_int) {
-            node_st *new_node = ASTbinop(CCNcopy(CAST_EXPR(node)), ASTnum(0, NULL), BO_ne, CT_int);
+        else if (get_type(CAST_EXPR(node)) == CT_int) {
+            node_st *new_node = ASTbinop(CCNcopy(CAST_EXPR(node)),
+                                            ASTnum(0, NULL), BO_ne, CT_int);
             node_st **node_ptr = &node;
             CCNfree(node);
             *node_ptr = new_node;
         }
     }
-
-    else if (data->expr_type == CT_bool) {
+    else if (get_type(CAST_EXPR(node)) == CT_bool) {
         node_st *then_;
         node_st *else_;
         if (CAST_TYPE(node) == CT_float) {
@@ -53,13 +88,12 @@ node_st *BCcast(node_st *node)
             then_ = ASTnum(1, NULL);
             else_ = ASTnum(0, NULL);
         }
-        node_st *ternary = ASTternary(CCNcopy(CAST_EXPR(node)), then_, else_, CAST_TYPE(node));
+        node_st *ternary = ASTternary(CCNcopy(CAST_EXPR(node)), then_, else_,
+                                        CAST_TYPE(node));
         node_st **node_ptr = &node;
         CCNfree(node);
         *node_ptr = ternary;
     }
-
-    data->expr_type = CAST_TYPE(node);
 
     return node;
 }
@@ -79,7 +113,6 @@ node_st *BCbinop(node_st *node)
 node_st *BCbool(node_st *node)
 {
     struct data_bc *data = DATA_BC_GET();
-    data->expr_type = CT_bool;
     return node;
 }
 
@@ -90,7 +123,6 @@ node_st *BCfuncall(node_st *node)
 {
     struct data_bc *data = DATA_BC_GET();
     TRAVargs(node);
-    data->expr_type = STE_TYPE(FUNCALL_STE(node));
     return node;
 }
 
@@ -100,7 +132,6 @@ node_st *BCfuncall(node_st *node)
 node_st *BCfloat(node_st *node)
 {
     struct data_bc *data = DATA_BC_GET();
-    data->expr_type = CT_float;
     return node;
 }
 
@@ -110,7 +141,6 @@ node_st *BCfloat(node_st *node)
 node_st *BCvar(node_st *node)
 {
     struct data_bc *data = DATA_BC_GET();
-    data->expr_type = STE_TYPE(VAR_STE(node));
     return node;
 }
 
@@ -129,6 +159,5 @@ node_st *BCmonop(node_st *node)
 node_st *BCnum(node_st *node)
 {
     struct data_bc *data = DATA_BC_GET();
-    data->expr_type = CT_int;
     return node;
 }
