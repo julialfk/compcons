@@ -388,6 +388,9 @@ node Ternary {
         Expr pred { constructor, mandatory },
         Expr then_ { constructor, mandatory },
         Expr else_ { constructor, mandatory }
+    },
+    attributes {
+        Type expr_type { constructor }
     }
 };
 

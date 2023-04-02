@@ -56,7 +56,7 @@ node_st *BCcast(node_st *node)
                 then_ = ASTnum(1, NULL);
                 else_ = ASTnum(0, NULL);
             }
-            node_st *ternary = ASTternary(pred, then_, else_);
+            node_st *ternary = ASTternary(pred, then_, else_, CAST_TYPE(node));
             node_st **node_ptr = &node;
             CCNfree(node);
             *node_ptr = ternary;

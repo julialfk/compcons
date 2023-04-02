@@ -45,7 +45,7 @@ static void AddLocToNode(node_st *node, void *begin_loc, void *end_loc);
 %left LE LT GE GT
 %left MINUS PLUS
 %left STAR SLASH PERCENT
-%left EXCLAMATION
+%right EXCLAMATION UMINUS
 %left BRACKET_L BRACKET_R BRACE_L BRACE_R COMMA SEMICOLON
 
 %token <cint> NUM
@@ -539,7 +539,7 @@ binmon: expr[left] PLUS expr[right]
           $$ = ASTbinop( $left, $right, BO_and, CT_bool);
           AddLocToNode($$, &@left, &@right);
         }
-      | MINUS expr[operand]
+      | MINUS expr[operand] %prec UMINUS
         {
           $$ = ASTmonop( $operand, MO_neg, CT_NULL);
           AddLocToNode($$, &@1, &@operand);

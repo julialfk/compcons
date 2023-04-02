@@ -35,6 +35,10 @@ int yycolumn = 1;
     }\
   global.line += count -1;\
 
+#define HANDLE_ERROR(col, len, text) \
+    CTI(CTI_ERROR, false, "Line %d, Column %d: Unexpected token: %s\n", len, col, text); \
+    exit(1); \
+
 %}
 
 %p 6000 /* set positions to 6000 */
@@ -114,8 +118,10 @@ int yycolumn = 1;
                            }
 
 [ \t]                      { global.col += yyleng;
-                           }
+                           } 
 
+.                         { HANDLE_ERROR(yycolumn, yyleng, yytext);
+                           }
 %%
 
 static inline void token_action() {

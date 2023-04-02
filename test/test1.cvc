@@ -1,4 +1,11 @@
+int x = 3;
 export int main() {
-    bool y = true;
-    return (int) y;
+    bool x = true;
+    // int z = foo(1, 2);
+    return (int)x;
 }
+int y = 10;
+// int foo(int a, int b) {
+//     int c = a + b;
+//     return c;
+// }

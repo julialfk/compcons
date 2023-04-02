@@ -1,13 +1,17 @@
 
 /* Constant table: 
 
+<<<<<<< HEAD
 0: 3
 1: 10
+=======
+>>>>>>> c854c67586d40b3eb65fc6b8b7b8c13b0d48772a
 
 */
 
 /* Global symbol table: 
 
+<<<<<<< HEAD
 x:int	Scope: 0, Index: 0
 main:int()	Scope: 0, Index: 0
 y:int	Scope: 0, Index: 1
@@ -42,6 +46,22 @@ __init:
     istoreg 1
     return
 
+=======
+main:int()	Scope: 0, Index: 0
+
+*/
+export int main()
+/* Symbol table: 
+
+y:bool	Scope: 1, Index: 0
+
+*/
+ {
+bool y;
+y = true;
+return ( y == true) ? 1 : 0;
+}
+>>>>>>> c854c67586d40b3eb65fc6b8b7b8c13b0d48772a
 main:
     esr 1
     bloadc_t
@@ -49,6 +69,7 @@ main:
     bload_0
     bloadc_t
     beq
+<<<<<<< HEAD
     branch_t 1_then
     iloadc_0
     jump 2_end
@@ -57,3 +78,10 @@ main:
     jump 2_end
 2_end:
     
+=======
+    iloadc_1
+    iloadc_0
+    ireturn
+
+.exportfun "main" int main
+>>>>>>> c854c67586d40b3eb65fc6b8b7b8c13b0d48772a
