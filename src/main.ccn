@@ -14,7 +14,7 @@ start phase RootPhase {
         BoolopsToCondops;
         BooleanCasts;
         Print;
-        Assembler;
+        // Assembler;
     }
 };
 

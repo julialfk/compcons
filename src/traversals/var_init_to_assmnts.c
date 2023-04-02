@@ -144,8 +144,9 @@ node_st *VITAfundef(node_st *node)
 node_st *VITAfunbody(node_st *node)
 {
     struct data_vita *data = DATA_VITA_GET();
+    data->first_stmts_local = NULL;
+    data->last_stmts_local = NULL;
     if (FUNBODY_DECLS(node) != NULL) {
-        
         node_st *old_stmts_head = FUNBODY_STMTS(node);
         TRAVdecls(node);
         if (data->last_stmts_local != NULL) {
