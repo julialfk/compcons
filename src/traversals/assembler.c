@@ -252,7 +252,7 @@ node_st *ASfuncall(node_st *node)
         printf("e %d\n", STE_INDEX(FUNCALL_STE(node)));
     }
     else {
-        printf(" %d %s\n", STE_INDEX(FUNCALL_STE(node)), FUNCALL_NAME(node));
+        printf(" %d %s\n", STE_ARITY(FUNCALL_STE(node)), FUNCALL_NAME(node));
     }
 
     return node;
@@ -270,10 +270,10 @@ node_st *AScast(node_st *node)
     }
     printf("    ");
     if (CAST_TYPE(node) == CT_int) {
-        printf("f2i");
+        printf("f2i\n");
     }
     else if (CAST_TYPE(node) == CT_float) {
-        printf("i2f");
+        printf("i2f\n");
     }
 
     return node;
