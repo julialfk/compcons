@@ -2,6 +2,8 @@
 # Prerequisites
 *.d
 
+output.txt
+
 # Object files
 *.o
 *.ko
